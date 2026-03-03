@@ -3,26 +3,28 @@ local api = {}
 
 local layout = require("./render/layout")
 
----@alias FOXStencil.Enum.Sizing.Mode
+-- TODO FIX THIS MESS AAAAAAAAA
+
+---@alias FOXStencil.Common.Sizing.Mode
 ---| "fit"
 ---| "FIT"
 ---| "grow"
 ---| "GROW"
 
----@class FOXStencil.Enum.Sizing.Property
----@field mode FOXStencil.Enum.Sizing.Mode
+---@class FOXStencil.Common.Sizing.Property
+---@field mode FOXStencil.Common.Sizing.Mode
 ---@field min number
 ---@field max number
 
----@alias FOXStencil.Enum.Sizing [FOXStencil.Enum.Sizing.Property, FOXStencil.Enum.Sizing.Property]
+---@alias FOXStencil.Common.Sizing [FOXStencil.Common.Sizing.Property, FOXStencil.Common.Sizing.Property]
 
 ---@class FOXStencil.Styles
 ---@field pos Vector2?
 ---@field size Vector2?
----@field sizing FOXStencil.Enum.Sizing?
+---@field sizing FOXStencil.Common.Sizing?
 ---@field scale Vector2?
 
----@alias FOXStencil.Enum.Direction
+---@alias FOXStencil.Common.Direction
 ---| "x"
 ---| "hor"
 ---| "horizontal"
@@ -76,7 +78,7 @@ end
 ---@class FOXStencil.Styles.Box: FOXStencil.Styles
 ---@field pad Vector2? Margin around children
 ---@field gap number? Margin between children
----@field dir FOXStencil.Enum.Direction?
+---@field dir FOXStencil.Common.Direction?
 ---@field color Vector3|Vector4?
 
 ---Creates a new box
@@ -107,7 +109,7 @@ end
 ---@class FOXStencil.Styles.Outline: FOXStencil.Styles
 ---@field pad Vector2? Margin around children
 ---@field gap number? Margin between children
----@field dir FOXStencil.Enum.Direction?
+---@field dir FOXStencil.Common.Direction?
 ---@field color Vector3|Vector4?
 ---@field weight number?
 
@@ -135,16 +137,19 @@ function element:outline(styles)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Outline]]
 end
 
+---@class FOXStencil.Common.Atlas
+---@field texture Texture
+---@field pos Vector2?
+---@field size Vector2?
+---@field slice Vector4?
+
 ---@class FOXStencil.Element.Slice: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Slice
 ---@class FOXStencil.Styles.Slice: FOXStencil.Styles
 ---@field pad Vector2? Margin around children
 ---@field gap number? Margin between children
----@field dir FOXStencil.Enum.Direction?
----@field slice Vector4?
----@field map_uv Vector2?
----@field map_region Vector2?
----@field texture Texture
+---@field dir FOXStencil.Common.Direction?
+---@field atlas FOXStencil.Common.Atlas
 
 ---Creates a new 9 slice
 ---@param styles FOXStencil.Styles.Slice
@@ -162,10 +167,13 @@ function element:slice(styles)
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
 
-	styles.slice = styles.slice or vectors.vec4()
-	styles.map_uv = styles.map_uv or vectors.vec2()
-	styles.map_region = styles.map_region or vectors.vec2()
-	assert(styles.texture)
+	if not (styles.atlas and styles.atlas.texture) then
+		error("Slice element atlas has missing required fields", 2)
+	end
+
+	styles.atlas.pos = styles.atlas.pos or vectors.vec2()
+	styles.atlas.size = styles.atlas.size or vectors.vec2()
+	styles.atlas.slice = styles.atlas.slice or vectors.vec4()
 
 	local elem = { type = "slice", styl = styles, parn = self, chld = {} }
 	table.insert(self.chld, elem)

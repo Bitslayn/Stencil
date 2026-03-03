@@ -1,11 +1,13 @@
 ---@param pivot ModelPart
 ---@param styl FOXStencil.Styles.Slice
 return function(pivot, styl)
-	local tex = styl.texture
+	local atlas = styl.atlas
+
+	local tex = atlas.texture
 	local dim = tex:getDimensions()
 
-	local t, r, b, l = styl.slice:unpack()
-	local w, h = styl.map_region:unpack()
+	local t, r, b, l = atlas.slice:unpack()
+	local w, h = atlas.size:unpack()
 	
 	styl.size.x = math.max(styl.size.x, l + r)
 	styl.size.y = math.max(styl.size.y, t + b)
@@ -34,7 +36,7 @@ return function(pivot, styl)
 					:size(1, 1)
 					:pos(pos_x[x], pos_y[y])
 					:scale(size_x[x], size_y[y])
-					:uvPixels(styl.map_uv + vec(uv_x[x], uv_y[y]))
+					:uvPixels(atlas.pos + vec(uv_x[x], uv_y[y]))
 					:region(reg_x[x], reg_y[y])
 					:renderType("CUTOUT_EMISSIVE_SOLID")
 			end
