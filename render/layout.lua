@@ -18,13 +18,15 @@ function lib.size(elem)
 
 	-- Fit children
 
+	local siz = 0
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		lib.size(chld)
 
-		elem.styl.size[a] = elem.styl.size[a] + chld.styl.size[a]
+		siz = siz + chld.styl.size[a]
 		elem.styl.size[b] = math.max(elem.styl.size[b], chld.styl.size[b])
 	end
+	elem.styl.size[a] = math.max(elem.styl.size[a], siz)
 
 	-- Gap & Padding
 
