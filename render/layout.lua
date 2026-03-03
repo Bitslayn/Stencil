@@ -15,7 +15,9 @@ function lib.size(elem)
 	-- Axis indices
 
 	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
+	---@type integer
 	local a = dir
+	---@type integer
 	local b = dir % 2 + 1
 
 	-- Fit children
@@ -44,7 +46,9 @@ function lib.grow(elem)
 	-- Axis indices
 
 	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
+	---@type integer
 	local a = dir
+	---@type integer
 	local b = dir % 2 + 1
 
 	-- Find growable
@@ -54,11 +58,10 @@ function lib.grow(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		local mode = chld.styl.mode
-		if string.find(mode[a], "^[Gg]") then
+		if string.find(chld.styl.sizing[a].mode, "^[Gg]") then
 			table.insert(growable, chld)
 		end
-		if string.find(mode[b], "^[Gg]") then
+		if string.find(chld.styl.sizing[b].mode, "^[Gg]") then
 			chld.styl.size[b] = elem.styl.size[b] - elem.styl.pad[b] * 2
 		end
 	end
@@ -127,7 +130,9 @@ function lib.position(elem)
 	-- Axis indices
 
 	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
+	---@type integer
 	local a = dir
+	---@type integer
 	local b = dir % 2 + 1
 
 	-- Align children

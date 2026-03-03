@@ -3,17 +3,24 @@ local api = {}
 
 local layout = require("./render/layout")
 
+---@alias FOXStencil.Enum.Sizing.Mode
+---| "fit"
+---| "FIT"
+---| "grow"
+---| "GROW"
+
+---@class FOXStencil.Enum.Sizing.Property
+---@field mode FOXStencil.Enum.Sizing.Mode
+---@field min number
+---@field max number
+
+---@alias FOXStencil.Enum.Sizing [FOXStencil.Enum.Sizing.Property, FOXStencil.Enum.Sizing.Property]
+
 ---@class FOXStencil.Styles
 ---@field pos Vector2?
 ---@field size Vector2?
----@field mode [FOXStencil.Enum.Mode, FOXStencil.Enum.Mode]?
+---@field sizing FOXStencil.Enum.Sizing?
 ---@field scale Vector2?
-
----@alias FOXStencil.Enum.Mode
----| "fixed"
----| "FIXED"
----| "grow"
----| "GROW"
 
 ---@alias FOXStencil.Enum.Direction
 ---| "x"
@@ -28,7 +35,8 @@ local layout = require("./render/layout")
 ---@class FOXStencil.Element
 ---@field type string
 ---@field styl FOXStencil.Styles
----@field chld FOXStencil.Element[]?
+---@field parn FOXStencil.Element.Any?
+---@field chld FOXStencil.Element.Any[]?
 local element = {}
 ---@protected
 element.__index = element
@@ -46,8 +54,11 @@ function api.new(styles)
 	styles = styles or {}
 
 	styles.pos = styles.pos or vectors.vec2()
-	styles.size = styles.size or vectors.vec2()
-	styles.mode = styles.mode or { "f", "f" }
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.pad = styles.pad or vectors.vec2()
@@ -73,8 +84,11 @@ end
 ---@return FOXStencil.Element.Box
 function element:box(styles)
 	styles.pos = styles.pos or vectors.vec2()
-	styles.size = styles.size or vectors.vec2()
-	styles.mode = styles.mode or { "f", "f" }
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.pad = styles.pad or vectors.vec2()
@@ -83,7 +97,7 @@ function element:box(styles)
 
 	styles.color = styles.color or vectors.vec4()
 
-	local elem = { type = "box", styl = styles, chld = {} }
+	local elem = { type = "box", styl = styles, parn = self, chld = {} }
 	table.insert(self.chld, elem)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Box]]
 end
@@ -102,8 +116,11 @@ end
 ---@return FOXStencil.Element.Outline
 function element:outline(styles)
 	styles.pos = styles.pos or vectors.vec2()
-	styles.size = styles.size or vectors.vec2()
-	styles.mode = styles.mode or { "f", "f" }
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.pad = styles.pad or vectors.vec2()
@@ -113,7 +130,7 @@ function element:outline(styles)
 	styles.color = styles.color or vectors.vec4()
 	styles.weight = styles.weight or 1
 
-	local elem = { type = "outline", styl = styles, chld = {} }
+	local elem = { type = "outline", styl = styles, parn = self, chld = {} }
 	table.insert(self.chld, elem)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Outline]]
 end
@@ -134,8 +151,11 @@ end
 ---@return FOXStencil.Element.Slice
 function element:slice(styles)
 	styles.pos = styles.pos or vectors.vec2()
-	styles.size = styles.size or vectors.vec2()
-	styles.mode = styles.mode or { "f", "f" }
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.pad = styles.pad or vectors.vec2()
@@ -147,7 +167,7 @@ function element:slice(styles)
 	styles.map_region = styles.map_region or vectors.vec2()
 	assert(styles.texture)
 
-	local elem = { type = "slice", styl = styles, chld = {} }
+	local elem = { type = "slice", styl = styles, parn = self, chld = {} }
 	table.insert(self.chld, elem)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Slice]]
 end
@@ -163,8 +183,11 @@ end
 ---@return FOXStencil.Element.Text
 function element:text(styles)
 	styles.pos = styles.pos or vectors.vec2()
-	styles.size = styles.size or vectors.vec2()
-	styles.mode = styles.mode or { "f", "f" }
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.text = styles.text or ""
@@ -173,7 +196,7 @@ function element:text(styles)
 	-- styles.size.x = math.max(styles.size.x, x)
 	-- styles.size.y = math.max(styles.size.y, y)
 
-	local elem = { type = "text", styl = styles }
+	local elem = { type = "text", styl = styles, parn = self }
 	table.insert(self.chld, elem)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Text]]
 end
