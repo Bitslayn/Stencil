@@ -32,8 +32,85 @@ function lib.size(elem)
 	elem.styl.size = elem.styl.size + elem.styl.pad * 2
 end
 
+---Recursively grows child elements
+---@param elem FOXStencil.Element.Any
 function lib.grow(elem)
+	-- Axis indices
 
+	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
+	local a = dir
+	local b = dir % 2 + 1
+
+	-- Find growable
+
+	---@type FOXStencil.Element.Any[]
+	local growable = {}
+
+	for i = 1, #elem.chld do
+		local chld = elem.chld[i]
+		local mode = chld.styl.mode
+		if string.find(mode[a], "^[Gg]") then
+			table.insert(growable, chld)
+		end
+		if string.find(mode[b], "^[Gg]") then
+			chld.styl.size[b] = elem.styl.size[b] - elem.styl.pad[b] * 2
+		end
+	end
+
+	-- Grow
+
+	if growable[1] then
+		-- Remaining size
+
+		---@type number
+		local rem = elem.styl.size[a] - elem.styl.pad[a] * 2
+		for i = 1, #elem.chld do
+			rem = rem - elem.chld[i].styl.size[a]
+		end
+		rem = rem - elem.styl.gap * (#elem.chld - 1)
+
+		-- Grow along layout
+
+		for _ = 1, 10 do
+			---@type number
+			local size_l = growable[1].styl.size[a]
+			---@type number
+			local size_r = math.huge
+			---@type number
+			local add = rem
+
+			for i = 1, #growable do
+				local chld = growable[i]
+				if chld.styl.size[a] < size_l then
+					size_r = size_l
+					size_l = chld.styl.size[a]
+				end
+				if chld.styl.size[a] > size_l then
+					size_r = math.min(size_r, chld.styl.size[a])
+					add = size_r - size_l
+				end
+			end
+
+			add = math.min(add, rem / #growable)
+
+			for i = 1, #growable do
+				local chld = growable[i]
+				if chld.styl.size[a] == size_l then
+					chld.styl.size[a] = chld.styl.size[a] + add
+					rem = rem - add
+				end
+			end
+
+			if rem == 0 then break end
+		end
+	end
+
+	-- Recurse
+
+	for i = 1, #elem.chld do
+		local chld = elem.chld[i]
+		lib.grow(chld)
+	end
 end
 
 ---Recursively calculates position of all children
