@@ -10,6 +10,8 @@ Calculate width first before wrapping text and then calculate height
 ---Recursively calculates size of all children
 ---@param elem FOXStencil.Element.Any
 function lib.size(elem)
+	if not elem.chld then return end
+
 	-- Axis indices
 
 	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
@@ -37,6 +39,8 @@ end
 ---Recursively grows child elements
 ---@param elem FOXStencil.Element.Any
 function lib.grow(elem)
+	if not elem.chld then return end
+
 	-- Axis indices
 
 	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
@@ -118,6 +122,8 @@ end
 ---Recursively calculates position of all children
 ---@param elem FOXStencil.Element.Any
 function lib.position(elem)
+	if not elem.chld then return end
+
 	-- Axis indices
 
 	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
@@ -149,8 +155,10 @@ function lib.draw(elem, part)
 
 	-- Creates all children
 
-	for i = 1, #elem.chld do
-		lib.draw(elem.chld[i], parent)
+	if elem.chld then
+		for i = 1, #elem.chld do
+			lib.draw(elem.chld[i], parent)
+		end
 	end
 
 	-- Creates the element

@@ -28,7 +28,7 @@ local layout = require("./render/layout")
 ---@class FOXStencil.Element
 ---@field type string
 ---@field styl FOXStencil.Styles
----@field chld FOXStencil.Element[]
+---@field chld FOXStencil.Element[]?
 local element = {}
 ---@protected
 element.__index = element
@@ -66,7 +66,7 @@ end
 ---@field pad Vector2? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Enum.Direction?
----@field color Vector4?
+---@field color Vector3|Vector4?
 
 ---Creates a new box
 ---@param styles FOXStencil.Styles.Box
@@ -94,7 +94,7 @@ end
 ---@field pad Vector2? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Enum.Direction?
----@field color Vector4?
+---@field color Vector3|Vector4?
 ---@field weight number?
 
 ---Creates a new outline
@@ -167,13 +167,13 @@ function element:text(styles)
 	styles.mode = styles.mode or { "f", "f" }
 	styles.scale = styles.scale or vec(1, 1)
 
-	styles.pad = styles.pad or vectors.vec2()
-	styles.gap = styles.gap or 0
-	styles.dir = styles.dir or 1
-
 	styles.text = styles.text or ""
 
-	local elem = { type = "text", styl = styles, chld = {} }
+	-- local x, y = client.getTextDimensions(styles.text):unpack()
+	-- styles.size.x = math.max(styles.size.x, x)
+	-- styles.size.y = math.max(styles.size.y, y)
+
+	local elem = { type = "text", styl = styles }
 	table.insert(self.chld, elem)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Text]]
 end
