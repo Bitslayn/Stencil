@@ -172,7 +172,7 @@ function element:slice(styles)
 	end
 
 	styles.texture.pos = styles.texture.pos or vectors.vec2()
-	styles.texture.size = styles.texture.size or vectors.vec2()
+	styles.texture.size = styles.texture.size or styles.texture.atlas:getDimensions()
 	styles.texture.slice = styles.texture.slice or vectors.vec4()
 
 	local elem = { type = "slice", styl = styles, parn = self, chld = {} }
