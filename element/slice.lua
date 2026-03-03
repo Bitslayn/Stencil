@@ -1,13 +1,11 @@
 ---@param pivot ModelPart
 ---@param styl FOXStencil.Styles.Slice
 return function(pivot, styl)
-	local atlas = styl.atlas
+	local tex = styl.texture
+	local dim = tex.atlas:getDimensions()
 
-	local tex = atlas.texture
-	local dim = tex:getDimensions()
-
-	local t, r, b, l = atlas.slice:unpack()
-	local w, h = atlas.size:unpack()
+	local t, r, b, l = tex.slice:unpack()
+	local w, h = tex.size:unpack()
 	
 	styl.size.x = math.max(styl.size.x, l + r)
 	styl.size.y = math.max(styl.size.y, t + b)
@@ -31,12 +29,12 @@ return function(pivot, styl)
 		for x = 1, 3 do
 			if size_x[x] > 0 and size_y[y] > 0 then
 				pivot:newSprite("task-" .. x .. y)
-					:texture(tex)
+					:texture(tex.atlas)
 					:dimensions(dim)
 					:size(1, 1)
 					:pos(pos_x[x], pos_y[y])
 					:scale(size_x[x], size_y[y])
-					:uvPixels(atlas.pos + vec(uv_x[x], uv_y[y]))
+					:uvPixels(tex.pos + vec(uv_x[x], uv_y[y]))
 					:region(reg_x[x], reg_y[y])
 					:renderType("CUTOUT_EMISSIVE_SOLID")
 			end

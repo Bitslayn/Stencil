@@ -137,8 +137,8 @@ function element:outline(styles)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Outline]]
 end
 
----@class FOXStencil.Common.Atlas
----@field texture Texture
+---@class FOXStencil.Common.Texture
+---@field atlas Texture
 ---@field pos Vector2?
 ---@field size Vector2?
 ---@field slice Vector4?
@@ -149,7 +149,7 @@ end
 ---@field pad Vector2? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
----@field atlas FOXStencil.Common.Atlas
+---@field texture FOXStencil.Common.Texture
 
 ---Creates a new 9 slice
 ---@param styles FOXStencil.Styles.Slice
@@ -167,13 +167,13 @@ function element:slice(styles)
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
 
-	if not (styles.atlas and styles.atlas.texture) then
-		error("Slice element atlas has missing required fields", 2)
+	if not (styles.texture and styles.texture.atlas) then
+		error("Slice element texture has missing required fields", 2)
 	end
 
-	styles.atlas.pos = styles.atlas.pos or vectors.vec2()
-	styles.atlas.size = styles.atlas.size or vectors.vec2()
-	styles.atlas.slice = styles.atlas.slice or vectors.vec4()
+	styles.texture.pos = styles.texture.pos or vectors.vec2()
+	styles.texture.size = styles.texture.size or vectors.vec2()
+	styles.texture.slice = styles.texture.slice or vectors.vec4()
 
 	local elem = { type = "slice", styl = styles, parn = self, chld = {} }
 	table.insert(self.chld, elem)
