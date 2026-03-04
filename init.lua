@@ -66,6 +66,7 @@ function api.new(styles)
 	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
+	styles.align = styles.align or vectors.vec2()
 
 	styles.color = styles.color or vectors.vec4()
 
@@ -79,6 +80,7 @@ end
 ---@field pad Vector4? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
+---@field align Vector2?
 ---@field color Vector3|Vector4?
 
 ---Creates a new box
@@ -96,6 +98,7 @@ function element:box(styles)
 	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
+	styles.align = styles.align or vectors.vec2()
 
 	styles.color = styles.color or vectors.vec4()
 
@@ -110,6 +113,7 @@ end
 ---@field pad Vector4? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
+---@field align Vector2?
 ---@field color Vector3|Vector4?
 ---@field weight number?
 
@@ -128,6 +132,7 @@ function element:outline(styles)
 	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
+	styles.align = styles.align or vectors.vec2()
 
 	styles.color = styles.color or vectors.vec4()
 	styles.weight = styles.weight or 1
@@ -149,6 +154,7 @@ end
 ---@field pad Vector4? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
+---@field align Vector2?
 ---@field texture FOXStencil.Common.Texture
 
 ---Creates a new 9 slice
@@ -166,6 +172,7 @@ function element:slice(styles)
 	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
+	styles.align = styles.align or vectors.vec2()
 
 	if not (styles.texture and styles.texture.atlas) then
 		error("Slice element texture has missing required fields", 2)

@@ -76,7 +76,11 @@ function lib.grow(elem, axis)
 			table.insert(shrinkable, chld)
 		end
 		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
-			chld.styl.size[b] = elem.styl.size[b] - elem.styl.pad[b] * 2
+			if b == 1 then
+				chld.styl.size.x = elem.styl.size.x - elem.styl.pad[2] - elem.styl.pad[4]
+			else
+				chld.styl.size.y = elem.styl.size.y - elem.styl.pad[1] - elem.styl.pad[3]
+			end
 		end
 	end
 
@@ -207,16 +211,35 @@ function lib.position(elem)
 	if not elem.chld then return end
 	local a, b = rotate(elem)
 
-	-- Align children
+	local pad = {
+		{ elem.styl.pad[4], elem.styl.pad[2] }, -- x: left, right
+		{ elem.styl.pad[1], elem.styl.pad[3] }, -- y: top, bottom
+	}
 
-	local offset = elem.styl.pad[a]
+	-- Distribute
+
+	local offset = pad[a][1]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		lib.position(chld)
 
+
 		chld.styl.pos[a] = chld.styl.pos[a] + offset
 		offset = offset + chld.styl.size[a] + elem.styl.gap
 		chld.styl.pos[b] = chld.styl.pos[b] + elem.styl.pad[b]
+	end
+
+	-- Align
+
+	local x = math.max(elem.styl.size[a] - pad[a][2] - offset, 0)
+	local y = math.max(elem.styl.size[b] - pad[b][1] - pad[b][2], 0)
+
+	for i = 1, #elem.chld do
+		local chld = elem.chld[i]
+
+
+		chld.styl.pos[a] = chld.styl.pos[a] + (x * elem.styl.align.x)
+		chld.styl.pos[b] = chld.styl.pos[b] + ((y - chld.styl.size[b]) * elem.styl.align.y)
 	end
 end
 
