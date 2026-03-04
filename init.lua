@@ -190,19 +190,17 @@ end
 ---@param styles FOXStencil.Styles.Text
 ---@return FOXStencil.Element.Text
 function element:text(styles)
+	local w_x, w_y = client.getTextDimensions("The quick brown", 1, true):unpack()
+
 	styles.pos = styles.pos or vectors.vec2()
 	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "GROW", min = w_x, max = client.getTextWidth(styles.text) },
+		{ mode = "GROW", min = client.getTextHeight(styles.text), max = w_y },
 	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
+	styles.size = styles.size or vectors.vec2()
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.text = styles.text or ""
-
-	-- local x, y = client.getTextDimensions(styles.text):unpack()
-	-- styles.size.x = math.max(styles.size.x, x)
-	-- styles.size.y = math.max(styles.size.y, y)
 
 	local elem = { type = "text", styl = styles, parn = self }
 	table.insert(self.chld, elem)

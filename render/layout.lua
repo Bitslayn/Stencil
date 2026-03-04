@@ -74,107 +74,102 @@ function lib.grow(elem)
 
 	-- Grow & Shrink
 
-	if growable[1] then
-		-- Remaining size
+	-- Remaining size
 
+	---@type number
+	local rem = elem.styl.size[a] - elem.styl.pad[a] * 2
+	for i = 1, #elem.chld do
+		rem = rem - elem.chld[i].styl.size[a]
+	end
+	rem = rem - elem.styl.gap * (#elem.chld - 1)
+
+	-- Grow along layout
+
+	while rem > 0 and growable[1] do
 		---@type number
-		local rem = elem.styl.size[a] - elem.styl.pad[a] * 2
-		for i = 1, #elem.chld do
-			rem = rem - elem.chld[i].styl.size[a]
-		end
-		rem = rem - elem.styl.gap * (#elem.chld - 1)
+		local size_l = growable[1].styl.size[a]
+		---@type number
+		local size_r = math.huge
+		---@type number
+		local add = rem
 
-		-- Grow along layout
-
-		for _ = 1, 10 do
-			if rem <= 0 then break end
-			---@type number
-			local size_l = growable[1].styl.size[a]
-			---@type number
-			local size_r = math.huge
-			---@type number
-			local add = rem
-
-			for i = 1, #growable do
-				local chld = growable[i]
-				if chld.styl.size[a] < size_l then
-					size_r = size_l
-					size_l = chld.styl.size[a]
-				end
-				if chld.styl.size[a] > size_l then
-					size_r = math.min(size_r, chld.styl.size[a])
-					add = size_r - size_l
-				end
+		for i = 1, #growable do
+			local chld = growable[i]
+			if chld.styl.size[a] < size_l then
+				size_r = size_l
+				size_l = chld.styl.size[a]
 			end
-
-			---@type integer[]
-			local removing = {}
-
-			add = math.min(add, rem / #growable)
-
-			for i = 1, #growable do
-				local chld = growable[i]
-				local prev = chld.styl.size[a]
-				if chld.styl.size[a] == size_l then
-					chld.styl.size[a] = chld.styl.size[a] + add
-					if chld.styl.size[a] >= chld.styl.sizing[a].max then
-						chld.styl.size[a] = chld.styl.sizing[a].max
-						table.insert(removing, i)
-					end
-					rem = rem - (chld.styl.size[a] - prev)
-				end
-			end
-
-			for i = 1, #removing do
-				table.remove(growable, removing[i])
+			if chld.styl.size[a] > size_l then
+				size_r = math.min(size_r, chld.styl.size[a])
+				add = size_r - size_l
 			end
 		end
 
-		-- Shrink along layout
+		---@type integer[]
+		local removing = {}
 
-		for _ = 1, 10 do
-			if rem >= 0 then break end
+		add = math.min(add, rem / #growable)
 
-			---@type number
-			local size_l = shrinkable[1].styl.size[a]
-			---@type number
-			local size_r = math.huge
-			---@type number
-			local add = rem
-
-			for i = 1, #shrinkable do
-				local chld = shrinkable[i]
-				if chld.styl.size[a] > size_l then
-					size_r = size_l
-					size_l = chld.styl.size[a]
+		for i = 1, #growable do
+			local chld = growable[i]
+			local prev = chld.styl.size[a]
+			if chld.styl.size[a] == size_l then
+				chld.styl.size[a] = chld.styl.size[a] + add
+				if chld.styl.size[a] >= chld.styl.sizing[a].max then
+					chld.styl.size[a] = chld.styl.sizing[a].max
+					table.insert(removing, i)
 				end
-				if chld.styl.size[a] < size_l then
-					size_r = math.min(size_r, chld.styl.size[a])
-					add = size_r - size_l
+				rem = rem - (chld.styl.size[a] - prev)
+			end
+		end
+
+		for i = 1, #removing do
+			table.remove(growable, removing[i])
+		end
+	end
+
+	-- Shrink along layout
+
+	while rem < 0 and shrinkable[1] do
+		---@type number
+		local size_l = shrinkable[1].styl.size[a]
+		---@type number
+		local size_r = math.huge
+		---@type number
+		local add = rem
+
+		for i = 1, #shrinkable do
+			local chld = shrinkable[i]
+			if chld.styl.size[a] > size_l then
+				size_r = size_l
+				size_l = chld.styl.size[a]
+			end
+			if chld.styl.size[a] < size_l then
+				size_r = math.min(size_r, chld.styl.size[a])
+				add = size_r - size_l
+			end
+		end
+
+		---@type integer[]
+		local removing = {}
+
+		add = math.min(add, rem / #shrinkable)
+
+		for i = 1, #shrinkable do
+			local chld = shrinkable[i]
+			local prev = chld.styl.size[a]
+			if chld.styl.size[a] == size_l then
+				chld.styl.size[a] = chld.styl.size[a] + add
+				if chld.styl.size[a] <= chld.styl.sizing[a].min then
+					chld.styl.size[a] = chld.styl.sizing[a].min
+					table.insert(removing, i)
 				end
+				rem = rem - (chld.styl.size[a] - prev)
 			end
+		end
 
-			---@type integer[]
-			local removing = {}
-
-			add = math.min(add, rem / #shrinkable)
-
-			for i = 1, #shrinkable do
-				local chld = shrinkable[i]
-				local prev = chld.styl.size[a]
-				if chld.styl.size[a] == size_l then
-					chld.styl.size[a] = chld.styl.size[a] + add
-					if chld.styl.size[a] <= chld.styl.sizing[a].min then
-						chld.styl.size[a] = chld.styl.sizing[a].min
-						table.insert(removing, i)
-					end
-					rem = rem - (chld.styl.size[a] - prev)
-				end
-			end
-
-			for i = 1, #removing do
-				table.remove(shrinkable, removing[i])
-			end
+		for i = 1, #removing do
+			table.remove(shrinkable, removing[i])
 		end
 	end
 
@@ -186,10 +181,20 @@ function lib.grow(elem)
 	end
 end
 
----Recursively finds a text child to wrap
 ---@param elem FOXStencil.Element.Any
 function lib.wrap(elem)
-	-- TODO
+	if elem.type == "text" then
+		-- Wrap text
+
+		elem.styl.size.y = client.getTextDimensions(elem.styl.text, elem.styl.size.x).y
+	else
+		-- Recurse
+
+		for i = 1, #elem.chld do
+			local chld = elem.chld[i]
+			lib.wrap(chld)
+		end
+	end
 end
 
 ---Recursively calculates position of all children
