@@ -7,6 +7,21 @@ The parent element size depends on its children
 Calculate width first before wrapping text and then calculate height
 ]]
 
+--[[ TODO
+init.lua cleanup
+Rewrite api.new?
+Move generators to the element scripts
+OPTIMIZE OPTIMIZE OPTIMIZE
+Comment ALL math
+Allow sizing table to take optional fields
+Add sprite element
+Rename text element to label
+Add scale
+Add text customizations
+Figure out widgets
+Add hover detection
+]]
+
 ---@param elem FOXStencil.Element.Any
 ---@return integer, integer
 local function rotate(elem)
