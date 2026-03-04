@@ -202,7 +202,7 @@ function element:text(styles)
 	styles.pos = styles.pos or vectors.vec2()
 	styles.sizing = styles.sizing or {
 		{ mode = "GROW", min = w_x, max = client.getTextWidth(styles.text) },
-		{ mode = "GROW", min = client.getTextHeight(styles.text), max = w_y },
+		{ mode = "FIT", min = client.getTextHeight(styles.text), max = w_y },
 	}
 	styles.size = styles.size or vectors.vec2()
 	styles.scale = styles.scale or vec(1, 1)
