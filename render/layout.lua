@@ -223,22 +223,24 @@ function lib.position(elem)
 		local chld = elem.chld[i]
 		lib.position(chld)
 
-
 		chld.styl.pos[a] = chld.styl.pos[a] + offset
 		offset = offset + chld.styl.size[a] + elem.styl.gap
 		chld.styl.pos[b] = chld.styl.pos[b] + elem.styl.pad[b]
 	end
 
-	-- Align
+	-- Align & Justify
 
-	local x = math.max(elem.styl.size[a] - pad[a][2] - offset, 0)
+	local rem = math.max(elem.styl.size[a] - pad[a][2] - offset, 0)
+	local inner = rem * elem.styl.justify
+	local outer = rem * -(elem.styl.justify - 1)
+	local gap = #elem.chld > 1 and inner / (#elem.chld - 1) or 0
+
 	local y = math.max(elem.styl.size[b] - pad[b][1] - pad[b][2], 0)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 
-
-		chld.styl.pos[a] = chld.styl.pos[a] + (x * elem.styl.align.x)
+		chld.styl.pos[a] = chld.styl.pos[a] + gap * (i - 1) + (outer * elem.styl.align.x)
 		chld.styl.pos[b] = chld.styl.pos[b] + ((y - chld.styl.size[b]) * elem.styl.align.y)
 	end
 end
