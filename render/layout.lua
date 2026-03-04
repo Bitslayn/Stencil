@@ -38,7 +38,12 @@ function lib.size(elem)
 	-- Gap & Padding
 
 	elem.styl.size[a] = elem.styl.size[a] + elem.styl.gap * (#elem.chld - 1)
-	elem.styl.size = elem.styl.size + elem.styl.pad * 2
+
+	local x = 2 + a % 2
+	local y = 2 + b % 2
+
+	elem.styl.size.x = elem.styl.size.x + elem.styl.pad[x - 1] + elem.styl.pad[x + 1]
+	elem.styl.size.y = elem.styl.size.y + elem.styl.pad[y - 1] + elem.styl.pad[y + 1]
 end
 
 ---Recursively grows child elements

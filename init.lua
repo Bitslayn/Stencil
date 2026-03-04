@@ -63,7 +63,7 @@ function api.new(styles)
 	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
-	styles.pad = styles.pad or vectors.vec2()
+	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
 
@@ -76,7 +76,7 @@ end
 ---@class FOXStencil.Element.Box: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Box
 ---@class FOXStencil.Styles.Box: FOXStencil.Styles
----@field pad Vector2? Margin around children
+---@field pad Vector4? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
 ---@field color Vector3|Vector4?
@@ -93,7 +93,7 @@ function element:box(styles)
 	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
-	styles.pad = styles.pad or vectors.vec2()
+	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
 
@@ -107,7 +107,7 @@ end
 ---@class FOXStencil.Element.Outline: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Outline
 ---@class FOXStencil.Styles.Outline: FOXStencil.Styles
----@field pad Vector2? Margin around children
+---@field pad Vector4? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
 ---@field color Vector3|Vector4?
@@ -125,7 +125,7 @@ function element:outline(styles)
 	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
-	styles.pad = styles.pad or vectors.vec2()
+	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
 
@@ -146,7 +146,7 @@ end
 ---@class FOXStencil.Element.Slice: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Slice
 ---@class FOXStencil.Styles.Slice: FOXStencil.Styles
----@field pad Vector2? Margin around children
+---@field pad Vector4? Margin around children
 ---@field gap number? Margin between children
 ---@field dir FOXStencil.Common.Direction?
 ---@field texture FOXStencil.Common.Texture
@@ -163,7 +163,7 @@ function element:slice(styles)
 	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
 	styles.scale = styles.scale or vec(1, 1)
 
-	styles.pad = styles.pad or vectors.vec2()
+	styles.pad = styles.pad or vectors.vec4()
 	styles.gap = styles.gap or 0
 	styles.dir = styles.dir or "hor"
 
