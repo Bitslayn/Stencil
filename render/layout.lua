@@ -240,8 +240,8 @@ function lib.position(elem)
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 
-		chld.styl.pos[a] = chld.styl.pos[a] + gap * (i - 1) + (outer * elem.styl.align.x)
-		chld.styl.pos[b] = chld.styl.pos[b] + ((y - chld.styl.size[b]) * elem.styl.align.y)
+		chld.styl.pos[a] = chld.styl.pos[a] + gap * (i - 1) + (outer * elem.styl.align[a])
+		chld.styl.pos[b] = chld.styl.pos[b] + ((y - chld.styl.size[b]) * elem.styl.align[b])
 	end
 end
 
