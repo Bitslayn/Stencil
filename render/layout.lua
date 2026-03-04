@@ -230,7 +230,7 @@ function lib.position(elem)
 
 	-- Align & Justify
 
-	local rem = math.max(elem.styl.size[a] - offset + elem.styl.gap, 0)
+	local rem = math.max(elem.styl.size[a] - offset + elem.styl.gap - pad[a][2], 0)
 	local inner = rem * elem.styl.justify
 	local outer = rem * -(elem.styl.justify - 1)
 	local gap = #elem.chld > 1 and inner / (#elem.chld - 1) or 0
