@@ -7,57 +7,59 @@ The parent element size depends on its children
 Calculate width first before wrapping text and then calculate height
 ]]
 
+---@param elem FOXStencil.Element.Any
+---@return integer, integer
+local function rotate(elem)
+	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
+	local a = dir
+	local b = dir % 2 + 1
+
+	return a, b
+end
+
 ---Recursively calculates size of all children
 ---@param elem FOXStencil.Element.Any
-function lib.size(elem)
+---@param axis integer
+function lib.size(elem, axis)
 	if not elem.chld then return end
-
-	-- Axis indices
-
-	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
-	---@type integer
-	local a = dir
-	---@type integer
-	local b = dir % 2 + 1
+	local a, b = rotate(elem)
 
 	-- Fit children
 
 	local size = 0
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		lib.size(chld)
+		lib.size(chld, axis)
 
-		size = size + chld.styl.size[a]
-
-		elem.styl.sizing[a].min = elem.styl.sizing[a].min + chld.styl.sizing[a].min
-		elem.styl.size[b] = math.max(elem.styl.size[b], chld.styl.size[b])
-		elem.styl.sizing[b].min = math.max(elem.styl.sizing[b].min, chld.styl.sizing[b].min)
+		if a == axis then
+			size = size + chld.styl.size[a]
+			elem.styl.sizing[a].min = elem.styl.sizing[a].min + chld.styl.sizing[a].min
+		end
+		if b == axis then
+			elem.styl.size[b] = math.max(elem.styl.size[b], chld.styl.size[b])
+			elem.styl.sizing[b].min = math.max(elem.styl.sizing[b].min, chld.styl.sizing[b].min)
+		end
 	end
 	elem.styl.size[a] = math.max(elem.styl.size[a], size)
 
 	-- Gap & Padding
 
-	elem.styl.size[a] = elem.styl.size[a] + elem.styl.gap * (#elem.chld - 1)
+	if a == axis then
+		elem.styl.size[a] = elem.styl.size[a] + elem.styl.gap * (#elem.chld - 1)
+	end
 
-	local x = 2 + a % 2
-	local y = 2 + b % 2
-
-	elem.styl.size.x = elem.styl.size.x + elem.styl.pad[x - 1] + elem.styl.pad[x + 1]
-	elem.styl.size.y = elem.styl.size.y + elem.styl.pad[y - 1] + elem.styl.pad[y + 1]
+	if axis == 1 then
+		elem.styl.size.x = elem.styl.size.x + elem.styl.pad[2] + elem.styl.pad[4]
+	else
+		elem.styl.size.y = elem.styl.size.y + elem.styl.pad[1] + elem.styl.pad[3]
+	end
 end
 
 ---Recursively grows child elements
 ---@param elem FOXStencil.Element.Any
 function lib.grow(elem)
 	if not elem.chld then return end
-
-	-- Axis indices
-
-	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
-	---@type integer
-	local a = dir
-	---@type integer
-	local b = dir % 2 + 1
+	local a, b = rotate(elem)
 
 	-- Find growable and shrinkable
 
@@ -189,12 +191,8 @@ end
 ---@param elem FOXStencil.Element.Any
 function lib.wrap(elem)
 	if elem.type == "text" then
-		-- Wrap text
-
 		elem.styl.size.y = client.getTextDimensions(elem.styl.text, elem.styl.size.x).y
 	else
-		-- Recurse
-
 		for i = 1, #elem.chld do
 			local chld = elem.chld[i]
 			lib.wrap(chld)
@@ -206,14 +204,7 @@ end
 ---@param elem FOXStencil.Element.Any
 function lib.position(elem)
 	if not elem.chld then return end
-
-	-- Axis indices
-
-	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
-	---@type integer
-	local a = dir
-	---@type integer
-	local b = dir % 2 + 1
+	local a, b = rotate(elem)
 
 	-- Align children
 

@@ -213,9 +213,10 @@ end
 ---@param part ModelPart
 ---@return self
 function element:draw(part)
-	layout.size(self)
+	layout.size(self, 1)
 	layout.grow(self)
 	layout.wrap(self)
+	layout.size(self, 2)
 	layout.position(self)
 	layout.draw(self, part)
 
