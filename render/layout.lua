@@ -22,15 +22,18 @@ function lib.size(elem)
 
 	-- Fit children
 
-	local siz = 0
+	local size = 0
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		lib.size(chld)
 
-		siz = siz + chld.styl.size[a]
+		size = size + chld.styl.size[a]
+
+		elem.styl.sizing[a].min = elem.styl.sizing[a].min + chld.styl.sizing[a].min
 		elem.styl.size[b] = math.max(elem.styl.size[b], chld.styl.size[b])
+		elem.styl.sizing[b].min = math.max(elem.styl.sizing[b].min, chld.styl.sizing[b].min)
 	end
-	elem.styl.size[a] = math.max(elem.styl.size[a], siz)
+	elem.styl.size[a] = math.max(elem.styl.size[a], size)
 
 	-- Gap & Padding
 
@@ -51,22 +54,25 @@ function lib.grow(elem)
 	---@type integer
 	local b = dir % 2 + 1
 
-	-- Find growable
+	-- Find growable and shrinkable
 
 	---@type FOXStencil.Element.Any[]
 	local growable = {}
+	---@type FOXStencil.Element.Any[]
+	local shrinkable = {}
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if string.find(chld.styl.sizing[a].mode, "^[Gg]") then
 			table.insert(growable, chld)
+			table.insert(shrinkable, chld)
 		end
 		if string.find(chld.styl.sizing[b].mode, "^[Gg]") then
 			chld.styl.size[b] = elem.styl.size[b] - elem.styl.pad[b] * 2
 		end
 	end
 
-	-- Grow
+	-- Grow & Shrink
 
 	if growable[1] then
 		-- Remaining size
@@ -81,6 +87,7 @@ function lib.grow(elem)
 		-- Grow along layout
 
 		for _ = 1, 10 do
+			if rem <= 0 then break end
 			---@type number
 			local size_l = growable[1].styl.size[a]
 			---@type number
@@ -100,17 +107,74 @@ function lib.grow(elem)
 				end
 			end
 
+			---@type integer[]
+			local removing = {}
+
 			add = math.min(add, rem / #growable)
 
 			for i = 1, #growable do
 				local chld = growable[i]
+				local prev = chld.styl.size[a]
 				if chld.styl.size[a] == size_l then
 					chld.styl.size[a] = chld.styl.size[a] + add
-					rem = rem - add
+					if chld.styl.size[a] >= chld.styl.sizing[a].max then
+						chld.styl.size[a] = chld.styl.sizing[a].max
+						table.insert(removing, i)
+					end
+					rem = rem - (chld.styl.size[a] - prev)
 				end
 			end
 
-			if rem == 0 then break end
+			for i = 1, #removing do
+				table.remove(growable, removing[i])
+			end
+		end
+
+		-- Shrink along layout
+
+		for _ = 1, 10 do
+			if rem >= 0 then break end
+
+			---@type number
+			local size_l = shrinkable[1].styl.size[a]
+			---@type number
+			local size_r = math.huge
+			---@type number
+			local add = rem
+
+			for i = 1, #shrinkable do
+				local chld = shrinkable[i]
+				if chld.styl.size[a] > size_l then
+					size_r = size_l
+					size_l = chld.styl.size[a]
+				end
+				if chld.styl.size[a] < size_l then
+					size_r = math.min(size_r, chld.styl.size[a])
+					add = size_r - size_l
+				end
+			end
+
+			---@type integer[]
+			local removing = {}
+
+			add = math.min(add, rem / #shrinkable)
+
+			for i = 1, #shrinkable do
+				local chld = shrinkable[i]
+				local prev = chld.styl.size[a]
+				if chld.styl.size[a] == size_l then
+					chld.styl.size[a] = chld.styl.size[a] + add
+					if chld.styl.size[a] <= chld.styl.sizing[a].min then
+						chld.styl.size[a] = chld.styl.sizing[a].min
+						table.insert(removing, i)
+					end
+					rem = rem - (chld.styl.size[a] - prev)
+				end
+			end
+
+			for i = 1, #removing do
+				table.remove(shrinkable, removing[i])
+			end
 		end
 	end
 
@@ -120,6 +184,12 @@ function lib.grow(elem)
 		local chld = elem.chld[i]
 		lib.grow(chld)
 	end
+end
+
+---Recursively finds a text child to wrap
+---@param elem FOXStencil.Element.Any
+function lib.wrap(elem)
+	-- TODO
 end
 
 ---Recursively calculates position of all children

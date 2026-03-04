@@ -217,6 +217,7 @@ end
 function element:draw(part)
 	layout.size(self)
 	layout.grow(self)
+	layout.wrap(self)
 	layout.position(self)
 	layout.draw(self, part)
 
