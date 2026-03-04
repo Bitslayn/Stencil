@@ -57,7 +57,8 @@ end
 
 ---Recursively grows child elements
 ---@param elem FOXStencil.Element.Any
-function lib.grow(elem)
+---@param axis integer
+function lib.grow(elem, axis)
 	if not elem.chld then return end
 	local a, b = rotate(elem)
 
@@ -70,11 +71,11 @@ function lib.grow(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if string.find(chld.styl.sizing[a].mode, "^[Gg]") then
+		if a == axis and string.find(chld.styl.sizing[a].mode, "^[Gg]") then
 			table.insert(growable, chld)
 			table.insert(shrinkable, chld)
 		end
-		if string.find(chld.styl.sizing[b].mode, "^[Gg]") then
+		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
 			chld.styl.size[b] = elem.styl.size[b] - elem.styl.pad[b] * 2
 		end
 	end
@@ -184,7 +185,7 @@ function lib.grow(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		lib.grow(chld)
+		lib.grow(chld, axis)
 	end
 end
 

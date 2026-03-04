@@ -214,9 +214,10 @@ end
 ---@return self
 function element:draw(part)
 	layout.size(self, 1)
-	layout.grow(self)
+	layout.grow(self, 1)
 	layout.wrap(self)
 	layout.size(self, 2)
+	layout.grow(self, 2)
 	layout.position(self)
 	layout.draw(self, part)
 
