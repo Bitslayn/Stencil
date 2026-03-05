@@ -14,13 +14,15 @@ return function(pivot, styl)
 	end
 
 	local mat = matrices.mat4()
-		* matrices.translate4(0, 0, -100)
-		* matrices.xRotation4(-rot.x)
+		* matrices.translate4(0, 0, -1 / 16) -- Project
+		* matrices.scale4(1, 1, 1e-2)
+		* matrices.xRotation4(-rot.x) -- Rotate
 		* matrices.yRotation4(rot.y)
 		* matrices.zRotation4(rot.z)
-		* matrices.translate4(pos)
+		* matrices.translate4(pos) -- Center
 
 	pivot:newPart("task")
 		:addTask(styl.task)
+		:light(15, 15)
 		:matrix(mat) -- TODO AVOID MUTATING TASK
 end
