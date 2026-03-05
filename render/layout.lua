@@ -9,13 +9,10 @@ Calculate width first before wrapping text and then calculate height
 
 --[[ TODO
 init.lua cleanup
-Rewrite api.new?
 Move generators to the element scripts
 OPTIMIZE OPTIMIZE OPTIMIZE
 Comment ALL math
 Allow sizing table to take optional fields
-Add sprite element
-Rename text element to label
 Add scale
 Add text customizations
 Figure out widgets
@@ -212,7 +209,10 @@ end
 function lib.wrap(elem)
 	if elem.type == "label" then
 		elem.styl.size = client.getTextDimensions(elem.styl.text, elem.styl.size.x)
-	else
+	elseif elem.type == "sprite" then
+		local dim = elem.styl.texture--[[@as Texture]]:getDimensions()
+		elem.styl.size.y = dim.y / dim.x * elem.styl.size.x
+	elseif elem.chld then
 		for i = 1, #elem.chld do
 			local chld = elem.chld[i]
 			lib.wrap(chld)

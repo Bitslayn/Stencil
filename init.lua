@@ -219,6 +219,28 @@ function element:label(styles)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Label]]
 end
 
+---@class FOXStencil.Element.Sprite: FOXStencil.Element
+---@field styl FOXStencil.Styles.Sprite
+---@class FOXStencil.Styles.Sprite: FOXStencil.Styles
+---@field texture Texture
+
+---Creates a new 9 slice
+---@param styles FOXStencil.Styles.Sprite
+---@return FOXStencil.Element.Sprite
+function element:sprite(styles)
+	styles.pos = styles.pos or vectors.vec2()
+	styles.sizing = styles.sizing or {
+		{ mode = "GROW", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
+	styles.scale = styles.scale or vec(1, 1)
+
+	local elem = { type = "sprite", styl = styles, parn = self }
+	table.insert(self.chld, elem)
+	return setmetatable(elem, element) --[[@as FOXStencil.Element.Sprite]]
+end
+
 ---Draws this element to a ModelPart
 ---@generic self
 ---@param self self
