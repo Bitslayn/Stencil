@@ -5,12 +5,12 @@ return function(pivot, styl)
 		+ vec(30, -135, 0)
 
 	---@type Vector3
-	local size
+	local pos
 	if type(styl.task) == "EntityTask" then
 		local entity = styl.task --[[@as EntityTask]]:asEntity()
-		size = entity and entity:getBoundingBox()._y_ --[[@as Vector3]] * -8 or vectors.vec3()
+		pos = entity and entity:getBoundingBox()._y_ --[[@as Vector3]] * -8 or vectors.vec3()
 	else
-		size = vec(-8, -8, -8)
+		pos = vec(-8, -8, -8)
 	end
 
 	local mat = matrices.mat4()
@@ -18,9 +18,9 @@ return function(pivot, styl)
 		* matrices.xRotation4(-rot.x)
 		* matrices.yRotation4(rot.y)
 		* matrices.zRotation4(rot.z)
-		* matrices.translate4(size)
+		* matrices.translate4(pos)
 
 	pivot:newPart("task")
-		:matrix(mat)
 		:addTask(styl.task)
+		:matrix(mat) -- TODO AVOID MUTATING TASK
 end
