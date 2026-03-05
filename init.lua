@@ -224,13 +224,13 @@ end
 ---@class FOXStencil.Styles.Sprite: FOXStencil.Styles
 ---@field texture Texture
 
----Creates a new 9 slice
+---Creates a new sprite
 ---@param styles FOXStencil.Styles.Sprite
 ---@return FOXStencil.Element.Sprite
 function element:sprite(styles)
 	styles.pos = styles.pos or vectors.vec2()
 	styles.sizing = styles.sizing or {
-		{ mode = "GROW", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
 		{ mode = "FIT", min = 0, max = math.huge },
 	}
 	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
@@ -239,6 +239,50 @@ function element:sprite(styles)
 	local elem = { type = "sprite", styl = styles, parn = self }
 	table.insert(self.chld, elem)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Sprite]]
+end
+
+---@class FOXStencil.Element.Part: FOXStencil.Element
+---@field styl FOXStencil.Styles.Part
+---@class FOXStencil.Styles.Part: FOXStencil.Styles
+---@field part ModelPart
+
+---Creates a new ModelPart renderer
+---@param styles FOXStencil.Styles.Part
+---@return FOXStencil.Element.Part
+function element:part(styles)
+	styles.pos = styles.pos or vectors.vec2()
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
+	styles.scale = styles.scale or vec(1, 1)
+
+	local elem = { type = "part", styl = styles, parn = self }
+	table.insert(self.chld, elem)
+	return setmetatable(elem, element) --[[@as FOXStencil.Element.Part]]
+end
+
+---@class FOXStencil.Element.Task: FOXStencil.Element
+---@field styl FOXStencil.Styles.Task
+---@class FOXStencil.Styles.Task: FOXStencil.Styles
+---@field task RenderTask
+
+---Creates a new RenderTask renderer
+---@param styles FOXStencil.Styles.Task
+---@return FOXStencil.Element.Task
+function element:task(styles)
+	styles.pos = styles.pos or vectors.vec2()
+	styles.sizing = styles.sizing or {
+		{ mode = "FIT", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
+	}
+	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
+	styles.scale = styles.scale or vec(1, 1)
+
+	local elem = { type = "task", styl = styles, parn = self }
+	table.insert(self.chld, elem)
+	return setmetatable(elem, element) --[[@as FOXStencil.Element.Task]]
 end
 
 ---Draws this element to a ModelPart
