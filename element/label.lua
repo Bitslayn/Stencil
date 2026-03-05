@@ -1,5 +1,5 @@
 ---@param pivot ModelPart
----@param styl FOXStencil.Styles.Text
+---@param styl FOXStencil.Styles.Label
 return function(pivot, styl)
 	pivot:newText("task")
 		:text(styl.text)

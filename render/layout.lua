@@ -210,7 +210,7 @@ end
 
 ---@param elem FOXStencil.Element.Any
 function lib.wrap(elem)
-	if elem.type == "text" then
+	if elem.type == "label" then
 		elem.styl.size = client.getTextDimensions(elem.styl.text, elem.styl.size.x)
 	else
 		for i = 1, #elem.chld do

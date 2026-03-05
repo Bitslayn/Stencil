@@ -43,8 +43,8 @@ local element = {}
 ---@protected
 element.__index = element
 
----@alias FOXStencil.Element.Any FOXStencil.Element|FOXStencil.Element.Box|FOXStencil.Element.Outline|FOXStencil.Element.Slice|FOXStencil.Element.Text
----@alias FOXStencil.Styles.Any FOXStencil.Styles|FOXStencil.Styles.Box|FOXStencil.Styles.Outline|FOXStencil.Styles.Slice|FOXStencil.Styles.Text
+---@alias FOXStencil.Element.Any FOXStencil.Element|FOXStencil.Element.Box|FOXStencil.Element.Outline|FOXStencil.Element.Slice|FOXStencil.Element.Label
+---@alias FOXStencil.Styles.Any FOXStencil.Styles|FOXStencil.Styles.Box|FOXStencil.Styles.Outline|FOXStencil.Styles.Slice|FOXStencil.Styles.Label
 
 ---@class FOXStencil.Element.Container: FOXStencil.Element.Box
 ---@class FOXStencil.Styles.Container: FOXStencil.Styles.Box
@@ -194,31 +194,29 @@ function element:slice(styles)
 	return setmetatable(elem, element) --[[@as FOXStencil.Element.Slice]]
 end
 
----@class FOXStencil.Element.Text: FOXStencil.Element
----@field styl FOXStencil.Styles.Text
----@class FOXStencil.Styles.Text: FOXStencil.Styles
+---@class FOXStencil.Element.Label: FOXStencil.Element
+---@field styl FOXStencil.Styles.Label
+---@class FOXStencil.Styles.Label: FOXStencil.Styles
 ---@field text string?
 ---@field outline Vector3?
 
 ---Creates a new text label
----@param styles FOXStencil.Styles.Text
----@return FOXStencil.Element.Text
-function element:text(styles)
-	local w_x, w_y = client.getTextDimensions("The quick brown", 1, true):unpack()
-
+---@param styles FOXStencil.Styles.Label
+---@return FOXStencil.Element.Label
+function element:label(styles)
 	styles.pos = styles.pos or vectors.vec2()
 	styles.sizing = styles.sizing or {
-		{ mode = "GROW", min = w_x, max = client.getTextWidth(styles.text) },
-		{ mode = "FIT", min = client.getTextHeight(styles.text), max = w_y },
+		{ mode = "GROW", min = 0, max = math.huge },
+		{ mode = "FIT", min = 0, max = math.huge },
 	}
 	styles.size = styles.size or vectors.vec2()
 	styles.scale = styles.scale or vec(1, 1)
 
 	styles.text = styles.text or ""
 
-	local elem = { type = "text", styl = styles, parn = self }
+	local elem = { type = "label", styl = styles, parn = self }
 	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Text]]
+	return setmetatable(elem, element) --[[@as FOXStencil.Element.Label]]
 end
 
 ---Draws this element to a ModelPart
