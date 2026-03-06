@@ -213,6 +213,12 @@ function element:label(styl)
 
 	styl.text = styl.text or ""
 
+	styl.size = styl.size or vectors.vec2()
+	for w in styl.text:gmatch("[^%s]+") do
+		local size = client.getTextDimensions(w)
+		styl.size = styl.size.x < size.x and size or styl.size
+	end
+
 	styl.sizing = styl.sizing or {}
 	styl.sizing[1] = styl.sizing[1] or {}
 	styl.sizing[1].mode = styl.sizing[1].mode or "GROW"

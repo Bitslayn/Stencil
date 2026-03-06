@@ -8,8 +8,8 @@ Calculate width first before wrapping text and then calculate height
 ]]
 
 --[[ TODO
-init.lua cleanup
-Move generators to the element scripts
+Find and fix padding bug
+Experiment with slice gutters for overlapping buttons
 OPTIMIZE OPTIMIZE OPTIMIZE
 Comment ALL math
 Allow sizing table to take optional fields
