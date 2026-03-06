@@ -1,30 +1,26 @@
 ---@class FOXStencil
 local api = {}
 
-local layout = require("./render/layout")
-
--- TODO FIX THIS MESS AAAAAAAAA
-
----@alias FOXStencil.Common.Sizing.Mode
+---@alias FOXStencil.Sizing.Mode
 ---| "fit"
 ---| "FIT"
 ---| "grow"
 ---| "GROW"
 
----@class FOXStencil.Common.Sizing.Property
----@field mode FOXStencil.Common.Sizing.Mode
+---@class FOXStencil.Sizing.Property
+---@field mode FOXStencil.Sizing.Mode
 ---@field min number
 ---@field max number
 
----@alias FOXStencil.Common.Sizing [FOXStencil.Common.Sizing.Property, FOXStencil.Common.Sizing.Property]
+---@alias FOXStencil.Sizing [FOXStencil.Sizing.Property, FOXStencil.Sizing.Property]
 
----@class FOXStencil.Styles
+---@class FOXStencil.Styles.Common
 ---@field pos Vector2?
 ---@field size Vector2?
----@field sizing FOXStencil.Common.Sizing?
+---@field sizing FOXStencil.Sizing?
 ---@field scale Vector2?
 
----@alias FOXStencil.Common.Direction
+---@alias FOXStencil.Direction
 ---| "x"
 ---| "hor"
 ---| "horizontal"
@@ -34,120 +30,148 @@ local layout = require("./render/layout")
 ---| "vertical"
 ---| "VERTICAL"
 
+---@class FOXStencil.Styles.Container
+---@field pad Vector4? Margin around children
+---@field gap number? Margin between children
+---@field dir FOXStencil.Direction?
+---@field align Vector2?
+---@field justify number?
+
 ---@class FOXStencil.Element
 ---@field type string
----@field styl FOXStencil.Styles
+---@field styl FOXStencil.Styles.Any
 ---@field parn FOXStencil.Element.Any?
 ---@field chld FOXStencil.Element.Any[]?
 local element = {}
 ---@protected
 element.__index = element
 
----@alias FOXStencil.Element.Any FOXStencil.Element|FOXStencil.Element.Box|FOXStencil.Element.Outline|FOXStencil.Element.Slice|FOXStencil.Element.Label
----@alias FOXStencil.Styles.Any FOXStencil.Styles|FOXStencil.Styles.Box|FOXStencil.Styles.Outline|FOXStencil.Styles.Slice|FOXStencil.Styles.Label
+---@alias FOXStencil.Element.Any
+---| FOXStencil.Element.Box
+---| FOXStencil.Element.Outline
+---| FOXStencil.Element.Slice
+---| FOXStencil.Element.Label
+---| FOXStencil.Element.Sprite
+---| FOXStencil.Element.Part
+---| FOXStencil.Element.Task
+---@alias FOXStencil.Styles.Any
+---| FOXStencil.Styles.Box
+---| FOXStencil.Styles.Outline
+---| FOXStencil.Styles.Slice
+---| FOXStencil.Styles.Label
+---| FOXStencil.Styles.Sprite
+---| FOXStencil.Styles.Part
+---| FOXStencil.Styles.Task
 
----@class FOXStencil.Element.Container: FOXStencil.Element.Box
----@class FOXStencil.Styles.Container: FOXStencil.Styles.Box
+---Creates an empty element
+---@param id string
+---@param styl FOXStencil.Styles.Any?
+---@param chld table?
+---@param parn FOXStencil.Element?
+---@return FOXStencil.Element
+local function new(id, styl, chld, parn)
+	-- Create the element
 
----Creates a new container
----@param styles FOXStencil.Styles.Container?
----@return FOXStencil.Element.Container
-function api.new(styles)
-	styles = styles or {}
+	local elem = setmetatable({
+		type = id,
+		styl = {
+			-- Common
 
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
+			pos = vectors.vec2(),
+			sizing = {
+				{ mode = "FIT", min = 0, max = math.huge },
+				{ mode = "FIT", min = 0, max = math.huge },
+			},
+			size = vectors.vec2(),
+			scale = vec(1, 1),
 
-	styles.pad = styles.pad or vectors.vec4()
-	styles.gap = styles.gap or 0
-	styles.dir = styles.dir or "hor"
-	styles.align = styles.align or vectors.vec2()
-	styles.justify = styles.justify or 0
+			-- Container
 
-	styles.color = styles.color or vectors.vec4()
+			pad = vectors.vec4(),
+			gap = 0,
+			dir = "hor",
+			align = vectors.vec2(),
+			justify = 0,
+		},
+		chld = chld,
+		parn = parn,
+	}, element)
 
-	local elem = { type = "box", styl = styles, chld = {} }
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Container]]
+	-- Ingest styles
+
+	if type(styl) == "table" then
+		---Merges two tables
+		---
+		---Table a's contents are read and written into table b
+		---@param a table
+		---@param b table
+		local function merge(a, b)
+			for k, v in next, a do
+				if type(v) == "table" and type(b[k]) == "table" then
+					merge(a[k], b[k])
+				else
+					b[k] = v
+				end
+			end
+		end
+		merge(styl, elem.styl)
+	end
+
+	-- Add element to parent
+
+	if parn then
+		table.insert(parn.chld, elem)
+	end
+
+	return elem
 end
 
 ---@class FOXStencil.Element.Box: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Box
----@class FOXStencil.Styles.Box: FOXStencil.Styles
----@field pad Vector4? Margin around children
----@field gap number? Margin between children
----@field dir FOXStencil.Common.Direction?
----@field align Vector2?
----@field justify number?
+---@class FOXStencil.Styles.Box: FOXStencil.Styles.Common, FOXStencil.Styles.Container
 ---@field color Vector3|Vector4?
 
 ---Creates a new box
----@param styles FOXStencil.Styles.Box
+---@param styl FOXStencil.Styles.Box?
 ---@return FOXStencil.Element.Box
-function element:box(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
+function api.new(styl)
+	styl = styl or {}
 
-	styles.pad = styles.pad or vectors.vec4()
-	styles.gap = styles.gap or 0
-	styles.dir = styles.dir or "hor"
-	styles.align = styles.align or vectors.vec2()
-	styles.justify = styles.justify or 0
+	styl.color = styl.color or vectors.vec4()
 
-	styles.color = styles.color or vectors.vec4()
+	return new("box", styl, {}) --[[@as FOXStencil.Element.Box]]
+end
 
-	local elem = { type = "box", styl = styles, parn = self, chld = {} }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Box]]
+---Creates a new box
+---@param styl FOXStencil.Styles.Box
+---@return FOXStencil.Element.Box
+function element:box(styl)
+	styl = styl or {}
+
+	styl.color = styl.color or vectors.vec4()
+	
+	return new("box", styl, {}, self) --[[@as FOXStencil.Element.Box]]
 end
 
 ---@class FOXStencil.Element.Outline: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Outline
----@class FOXStencil.Styles.Outline: FOXStencil.Styles
----@field pad Vector4? Margin around children
----@field gap number? Margin between children
----@field dir FOXStencil.Common.Direction?
----@field align Vector2?
----@field justify number?
+---@class FOXStencil.Styles.Outline: FOXStencil.Styles.Common, FOXStencil.Styles.Container
 ---@field color Vector3|Vector4?
 ---@field weight number?
 
 ---Creates a new outline
----@param styles FOXStencil.Styles.Outline
+---@param styl FOXStencil.Styles.Outline
 ---@return FOXStencil.Element.Outline
-function element:outline(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
+function element:outline(styl)
+	styl = styl or {}
 
-	styles.pad = styles.pad or vectors.vec4()
-	styles.gap = styles.gap or 0
-	styles.dir = styles.dir or "hor"
-	styles.align = styles.align or vectors.vec2()
-	styles.justify = styles.justify or 0
-
-	styles.color = styles.color or vectors.vec4()
-	styles.weight = styles.weight or 1
-
-	local elem = { type = "outline", styl = styles, parn = self, chld = {} }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Outline]]
+	styl.color = styl.color or vectors.vec4()
+	styl.weight = styl.weight or 1
+	
+	return new("outline", styl, {}, self) --[[@as FOXStencil.Element.Outline]]
 end
 
----@class FOXStencil.Common.Texture
+---@class FOXStencil.Texture
 ---@field atlas Texture
 ---@field pos Vector2?
 ---@field size Vector2?
@@ -155,135 +179,88 @@ end
 
 ---@class FOXStencil.Element.Slice: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Slice
----@class FOXStencil.Styles.Slice: FOXStencil.Styles
----@field pad Vector4? Margin around children
----@field gap number? Margin between children
----@field dir FOXStencil.Common.Direction?
----@field align Vector2?
----@field justify number?
----@field texture FOXStencil.Common.Texture
+---@class FOXStencil.Styles.Slice: FOXStencil.Styles.Common, FOXStencil.Styles.Container
+---@field texture FOXStencil.Texture
 
 ---Creates a new 9 slice
----@param styles FOXStencil.Styles.Slice
+---@param styl FOXStencil.Styles.Slice
 ---@return FOXStencil.Element.Slice
-function element:slice(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
+function element:slice(styl)
+	styl = styl or {}
 
-	styles.pad = styles.pad or vectors.vec4()
-	styles.gap = styles.gap or 0
-	styles.dir = styles.dir or "hor"
-	styles.align = styles.align or vectors.vec2()
-	styles.justify = styles.justify or 0
-
-	if not (styles.texture and styles.texture.atlas) then
+	if not (styl.texture and styl.texture.atlas) then
 		error("Slice element texture has missing required fields", 2)
 	end
 
-	styles.texture.pos = styles.texture.pos or vectors.vec2()
-	styles.texture.size = styles.texture.size or styles.texture.atlas:getDimensions()
-	styles.texture.slice = styles.texture.slice or vectors.vec4()
+	styl.texture.pos = styl.texture.pos or vectors.vec2()
+	styl.texture.size = styl.texture.size or styl.texture.atlas:getDimensions()
+	styl.texture.slice = styl.texture.slice or vectors.vec4()
 
-	local elem = { type = "slice", styl = styles, parn = self, chld = {} }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Slice]]
+	return new("slice", styl, {}, self) --[[@as FOXStencil.Element.Slice]]
 end
 
 ---@class FOXStencil.Element.Label: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Label
----@class FOXStencil.Styles.Label: FOXStencil.Styles
+---@class FOXStencil.Styles.Label: FOXStencil.Styles.Common
 ---@field text string?
 ---@field outline Vector3?
 
 ---Creates a new text label
----@param styles FOXStencil.Styles.Label
+---@param styl FOXStencil.Styles.Label
 ---@return FOXStencil.Element.Label
-function element:label(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "GROW", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vectors.vec2()
-	styles.scale = styles.scale or vec(1, 1)
+function element:label(styl)
+	styl = styl or {}
 
-	styles.text = styles.text or ""
+	styl.text = styl.text or ""
 
-	local elem = { type = "label", styl = styles, parn = self }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Label]]
+	styl.sizing = styl.sizing or {}
+	styl.sizing[1] = styl.sizing[1] or {}
+	styl.sizing[1].mode = styl.sizing[1].mode or "GROW"
+
+	return new("label", styl, nil, self) --[[@as FOXStencil.Element.Label]]
 end
 
 ---@class FOXStencil.Element.Sprite: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Sprite
----@class FOXStencil.Styles.Sprite: FOXStencil.Styles
+---@class FOXStencil.Styles.Sprite: FOXStencil.Styles.Common
 ---@field texture Texture
 
 ---Creates a new sprite
----@param styles FOXStencil.Styles.Sprite
+---@param styl FOXStencil.Styles.Sprite
 ---@return FOXStencil.Element.Sprite
-function element:sprite(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
+function element:sprite(styl)
+	styl.sizing = styl.sizing or {}
+	styl.sizing[1] = styl.sizing[1] or {}
+	styl.sizing[1].mode = styl.sizing[1].mode or "GROW"
 
-	local elem = { type = "sprite", styl = styles, parn = self }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Sprite]]
+	return new("sprite", styl, nil, self) --[[@as FOXStencil.Element.Sprite]]
 end
 
 ---@class FOXStencil.Element.Part: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Part
----@class FOXStencil.Styles.Part: FOXStencil.Styles
+---@class FOXStencil.Styles.Part: FOXStencil.Styles.Common
 ---@field part ModelPart
 
----Creates a new ModelPart renderer
----@param styles FOXStencil.Styles.Part
+---Creates a new ModelPart
+---@param styl FOXStencil.Styles.Part
 ---@return FOXStencil.Element.Part
-function element:part(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
-
-	local elem = { type = "part", styl = styles, parn = self }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Part]]
+function element:part(styl)
+	return new("part", styl, nil, self) --[[@as FOXStencil.Element.Part]]
 end
 
 ---@class FOXStencil.Element.Task: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Task
----@class FOXStencil.Styles.Task: FOXStencil.Styles
+---@class FOXStencil.Styles.Task: FOXStencil.Styles.Common
 ---@field task RenderTask
 
----Creates a new RenderTask renderer
----@param styles FOXStencil.Styles.Task
+---Creates a new RenderTask
+---@param styl FOXStencil.Styles.Task
 ---@return FOXStencil.Element.Task
-function element:task(styles)
-	styles.pos = styles.pos or vectors.vec2()
-	styles.sizing = styles.sizing or {
-		{ mode = "FIT", min = 0, max = math.huge },
-		{ mode = "FIT", min = 0, max = math.huge },
-	}
-	styles.size = styles.size or vec(styles.sizing[1].min, styles.sizing[2].min)
-	styles.scale = styles.scale or vec(1, 1)
-
-	local elem = { type = "task", styl = styles, parn = self }
-	table.insert(self.chld, elem)
-	return setmetatable(elem, element) --[[@as FOXStencil.Element.Task]]
+function element:task(styl)
+	return new("task", styl, nil, self) --[[@as FOXStencil.Element.Task]]
 end
+
+local layout = require("./render/layout")
 
 ---Draws this element to a ModelPart
 ---@generic self

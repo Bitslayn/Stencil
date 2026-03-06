@@ -1,8 +1,13 @@
 ---@param pivot ModelPart
 ---@param styl FOXStencil.Styles.Task
 return function(pivot, styl)
-	local rot = styl.task:getRot()
-		+ vec(30, -135, 0)
+	--[[
+		Currently, the rot is additive. It rotates the task's original rotation twice due to the matrix rotation and part rotation.
+		This needs to be rewritten to allow the task to use its own transformations, but it must be offset with isometric rotation.
+		Remember that getRot will not exist in rewrite.
+	]]
+
+	local rot = styl.task:getRot() + vec(30, -135, 0)
 
 	---@type Vector3
 	local pos
@@ -24,5 +29,5 @@ return function(pivot, styl)
 	pivot:newPart("task")
 		:addTask(styl.task)
 		:light(15, 15)
-		:matrix(mat) -- TODO AVOID MUTATING TASK
+		:matrix(mat)
 end
