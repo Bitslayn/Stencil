@@ -12,21 +12,29 @@ Find and fix padding bug
 Experiment with slice gutters for overlapping buttons
 OPTIMIZE OPTIMIZE OPTIMIZE
 Comment ALL math
-Allow sizing table to take optional fields
 Add scale
 Add text customizations
 Figure out widgets
 Add hover detection
 ]]
 
----@param elem FOXStencil.Element.Any
+---@param styl FOXStencil.Styles.Any
 ---@return integer, integer
-local function rotate(elem)
-	local dir = string.find(elem.styl.dir, "^[Vvy]") and 2 or 1
+local function rotate(styl)
+	local dir = string.find(styl.dir, "^[Vvy]") and 2 or 1
 	local a = dir
 	local b = dir % 2 + 1
 
 	return a, b
+end
+
+---@param styl FOXStencil.Styles.Any
+---@return [{[1]: number, [2]: number}, {[1]: number, [2]: number}]
+local function pad(styl)
+	return {
+		{ styl.pad[4], styl.pad[2] }, -- x: left, right
+		{ styl.pad[1], styl.pad[3] }, -- y: top, bottom
+	}
 end
 
 ---Recursively calculates size of all children
@@ -34,7 +42,7 @@ end
 ---@param axis integer
 function lib.size(elem, axis)
 	if not elem.chld then return end
-	local a, b = rotate(elem)
+	local a, b = rotate(elem.styl)
 
 	-- Fit children
 
@@ -67,12 +75,23 @@ function lib.size(elem, axis)
 	end
 end
 
+---@param tbl FOXStencil.Element.Any[]
+---@param axis any
+---@param rem number
+---@return number rem
+local function grow(tbl, axis, rem)
+
+
+	return rem
+end
+
 ---Recursively grows child elements
 ---@param elem FOXStencil.Element.Any
 ---@param axis integer
 function lib.grow(elem, axis)
 	if not elem.chld then return end
-	local a, b = rotate(elem)
+	local a, b = rotate(elem.styl)
+	local p = pad(elem.styl)
 
 	-- Find growable and shrinkable
 
@@ -101,7 +120,7 @@ function lib.grow(elem, axis)
 	-- Remaining size
 
 	---@type number
-	local rem = elem.styl.size[a] - elem.styl.pad[a] * 2
+	local rem = elem.styl.size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
 		rem = rem - elem.chld[i].styl.size[a]
 	end
@@ -109,91 +128,87 @@ function lib.grow(elem, axis)
 
 	-- Grow along layout
 
-	while rem > 0 and growable[1] do
-		---@type number
-		local size_l = growable[1].styl.size[a]
-		---@type number
-		local size_r = math.huge
-		---@type number
-		local add = rem
+	do
+		local tbl = growable
+		while rem > 0 and tbl[1] do
+			---@type number
+			local size_l = tbl[1].styl.size[a]
+			---@type number
+			local size_r = math.huge
+			---@type number
+			local add = rem
 
-		for i = 1, #growable do
-			local chld = growable[i]
-			if chld.styl.size[a] < size_l then
-				size_r = size_l
-				size_l = chld.styl.size[a]
-			end
-			if chld.styl.size[a] > size_l then
-				size_r = math.min(size_r, chld.styl.size[a])
-				add = size_r - size_l
-			end
-		end
-
-		---@type integer[]
-		local removing = {}
-
-		add = math.min(add, rem / #growable)
-
-		for i = 1, #growable do
-			local chld = growable[i]
-			local prev = chld.styl.size[a]
-			if chld.styl.size[a] == size_l then
-				chld.styl.size[a] = chld.styl.size[a] + add
-				if chld.styl.size[a] >= chld.styl.sizing[a].max then
-					chld.styl.size[a] = chld.styl.sizing[a].max
-					table.insert(removing, i)
+			for i = 1, #tbl do
+				local chld = tbl[i]
+				if chld.styl.size[a] < size_l then
+					size_r = size_l
+					size_l = chld.styl.size[a]
 				end
-				rem = rem - (chld.styl.size[a] - prev)
+				if chld.styl.size[a] > size_l then
+					size_r = math.min(size_r, chld.styl.size[a])
+					add = size_r - size_l
+				end
 			end
-		end
 
-		for i = 1, #removing do
-			table.remove(growable, removing[i])
+			---@type integer[]
+			local removing = {}
+
+			add = math.min(add, rem / #tbl)
+
+			for i, chld in ipairs(tbl) do
+				local prev = chld.styl.size[a]
+				if chld.styl.size[a] == size_l then
+					chld.styl.size[a] = chld.styl.size[a] + add
+					if chld.styl.size[a] >= chld.styl.sizing[a].max then
+						chld.styl.size[a] = chld.styl.sizing[a].max
+						table.remove(tbl, i)
+					end
+					rem = rem - (chld.styl.size[a] - prev)
+				end
+			end
 		end
 	end
 
 	-- Shrink along layout
 
-	while rem < 0 and shrinkable[1] do
-		---@type number
-		local size_l = shrinkable[1].styl.size[a]
-		---@type number
-		local size_r = math.huge
-		---@type number
-		local add = rem
+	do
+		local tbl = shrinkable
+		while rem < 0 and tbl[1] do
+			---@type number
+			local size_l = tbl[1].styl.size[a]
+			---@type number
+			local size_r = math.huge
+			---@type number
+			local add = rem
 
-		for i = 1, #shrinkable do
-			local chld = shrinkable[i]
-			if chld.styl.size[a] > size_l then
-				size_r = size_l
-				size_l = chld.styl.size[a]
-			end
-			if chld.styl.size[a] < size_l then
-				size_r = math.min(size_r, chld.styl.size[a])
-				add = size_r - size_l
-			end
-		end
-
-		---@type integer[]
-		local removing = {}
-
-		add = math.min(add, rem / #shrinkable)
-
-		for i = 1, #shrinkable do
-			local chld = shrinkable[i]
-			local prev = chld.styl.size[a]
-			if chld.styl.size[a] == size_l then
-				chld.styl.size[a] = chld.styl.size[a] + add
-				if chld.styl.size[a] <= chld.styl.sizing[a].min then
-					chld.styl.size[a] = chld.styl.sizing[a].min
-					table.insert(removing, i)
+			for i = 1, #tbl do
+				local chld = tbl[i]
+				if chld.styl.size[a] > size_l then
+					size_r = size_l
+					size_l = chld.styl.size[a]
 				end
-				rem = rem - (chld.styl.size[a] - prev)
+				if chld.styl.size[a] < size_l then
+					size_r = math.min(size_r, chld.styl.size[a])
+					add = size_r - size_l
+				end
 			end
-		end
 
-		for i = 1, #removing do
-			table.remove(shrinkable, removing[i])
+			---@type integer[]
+			local removing = {}
+
+			add = math.min(add, rem / #tbl)
+
+			for i, chld in ipairs(tbl) do
+				local prev = chld.styl.size[a]
+				if chld.styl.size[a] == size_l then
+					chld.styl.size[a] = chld.styl.size[a] + add
+					if chld.styl.size[a] <= chld.styl.sizing[a].min then
+						chld.styl.size[a] = chld.styl.sizing[a].min
+						table.remove(tbl, i)
+					end
+					rem = rem - (chld.styl.size[a] - prev)
+				end
+			end
 		end
 	end
 
@@ -210,7 +225,7 @@ function lib.wrap(elem)
 	if elem.type == "label" then
 		elem.styl.size = client.getTextDimensions(elem.styl.text, elem.styl.size.x)
 	elseif elem.type == "sprite" then
-		local dim = elem.styl.texture--[[@as Texture]]:getDimensions()
+		local dim = elem.styl.texture --[[@as Texture]]:getDimensions()
 		elem.styl.size.y = dim.y / dim.x * elem.styl.size.x
 	elseif elem.chld then
 		for i = 1, #elem.chld do
@@ -224,16 +239,12 @@ end
 ---@param elem FOXStencil.Element.Any
 function lib.position(elem)
 	if not elem.chld then return end
-	local a, b = rotate(elem)
-
-	local pad = {
-		{ elem.styl.pad[4], elem.styl.pad[2] }, -- x: left, right
-		{ elem.styl.pad[1], elem.styl.pad[3] }, -- y: top, bottom
-	}
+	local a, b = rotate(elem.styl)
+	local p = pad(elem.styl)
 
 	-- Distribute
 
-	local offset = pad[a][1]
+	local offset = p[a][1]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		lib.position(chld)
@@ -245,12 +256,12 @@ function lib.position(elem)
 
 	-- Align & Justify
 
-	local rem = math.max(elem.styl.size[a] - offset + elem.styl.gap - pad[a][2], 0)
+	local rem = math.max(elem.styl.size[a] - offset + elem.styl.gap - p[a][2], 0)
 	local inner = rem * elem.styl.justify
 	local outer = rem * -(elem.styl.justify - 1)
 	local gap = #elem.chld > 1 and inner / (#elem.chld - 1) or 0
 
-	local y = math.max(elem.styl.size[b] - pad[b][1] - pad[b][2], 0)
+	local y = math.max(elem.styl.size[b] - p[b][1] - p[b][2], 0)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
