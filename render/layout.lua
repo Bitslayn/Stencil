@@ -80,8 +80,6 @@ end
 ---@param rem number
 ---@return number rem
 local function grow(tbl, axis, rem)
-
-
 	return rem
 end
 
@@ -107,11 +105,7 @@ function lib.grow(elem, axis)
 			table.insert(shrinkable, chld)
 		end
 		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
-			if b == 1 then
-				chld.styl.size.x = elem.styl.size.x - elem.styl.pad[2] - elem.styl.pad[4]
-			else
-				chld.styl.size.y = elem.styl.size.y - elem.styl.pad[1] - elem.styl.pad[3]
-			end
+			chld.styl.size[b] = elem.styl.size[b] - p[b][1] - p[b][2]
 		end
 	end
 
@@ -129,8 +123,12 @@ function lib.grow(elem, axis)
 	-- Grow along layout
 
 	do
+		local count = 0
 		local tbl = growable
 		while rem > 0 and tbl[1] do
+			count = count + 1
+			if count > 10 then break end
+
 			---@type number
 			local size_l = tbl[1].styl.size[a]
 			---@type number
@@ -172,8 +170,12 @@ function lib.grow(elem, axis)
 	-- Shrink along layout
 
 	do
+		local count = 0
 		local tbl = shrinkable
 		while rem < 0 and tbl[1] do
+			count = count + 1
+			if count > 10 then break end
+
 			---@type number
 			local size_l = tbl[1].styl.size[a]
 			---@type number
@@ -271,13 +273,15 @@ function lib.position(elem)
 	end
 end
 
+local path = string.sub(..., 0, string.find(..., "[^/]+$") - 1) .. "element/"
+
 ---Creates ModelParts for this element and all of its children recursively
 ---@param elem FOXStencil.Element.Any
 ---@param part ModelPart
 function lib.draw(elem, part)
 	-- Create parent pivot
 
-	local parent = models:newPart("elem")
+	elem.styl.part = models:newPart("elem")
 		:moveTo(part)
 		:pos(-elem.styl.pos:augmented(0.0625))
 
@@ -285,13 +289,13 @@ function lib.draw(elem, part)
 
 	if elem.chld then
 		for i = 1, #elem.chld do
-			lib.draw(elem.chld[i], parent)
+			lib.draw(elem.chld[i], elem.styl.part)
 		end
 	end
 
 	-- Creates the element
 
-	require("../element/" .. elem.type)(parent, elem.styl)
+	require(path .. elem.type)(elem.styl.part, elem.styl)
 end
 
 return lib

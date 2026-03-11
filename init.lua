@@ -8,17 +8,18 @@ local api = {}
 ---| "GROW"
 
 ---@class FOXStencil.Sizing.Property
----@field mode FOXStencil.Sizing.Mode
----@field min number
----@field max number
+---@field mode FOXStencil.Sizing.Mode?
+---@field min number?
+---@field max number?
 
----@alias FOXStencil.Sizing [FOXStencil.Sizing.Property, FOXStencil.Sizing.Property]
+---@alias FOXStencil.Sizing [FOXStencil.Sizing.Property?, FOXStencil.Sizing.Property?]
 
 ---@class FOXStencil.Styles.Common
 ---@field pos Vector2?
 ---@field size Vector2?
 ---@field sizing FOXStencil.Sizing?
 ---@field scale Vector2?
+---@field part ModelPart?
 
 ---@alias FOXStencil.Direction
 ---| "x"
@@ -214,7 +215,7 @@ function element:label(styl)
 	styl.text = styl.text or ""
 
 	styl.size = styl.size or vectors.vec2()
-	for w in styl.text:gmatch("[^%s]+") do
+	for w in string.gmatch(styl.text, "[^%s]+") do
 		local size = client.getTextDimensions(w)
 		styl.size = styl.size.x < size.x and size or styl.size
 	end
