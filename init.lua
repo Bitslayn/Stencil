@@ -49,16 +49,12 @@ element.__index = element
 
 ---@alias FOXStencil.Element.Any
 ---| FOXStencil.Element.Box
----| FOXStencil.Element.Outline
----| FOXStencil.Element.Slice
 ---| FOXStencil.Element.Label
 ---| FOXStencil.Element.Sprite
 ---| FOXStencil.Element.Part
 ---| FOXStencil.Element.Task
 ---@alias FOXStencil.Styles.Any
 ---| FOXStencil.Styles.Box
----| FOXStencil.Styles.Outline
----| FOXStencil.Styles.Slice
 ---| FOXStencil.Styles.Label
 ---| FOXStencil.Styles.Sprite
 ---| FOXStencil.Styles.Part
@@ -127,10 +123,20 @@ local function new(id, styl, chld, parn)
 	return elem
 end
 
+---@class FOXStencil.Texture
+---@field atlas Texture
+---@field pos Vector2?
+---@field size Vector2?
+---@field slice Vector4?
+---@field color Vector3|Vector4?
+---@field extend Vector4?
+
 ---@class FOXStencil.Element.Box: FOXStencil.Element
 ---@field styl FOXStencil.Styles.Box
 ---@class FOXStencil.Styles.Box: FOXStencil.Styles.Common, FOXStencil.Styles.Container
----@field color Vector3|Vector4?
+---@field texture FOXStencil.Texture?
+---@field line_color Vector3|Vector4?
+---@field line_weight number?
 
 ---Creates a new box
 ---@param styl FOXStencil.Styles.Box?
@@ -138,7 +144,15 @@ end
 function api.new(styl)
 	styl = styl or {}
 
-	styl.color = styl.color or vectors.vec4()
+	styl.line_color = styl.line_color or vectors.vec4()
+	styl.line_weight = styl.line_weight or 1
+
+	styl.texture = styl.texture or {}
+	styl.texture.pos = styl.texture.pos or vectors.vec2()
+	styl.texture.size = styl.texture.size or styl.texture.atlas and styl.texture.atlas:getDimensions() or vec(1, 1)
+	styl.texture.slice = styl.texture.slice or vectors.vec4()
+	styl.texture.color = styl.texture.color or vectors.vec4()
+	styl.texture.extend = styl.texture.extend or vectors.vec4()
 
 	return new("box", styl, {}) --[[@as FOXStencil.Element.Box]]
 end
@@ -149,55 +163,17 @@ end
 function element:box(styl)
 	styl = styl or {}
 
-	styl.color = styl.color or vectors.vec4()
-	
-	return new("box", styl, {}, self) --[[@as FOXStencil.Element.Box]]
-end
+	styl.line_color = styl.line_color or vectors.vec4()
+	styl.line_weight = styl.line_weight or 1
 
----@class FOXStencil.Element.Outline: FOXStencil.Element
----@field styl FOXStencil.Styles.Outline
----@class FOXStencil.Styles.Outline: FOXStencil.Styles.Common, FOXStencil.Styles.Container
----@field color Vector3|Vector4?
----@field weight number?
-
----Creates a new outline
----@param styl FOXStencil.Styles.Outline
----@return FOXStencil.Element.Outline
-function element:outline(styl)
-	styl = styl or {}
-
-	styl.color = styl.color or vectors.vec4()
-	styl.weight = styl.weight or 1
-	
-	return new("outline", styl, {}, self) --[[@as FOXStencil.Element.Outline]]
-end
-
----@class FOXStencil.Texture
----@field atlas Texture
----@field pos Vector2?
----@field size Vector2?
----@field slice Vector4?
-
----@class FOXStencil.Element.Slice: FOXStencil.Element
----@field styl FOXStencil.Styles.Slice
----@class FOXStencil.Styles.Slice: FOXStencil.Styles.Common, FOXStencil.Styles.Container
----@field texture FOXStencil.Texture
-
----Creates a new 9 slice
----@param styl FOXStencil.Styles.Slice
----@return FOXStencil.Element.Slice
-function element:slice(styl)
-	styl = styl or {}
-
-	if not (styl.texture and styl.texture.atlas) then
-		error("Slice element texture has missing required fields", 2)
-	end
-
+	styl.texture = styl.texture or {}
 	styl.texture.pos = styl.texture.pos or vectors.vec2()
-	styl.texture.size = styl.texture.size or styl.texture.atlas:getDimensions()
+	styl.texture.size = styl.texture.size or styl.texture.atlas and styl.texture.atlas:getDimensions() or vec(1, 1)
 	styl.texture.slice = styl.texture.slice or vectors.vec4()
+	styl.texture.color = styl.texture.color or vec(1, 1, 1)
+	styl.texture.extend = styl.texture.extend or vectors.vec4()
 
-	return new("slice", styl, {}, self) --[[@as FOXStencil.Element.Slice]]
+	return new("box", styl, {}, self) --[[@as FOXStencil.Element.Box]]
 end
 
 ---@class FOXStencil.Element.Label: FOXStencil.Element
