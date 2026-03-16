@@ -1,12 +1,11 @@
+local tex = textures:newTexture("", 1, 1):pixel(0, 0, vec(1, 1, 1))
+
 ---@param pivot ModelPart
 ---@param styl FOXStencil.Styles.Box
 return function(pivot, styl)
-	local mat = matrices.scale4((vec(1 / 2, 1 / 20) * styl.size * 2).xy_)
-		* matrices.translate4(-1, -1, 0) -- Text background is offset by a single pixel, this fixes that
-
-	pivot:newText("task")
-		:text("")
-		:backgroundColor(styl.color)
-		:matrix(mat)
-		:light(15)
+	pivot:newSprite("background")
+		:texture(tex, 1, 1)
+		:scale(styl.size.xy_)
+		:renderType("CUTOUT_EMISSIVE_SOLID")
+		:color(styl.color)
 end

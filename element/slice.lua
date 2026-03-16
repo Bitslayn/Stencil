@@ -9,33 +9,41 @@ return function(pivot, styl)
 	
 	styl.size.x = math.max(styl.size.x, l + r)
 	styl.size.y = math.max(styl.size.y, t + b)
+
+	-- Center slice
 	
-	local c_w = w - l - r
-	local c_h = h - t - b
-	local s_w = styl.size.x - l - r
-	local s_h = styl.size.y - t - b
+	local c_atlas_w = w - l - r
+	local c_atlas_h = h - t - b
+	local c_model_w = styl.size.x - l - r
+	local c_model_h = styl.size.y - t - b
 
-	local pos_x = { 0, -l, -l - s_w }
-	local size_x = { l, s_w, r }
-	local uv_x = { 0, l, l + c_w }
-	local reg_x = { l, c_w, r }
+	-- Row slices
 
-	local pos_y = { 0, -t, -t - s_h }
-	local size_y = { t, s_h, b }
-	local uv_y = { 0, t, t + c_h }
-	local reg_y = { t, c_h, b }
+	local e_atlas_x = { 0, l, l + c_atlas_w }
+	local e_atlas_w = { l, c_atlas_w, r }
+	local e_model_x = { 0, -l, -l - c_model_w }
+	local e_model_w = { l, c_model_w, r }
+
+	-- Column slices
+
+	local e_atlas_y = { 0, t, t + c_atlas_h }
+	local e_atlas_h = { t, c_atlas_h, b }
+	local e_model_y = { 0, -t, -t - c_model_h }
+	local e_model_h = { t, c_model_h, b }
+
+	-- Create slices
 
 	for y = 1, 3 do
 		for x = 1, 3 do
-			if size_x[x] > 0 and size_y[y] > 0 then
+			if e_model_w[x] > 0 and e_model_h[y] > 0 then
 				pivot:newSprite("task-" .. x .. y)
 					:texture(tex.atlas)
 					:dimensions(dim)
 					:size(1, 1)
-					:pos(pos_x[x], pos_y[y])
-					:scale(size_x[x], size_y[y])
-					:uvPixels(tex.pos + vec(uv_x[x], uv_y[y]))
-					:region(reg_x[x], reg_y[y])
+					:uvPixels(tex.pos + vec(e_atlas_x[x], e_atlas_y[y]))
+					:region(e_atlas_w[x], e_atlas_h[y])
+					:pos(e_model_x[x], e_model_y[y])
+					:scale(e_model_w[x], e_model_h[y])
 					:renderType("CUTOUT_EMISSIVE_SOLID")
 			end
 		end
