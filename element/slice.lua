@@ -5,31 +5,27 @@ return function(pivot, styl)
 	local dim = tex.atlas:getDimensions()
 
 	local t, r, b, l = tex.slice:unpack()
-	local w, h = tex.size:unpack()
-	
-	styl.size.x = math.max(styl.size.x, l + r)
-	styl.size.y = math.max(styl.size.y, t + b)
+	local atlas_w, atlas_h = tex.size:unpack()
+	local model_w, model_h = styl.size:unpack()
 
-	-- Center slice
-	
-	local c_atlas_w = w - l - r
-	local c_atlas_h = h - t - b
-	local c_model_w = styl.size.x - l - r
-	local c_model_h = styl.size.y - t - b
+	l = math.min(l, model_w / 2)
+	r = math.min(r, model_w / 2)
+	t = math.min(t, model_h / 2)
+	b = math.min(b, model_h / 2)
 
 	-- Row slices
 
-	local e_atlas_x = { 0, l, l + c_atlas_w }
-	local e_atlas_w = { l, c_atlas_w, r }
-	local e_model_x = { 0, -l, -l - c_model_w }
-	local e_model_w = { l, c_model_w, r }
+	local e_atlas_x = { 0, l, atlas_w - r }
+	local e_atlas_w = { l, atlas_w - l - r, r }
+	local e_model_x = { 0, l, model_w - r }
+	local e_model_w = { l, model_w - l - r, r }
 
 	-- Column slices
 
-	local e_atlas_y = { 0, t, t + c_atlas_h }
-	local e_atlas_h = { t, c_atlas_h, b }
-	local e_model_y = { 0, -t, -t - c_model_h }
-	local e_model_h = { t, c_model_h, b }
+	local e_atlas_y = { 0, t, atlas_h - b }
+	local e_atlas_h = { t, atlas_h - t - b, b }
+	local e_model_y = { 0, t, model_h - b }
+	local e_model_h = { t, model_h - t - b, b }
 
 	-- Create slices
 
@@ -42,7 +38,7 @@ return function(pivot, styl)
 					:size(1, 1)
 					:uvPixels(tex.pos + vec(e_atlas_x[x], e_atlas_y[y]))
 					:region(e_atlas_w[x], e_atlas_h[y])
-					:pos(e_model_x[x], e_model_y[y])
+					:pos(-e_model_x[x], -e_model_y[y])
 					:scale(e_model_w[x], e_model_h[y])
 					:renderType("CUTOUT_EMISSIVE_SOLID")
 			end
