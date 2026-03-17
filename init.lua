@@ -124,7 +124,7 @@ local function new(id, styl, chld, parn)
 end
 
 ---@class FOXStencil.Texture
----@field atlas Texture
+---@field atlas Texture?
 ---@field pos Vector2?
 ---@field size Vector2?
 ---@field slice Vector4?
@@ -258,6 +258,17 @@ function element:draw(part)
 	layout.grow(self, 2)
 	layout.position(self)
 	layout.draw(self, part)
+
+	return self
+end
+
+---Redraws the current element where a layout recalculation wouldn't be necessary
+---@generic self
+---@param self self
+---@return self
+function element:redraw()
+	self.styl.part:remove()
+	layout.draw(self, self.parn.styl.part)
 
 	return self
 end
