@@ -57,9 +57,6 @@ local function slice(pivot, styl)
 	local atlas_w, atlas_h = tex.size:unpack()
 	local model_w, model_h = (styl.size + tex.extend.yx + tex.extend.wz):unpack()
 
-	local clip_x = math.max(-model_w + l + r, 0)
-	local clip_y = math.max(-model_h + t + b, 0)
-
 	l = math.min(l, model_w / 2)
 	r = math.min(r, model_w / 2)
 	t = math.min(t, model_h / 2)

@@ -298,4 +298,26 @@ function lib.draw(elem, part)
 	require(path .. elem.type)(elem.styl.part, elem.styl)
 end
 
+---Recursively gets the element hovered over
+---@param elem FOXStencil.Element.Any
+---@param pos Vector2
+---@return FOXStencil.Element.Any?
+function lib.hover(elem, pos)
+	local styl = elem.styl
+	if not (styl.pos < pos and pos < styl.pos + styl.size) then return end
+
+	-- Find hovered child element
+
+	if elem.chld then
+		for i = #elem.chld, 1, -1 do
+			local res = lib.hover(elem.chld[i], pos - styl.pos)
+			if res then return res end
+		end
+	end
+
+	-- Fall back to returning current hovered element
+
+	return elem
+end
+
 return lib
