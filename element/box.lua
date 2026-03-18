@@ -105,5 +105,7 @@ return function(pivot, styl)
 		sprite(pivot, styl)
 	end
 
-	outline(pivot, styl)
+	if styl.line_color.a > 0 and styl.line_weight > 0 then
+		outline(pivot, styl)
+	end
 end

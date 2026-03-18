@@ -43,6 +43,7 @@ end
 function lib.size(elem, axis)
 	if not elem.chld then return end
 	local a, b = rotate(elem.styl)
+	local p = pad(elem.styl)
 
 	-- Fit children
 
@@ -65,23 +66,19 @@ function lib.size(elem, axis)
 	-- Gap & Padding
 
 	if a == axis then
-		elem.styl.size[a] = elem.styl.size[a] + elem.styl.gap * (#elem.chld - 1)
+		elem.styl.size[axis] = elem.styl.size[axis] + elem.styl.gap * (#elem.chld - 1)
 	end
-
-	if axis == 1 then
-		elem.styl.size.x = elem.styl.size.x + elem.styl.pad[2] + elem.styl.pad[4]
-	else
-		elem.styl.size.y = elem.styl.size.y + elem.styl.pad[1] + elem.styl.pad[3]
-	end
+	
+	elem.styl.size[axis] = elem.styl.size[axis] + p[axis][1] + p[axis][1]
 end
 
----@param tbl FOXStencil.Element.Any[]
----@param axis any
----@param rem number
----@return number rem
-local function grow(tbl, axis, rem)
-	return rem
-end
+-- ---@param tbl FOXStencil.Element.Any[]
+-- ---@param axis any
+-- ---@param rem number
+-- ---@return number rem
+-- local function grow(tbl, axis, rem)
+-- 	return rem
+-- end
 
 ---Recursively grows child elements
 ---@param elem FOXStencil.Element.Any
@@ -105,7 +102,7 @@ function lib.grow(elem, axis)
 			table.insert(shrinkable, chld)
 		end
 		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
-			chld.styl.size[b] = elem.styl.size[b] - p[b][1] - p[b][2]
+			chld.styl.size[axis] = elem.styl.size[axis] - p[axis][1] - p[axis][2]
 		end
 	end
 
@@ -253,7 +250,7 @@ function lib.position(elem)
 
 		chld.styl.pos[a] = chld.styl.pos[a] + offset
 		offset = offset + chld.styl.size[a] + elem.styl.gap
-		chld.styl.pos[b] = chld.styl.pos[b] + elem.styl.pad[b]
+		chld.styl.pos[b] = chld.styl.pos[b] + p[b][1]
 	end
 
 	-- Align & Justify
