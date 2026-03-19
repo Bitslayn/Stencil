@@ -257,7 +257,10 @@ function element:draw(part)
 	layout.size(self, 2)
 	layout.grow(self, 2)
 	layout.position(self)
+	-- local a = client.getSystemTime()
 	layout.draw(self, part)
+	-- local b = client.getSystemTime()
+	-- host:actionbar(tostring(b - a))
 
 	return self
 end
@@ -340,5 +343,7 @@ function element:worldHover()
 
 	return self:hover(pos)
 end
+
+require("./styles")
 
 return api

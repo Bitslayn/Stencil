@@ -1,21 +1,16 @@
 ---@class FOXStencil.Render.Layout
 local lib = {}
 
---[[
-All child element positions are relative to their parent
-The parent element size depends on its children
-Calculate width first before wrapping text and then calculate height
-]]
-
 --[[ TODO
-Find and fix padding bug
-Experiment with slice gutters for overlapping buttons
-OPTIMIZE OPTIMIZE OPTIMIZE
+Optimize rendering (Allow for reusing layouts):
+	Separate styles and state to avoid mutation and allow safe redraw
+	Split draw into create and transform steps
+	Split elements into separate files again, but drawing elements can draw from any or all element definitions in a flat way
 Comment ALL math
 Add scale
+Add margins
 Add text customizations
 Figure out widgets
-Add hover detection
 ]]
 
 ---@param styl FOXStencil.Styles.Any
