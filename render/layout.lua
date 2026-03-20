@@ -78,12 +78,12 @@ function lib.grow(elem, axis)
 	-- Find growable and shrinkable
 
 	---@type FOXStencil.Element.Any[]
-	local growable = {}
+	local flexible = {}
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if a == axis and string.find(chld.styl.sizing[a].mode, "^[Gg]") then
-			table.insert(growable, chld)
+			table.insert(flexible, chld)
 		end
 		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
 			chld.styl.size[axis] = elem.styl.size[axis] - p[axis][1] - p[axis][2]
@@ -104,16 +104,16 @@ function lib.grow(elem, axis)
 	-- Grow and shrink along layout
 
 	local sign = math.sign(rem)
-	while sign * (rem - rem % .25) > 0 and growable[1] do
+	while sign * (rem - rem % .25) > 0 and flexible[1] do
 		---@type number
-		local size_l = growable[1].styl.size[a]
+		local size_l = flexible[1].styl.size[a]
 		---@type number
 		local size_r = math.huge
 		---@type number
 		local add = rem
 
-		for i = 1, #growable do
-			local chld = growable[i]
+		for i = 1, #flexible do
+			local chld = flexible[i]
 			local size = chld.styl.size[a]
 			if size ~= size_l then
 				if sign * size < sign * size_l then
@@ -126,9 +126,9 @@ function lib.grow(elem, axis)
 			end
 		end
 
-		add = math.min(add, rem / #growable)
+		add = math.min(add, rem / #flexible)
 
-		for i, chld in ipairs(growable) do
+		for i, chld in ipairs(flexible) do
 			local size = chld.styl.size[a]
 			local prev = size
 			if size == size_l then
@@ -136,7 +136,7 @@ function lib.grow(elem, axis)
 				local sizing = chld.styl.sizing[a]
 				if size <= sizing.min or size >= sizing.max then
 					size = math.clamp(size, sizing.min, sizing.max)
-					table.remove(growable, i)
+					table.remove(flexible, i)
 				end
 				rem = rem - (size - prev)
 				chld.styl.size[a] = size
