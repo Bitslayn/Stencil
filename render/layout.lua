@@ -63,17 +63,9 @@ function lib.size(elem, axis)
 	if a == axis then
 		elem.styl.size[axis] = elem.styl.size[axis] + elem.styl.gap * (#elem.chld - 1)
 	end
-	
+
 	elem.styl.size[axis] = elem.styl.size[axis] + p[axis][1] + p[axis][1]
 end
-
--- ---@param tbl FOXStencil.Element.Any[]
--- ---@param axis any
--- ---@param rem number
--- ---@return number rem
--- local function grow(tbl, axis, rem)
--- 	return rem
--- end
 
 ---Recursively grows child elements
 ---@param elem FOXStencil.Element.Any
@@ -87,14 +79,11 @@ function lib.grow(elem, axis)
 
 	---@type FOXStencil.Element.Any[]
 	local growable = {}
-	---@type FOXStencil.Element.Any[]
-	local shrinkable = {}
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if a == axis and string.find(chld.styl.sizing[a].mode, "^[Gg]") then
 			table.insert(growable, chld)
-			table.insert(shrinkable, chld)
 		end
 		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
 			chld.styl.size[axis] = elem.styl.size[axis] - p[axis][1] - p[axis][2]
@@ -112,88 +101,45 @@ function lib.grow(elem, axis)
 	end
 	rem = rem - elem.styl.gap * (#elem.chld - 1)
 
-	-- Grow along layout
+	-- Grow and shrink along layout
 
-	do
-		local tbl = growable
-		while rem - rem % .25 > 0 and tbl[1] do
-			---@type number
-			local size_l = tbl[1].styl.size[a]
-			---@type number
-			local size_r = math.huge
-			---@type number
-			local add = rem
+	local sign = math.sign(rem)
+	while sign * (rem - rem % .25) > 0 and growable[1] do
+		---@type number
+		local size_l = growable[1].styl.size[a]
+		---@type number
+		local size_r = math.huge
+		---@type number
+		local add = rem
 
-			for i = 1, #tbl do
-				local chld = tbl[i]
-				if chld.styl.size[a] < size_l then
+		for i = 1, #growable do
+			local chld = growable[i]
+			local size = chld.styl.size[a]
+			if size ~= size_l then
+				if sign * size < sign * size_l then
 					size_r = size_l
-					size_l = chld.styl.size[a]
-				end
-				if chld.styl.size[a] > size_l then
-					size_r = math.min(size_r, chld.styl.size[a])
+					size_l = size
+				else
+					size_r = math.min(size_r, size)
 					add = size_r - size_l
-				end
-			end
-
-			---@type integer[]
-			local removing = {}
-
-			add = math.min(add, rem / #tbl)
-
-			for i, chld in ipairs(tbl) do
-				local prev = chld.styl.size[a]
-				if chld.styl.size[a] == size_l then
-					chld.styl.size[a] = chld.styl.size[a] + add
-					if chld.styl.size[a] >= chld.styl.sizing[a].max then
-						chld.styl.size[a] = chld.styl.sizing[a].max
-						table.remove(tbl, i)
-					end
-					rem = rem - (chld.styl.size[a] - prev)
 				end
 			end
 		end
-	end
 
-	-- Shrink along layout
+		add = math.min(add, rem / #growable)
 
-	do
-		local tbl = shrinkable
-		while rem - rem % .25 < 0 and tbl[1] do
-			---@type number
-			local size_l = tbl[1].styl.size[a]
-			---@type number
-			local size_r = math.huge
-			---@type number
-			local add = rem
-
-			for i = 1, #tbl do
-				local chld = tbl[i]
-				if chld.styl.size[a] > size_l then
-					size_r = size_l
-					size_l = chld.styl.size[a]
+		for i, chld in ipairs(growable) do
+			local size = chld.styl.size[a]
+			local prev = size
+			if size == size_l then
+				size = size + add
+				local sizing = chld.styl.sizing[a]
+				if size <= sizing.min or size >= sizing.max then
+					size = math.clamp(size, sizing.min, sizing.max)
+					table.remove(growable, i)
 				end
-				if chld.styl.size[a] < size_l then
-					size_r = math.min(size_r, chld.styl.size[a])
-					add = size_r - size_l
-				end
-			end
-
-			---@type integer[]
-			local removing = {}
-
-			add = math.min(add, rem / #tbl)
-
-			for i, chld in ipairs(tbl) do
-				local prev = chld.styl.size[a]
-				if chld.styl.size[a] == size_l then
-					chld.styl.size[a] = chld.styl.size[a] + add
-					if chld.styl.size[a] <= chld.styl.sizing[a].min then
-						chld.styl.size[a] = chld.styl.sizing[a].min
-						table.remove(tbl, i)
-					end
-					rem = rem - (chld.styl.size[a] - prev)
-				end
+				rem = rem - (size - prev)
+				chld.styl.size[a] = size
 			end
 		end
 	end
