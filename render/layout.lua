@@ -115,12 +115,8 @@ function lib.grow(elem, axis)
 	-- Grow along layout
 
 	do
-		local count = 0
 		local tbl = growable
-		while rem > 0 and tbl[1] do
-			count = count + 1
-			if count > 10 then break end
-
+		while rem - rem % .25 > 0 and tbl[1] do
 			---@type number
 			local size_l = tbl[1].styl.size[a]
 			---@type number
@@ -162,12 +158,8 @@ function lib.grow(elem, axis)
 	-- Shrink along layout
 
 	do
-		local count = 0
 		local tbl = shrinkable
-		while rem < 0 and tbl[1] do
-			count = count + 1
-			if count > 10 then break end
-
+		while rem - rem % .25 < 0 and tbl[1] do
 			---@type number
 			local size_l = tbl[1].styl.size[a]
 			---@type number
