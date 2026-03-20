@@ -75,7 +75,7 @@ function lib.grow(elem, axis)
 	local a, b = rotate(elem.styl)
 	local p = pad(elem.styl)
 
-	-- Find growable and shrinkable
+	-- Find flexible
 
 	---@type FOXStencil.Element.Any[]
 	local flexible = {}
@@ -90,11 +90,8 @@ function lib.grow(elem, axis)
 		end
 	end
 
-	-- Grow & Shrink
+	-- Calculate remaining size
 
-	-- Remaining size
-
-	---@type number
 	local rem = elem.styl.size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
 		rem = rem - elem.chld[i].styl.size[a]
@@ -103,14 +100,13 @@ function lib.grow(elem, axis)
 
 	-- Grow and shrink along layout
 
-	local sign = math.sign(rem)
-	while sign * (rem - rem % .25) > 0 and flexible[1] do
-		---@type number
+	while rem - rem % .25 ~= 0 and flexible[1] do
+		local sign = math.sign(rem)
 		local size_l = flexible[1].styl.size[a]
-		---@type number
 		local size_r = math.huge
-		---@type number
 		local add = rem
+
+		-- Find largest children
 
 		for i = 1, #flexible do
 			local chld = flexible[i]
@@ -126,7 +122,11 @@ function lib.grow(elem, axis)
 			end
 		end
 
+		-- Distributes remaining size
+
 		add = math.min(add, rem / #flexible)
+
+		-- Grows or shrinks largest children evenly, and pops off children that cannot be sized further
 
 		for i, chld in ipairs(flexible) do
 			local size = chld.styl.size[a]
@@ -144,7 +144,7 @@ function lib.grow(elem, axis)
 		end
 	end
 
-	-- Recurse
+	-- Recurse children
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
