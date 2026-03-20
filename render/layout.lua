@@ -234,7 +234,7 @@ end
 ---@return FOXStencil.Element.Any?
 function lib.hover(elem, pos)
 	local styl = elem.styl
-	if not (styl.pos < pos and pos < styl.pos + styl.size) then return end
+	if not (styl.pos <= pos and pos <= styl.pos + styl.size) then return end
 
 	-- Find hovered child element
 
