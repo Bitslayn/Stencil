@@ -64,7 +64,7 @@ function lib.size(elem, axis)
 		elem.styl.size[axis] = elem.styl.size[axis] + elem.styl.gap * (#elem.chld - 1)
 	end
 
-	elem.styl.size[axis] = elem.styl.size[axis] + p[axis][1] + p[axis][1]
+	elem.styl.size[axis] = elem.styl.size[axis] + p[axis][1] + p[axis][2]
 end
 
 ---Recursively grows child elements
