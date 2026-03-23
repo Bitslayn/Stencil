@@ -217,7 +217,6 @@ function lib.draw(elem)
 	elem.elem.border:update(elem.stat)
 	-- elem.elem.label:update(elem.stat)
 	elem.elem.slice:update(elem.stat)
-	elem.elem.texture:update(elem.stat)
 end
 
 -- ---Recursively gets the element hovered over

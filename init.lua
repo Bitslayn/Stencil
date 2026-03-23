@@ -102,7 +102,7 @@ end
 ---@field styl Stencil.Styles
 ---@field stat Stencil.State
 ---@field part ModelPart
----@field elem table<string, Stencil.Elements.Border|Stencil.Elements.Slice|Stencil.Elements.Texture>
+---@field elem table<string, Stencil.Elements.Border|Stencil.Elements.Slice>
 local element = {}
 ---@package
 element.__index = element
@@ -111,7 +111,6 @@ textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
 local border = require("./element/border")
 local label = require("./element/label")
 local slice = require("./element/slice")
-local texture = require("./element/texture")
 
 ---Deep copies the given table, including metatables
 ---@param t table
@@ -145,7 +144,6 @@ local function newElement(self, styl)
 			border = border(part),
 			-- label = label(part),
 			slice = slice(part),
-			texture = texture(part),
 		},
 	}, element)
 	table.insert(self.chld, new)
