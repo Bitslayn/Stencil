@@ -1,27 +1,7 @@
----@class FOXStencil
+---@class Stencil
 local api = {}
 
----@alias FOXStencil.Sizing.Mode
----| "fit"
----| "FIT"
----| "grow"
----| "GROW"
-
----@class FOXStencil.Sizing.Property
----@field mode FOXStencil.Sizing.Mode?
----@field min number?
----@field max number?
-
----@alias FOXStencil.Sizing [FOXStencil.Sizing.Property?, FOXStencil.Sizing.Property?]
-
----@class FOXStencil.Styles.Common
----@field pos Vector2?
----@field size Vector2?
----@field sizing FOXStencil.Sizing?
----@field scale Vector2?
----@field part ModelPart?
-
----@alias FOXStencil.Direction
+---@alias Stencil.Direction
 ---| "x"
 ---| "hor"
 ---| "horizontal"
@@ -31,216 +11,157 @@ local api = {}
 ---| "vertical"
 ---| "VERTICAL"
 
----@class FOXStencil.Styles.Container
----@field pad Vector4? Margin around children
----@field gap number? Margin between children
----@field dir FOXStencil.Direction?
----@field align Vector2?
----@field justify number?
+---@alias Stencil.Styles.Pos Vector2
+---@alias Stencil.Styles.Size Vector2
+---@alias Stencil.Styles.Scale number|Vector2
+---@alias Stencil.Styles.Margin number|Vector2|Vector3|Vector4
+---@alias Stencil.Styles.Border number|Vector2|Vector3|Vector4
+---@alias Stencil.Styles.Dir Stencil.Direction
+---@alias Stencil.Styles.Padding number|Vector2|Vector3|Vector4
+---@alias Stencil.Styles.Gap number
+---@alias Stencil.Styles.Justify number
+---@alias Stencil.Styles.Align number|Vector2
+---@alias Stencil.Styles.Color Vector3|Vector4
+---@alias Stencil.Styles.Label string
+---@alias Stencil.Styles.Texture Texture
 
----@class FOXStencil.Element
----@field type string
----@field styl FOXStencil.Styles.Any
----@field parn FOXStencil.Element.Any?
----@field chld FOXStencil.Element.Any[]?
+---@class Stencil.Styles
+---@field pos Stencil.Styles.Pos?
+---@field size Stencil.Styles.Size?
+---@field scale Stencil.Styles.Scale?
+---@field margin Stencil.Styles.Margin?
+---@field border Stencil.Styles.Border?
+---@field dir Stencil.Styles.Dir?
+---@field padding Stencil.Styles.Padding?
+---@field gap Stencil.Styles.Gap?
+---@field justify Stencil.Styles.Justify?
+---@field align Stencil.Styles.Align?
+---@field color Stencil.Styles.Color?
+---@field label Stencil.Styles.Label?
+---@field texture Stencil.Styles.Texture?
+
+---@class Stencil.State.Size
+---@field [number] {mode: "FIT"|"GROW", min: number, max: number, val: number}
+---@class Stencil.State.Border
+---@field [number] {weight: number, color: Vector3|Vector4}
+---@class Stencil.State.Label
+---@field text string
+---@field color Vector3|Vector4
+---@field align "LEFT"|"CENTER"|"RIGHT"
+---@class Stencil.State.Texture
+---@field atlas Texture
+---@field pos Vector2
+---@field size Vector2
+---@field slice Vector4
+---@field extend Vector4
+
+---@class Stencil.State
+---@field pos Vector2
+---@field size Stencil.State.Size
+---@field scale number|Vector2
+---@field margin Vector4
+---@field border Stencil.State.Border
+---@field dir Stencil.Direction
+---@field padding Vector4
+---@field gap number
+---@field justify number
+---@field align Vector2
+---@field color Vector3|Vector4
+---@field label Stencil.State.Label
+---@field texture Stencil.State.Texture
+
+---@class Stencil.Screen
+---@field chld Stencil.Element[]
+---@field part ModelPart
+local screen = {}
+---@package
+screen.__index = screen
+
+---@param part ModelPart
+function api.newScreen(part)
+	return setmetatable({
+		chld = {},
+		stat = {
+			padding = vectors.vec4(),
+			dir = "x",
+			size = {
+				{ mode = "FIT", min = 0, max = math.huge, val = 0 },
+				{ mode = "FIT", min = 0, max = math.huge, val = 0 },
+			},
+			gap = 0,
+			justify = 0,
+			align = vec(0, 0),
+		},
+		part = part,
+	}, screen)
+end
+
+---@class Stencil.Element
+---@field chld Stencil.Element[]
+---@field parn Stencil.Element|Stencil.Screen
+---@field styl Stencil.Styles
+---@field stat Stencil.State
+---@field part ModelPart
+---@field elem table<string, Stencil.Elements.Border|Stencil.Elements.Slice|Stencil.Elements.Texture>
 local element = {}
----@protected
+---@package
 element.__index = element
 
----@alias FOXStencil.Element.Any
----| FOXStencil.Element.Box
----| FOXStencil.Element.Label
----| FOXStencil.Element.Sprite
----| FOXStencil.Element.Part
----| FOXStencil.Element.Task
----@alias FOXStencil.Styles.Any
----| FOXStencil.Styles.Box
----| FOXStencil.Styles.Label
----| FOXStencil.Styles.Sprite
----| FOXStencil.Styles.Part
----| FOXStencil.Styles.Task
+textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
+local border = require("./element/border")
+local label = require("./element/label")
+local slice = require("./element/slice")
+local texture = require("./element/texture")
 
----Creates an empty element
----@param id string
----@param styl FOXStencil.Styles.Any?
----@param chld table?
----@param parn FOXStencil.Element?
----@return FOXStencil.Element
-local function new(id, styl, chld, parn)
-	-- Create the element
-
-	local elem = setmetatable({
-		type = id,
-		styl = {
-			-- Common
-
-			pos = vectors.vec2(),
-			sizing = {
-				{ mode = "FIT", min = 0, max = math.huge },
-				{ mode = "FIT", min = 0, max = math.huge },
-			},
-			size = vectors.vec2(),
-			scale = vec(1, 1),
-
-			-- Container
-
-			pad = vectors.vec4(),
-			gap = 0,
-			dir = "hor",
-			align = vectors.vec2(),
-			justify = 0,
-		},
-		chld = chld,
-		parn = parn,
-	}, element)
-
-	-- Ingest styles
-
-	if type(styl) == "table" then
-		---Merges two tables
-		---
-		---Table a's contents are read and written into table b
-		---@param a table
-		---@param b table
-		local function merge(a, b)
-			for k, v in next, a do
-				if type(v) == "table" and type(b[k]) == "table" then
-					merge(a[k], b[k])
-				else
-					b[k] = v
-				end
-			end
+---Deep copies the given table, including metatables
+---@param t table
+---@return table
+local function copy(t)
+	local c = {}
+	for k, v in next, t do
+		if type(v) == "table" then
+			rawset(c, k, copy(v))
+		else
+			rawset(c, k, v)
 		end
-		merge(styl, elem.styl)
 	end
-
-	-- Add element to parent
-
-	if parn then
-		table.insert(parn.chld, elem)
-	end
-
-	return elem
+	local m = getmetatable(t)
+	return setmetatable(c, type(m) == "table" and m or nil)
 end
 
----@class FOXStencil.Texture
----@field atlas Texture?
----@field pos Vector2?
----@field size Vector2?
----@field slice Vector4?
----@field color Vector3|Vector4?
----@field extend Vector4?
-
----@class FOXStencil.Element.Box: FOXStencil.Element
----@field styl FOXStencil.Styles.Box
----@class FOXStencil.Styles.Box: FOXStencil.Styles.Common, FOXStencil.Styles.Container
----@field texture FOXStencil.Texture?
----@field line_color Vector3|Vector4?
----@field line_weight number?
-
----Creates a new box
----@param styl FOXStencil.Styles.Box?
----@return FOXStencil.Element.Box
-function api.new(styl)
-	styl = styl or {}
-
-	styl.line_color = styl.line_color or vectors.vec4()
-	styl.line_weight = styl.line_weight or 1
-
-	styl.texture = styl.texture or {}
-	styl.texture.pos = styl.texture.pos or vectors.vec2()
-	styl.texture.size = styl.texture.size or styl.texture.atlas and styl.texture.atlas:getDimensions() or vec(1, 1)
-	styl.texture.slice = styl.texture.slice or vectors.vec4()
-	styl.texture.color = styl.texture.color or vectors.vec4()
-	styl.texture.extend = styl.texture.extend or vectors.vec4()
-
-	return new("box", styl, {}) --[[@as FOXStencil.Element.Box]]
+---Creates a new element with the given styles
+---@param self Stencil.Element|Stencil.Screen
+---@param styl Stencil.Styles
+---@return Stencil.Element
+local function newElement(self, styl)
+	local part = self.part:newPart("elem")
+	local new = setmetatable({
+		chld = {},
+		parn = self,
+		styl = styl,
+		stat = copy(styl),
+		part = part,
+		elem = {
+			border = border(part),
+			-- label = label(part),
+			slice = slice(part),
+			texture = texture(part),
+		},
+	}, element)
+	table.insert(self.chld, new)
+	return new
 end
 
----Creates a new box
----@param styl FOXStencil.Styles.Box
----@return FOXStencil.Element.Box
-function element:box(styl)
-	styl = styl or {}
+screen.newElement = newElement
+element.newElement = newElement
 
-	styl.line_color = styl.line_color or vectors.vec4()
-	styl.line_weight = styl.line_weight or 1
-
-	styl.texture = styl.texture or {}
-	styl.texture.pos = styl.texture.pos or vectors.vec2()
-	styl.texture.size = styl.texture.size or styl.texture.atlas and styl.texture.atlas:getDimensions() or vec(1, 1)
-	styl.texture.slice = styl.texture.slice or vectors.vec4()
-	styl.texture.color = styl.texture.color or vec(1, 1, 1)
-	styl.texture.extend = styl.texture.extend or vectors.vec4()
-
-	return new("box", styl, {}, self) --[[@as FOXStencil.Element.Box]]
+---Removes this element from its parent
+function element:remove()
+	self.parn = nil --TODO ACTUALLY remove child from parent
 end
 
----@class FOXStencil.Element.Label: FOXStencil.Element
----@field styl FOXStencil.Styles.Label
----@class FOXStencil.Styles.Label: FOXStencil.Styles.Common
----@field text string?
----@field outline Vector3?
-
----Creates a new text label
----@param styl FOXStencil.Styles.Label
----@return FOXStencil.Element.Label
-function element:label(styl)
-	styl = styl or {}
-
-	styl.text = styl.text or ""
-
-	styl.size = styl.size or vectors.vec2()
-	for w in string.gmatch(styl.text, "[^%s]+") do
-		local size = client.getTextDimensions(w)
-		styl.size = styl.size.x < size.x and size or styl.size
-	end
-
-	styl.sizing = styl.sizing or {}
-	styl.sizing[1] = styl.sizing[1] or {}
-	styl.sizing[1].mode = styl.sizing[1].mode or "GROW"
-
-	return new("label", styl, nil, self) --[[@as FOXStencil.Element.Label]]
-end
-
----@class FOXStencil.Element.Sprite: FOXStencil.Element
----@field styl FOXStencil.Styles.Sprite
----@class FOXStencil.Styles.Sprite: FOXStencil.Styles.Common
----@field texture Texture
-
----Creates a new sprite
----@param styl FOXStencil.Styles.Sprite
----@return FOXStencil.Element.Sprite
-function element:sprite(styl)
-	styl.sizing = styl.sizing or {}
-	styl.sizing[1] = styl.sizing[1] or {}
-	styl.sizing[1].mode = styl.sizing[1].mode or "GROW"
-
-	return new("sprite", styl, nil, self) --[[@as FOXStencil.Element.Sprite]]
-end
-
----@class FOXStencil.Element.Part: FOXStencil.Element
----@field styl FOXStencil.Styles.Part
----@class FOXStencil.Styles.Part: FOXStencil.Styles.Common
----@field part ModelPart
-
----Creates a new ModelPart
----@param styl FOXStencil.Styles.Part
----@return FOXStencil.Element.Part
-function element:part(styl)
-	return new("part", styl, nil, self) --[[@as FOXStencil.Element.Part]]
-end
-
----@class FOXStencil.Element.Task: FOXStencil.Element
----@field styl FOXStencil.Styles.Task
----@class FOXStencil.Styles.Task: FOXStencil.Styles.Common
----@field task RenderTask
-
----Creates a new RenderTask
----@param styl FOXStencil.Styles.Task
----@return FOXStencil.Element.Task
-function element:task(styl)
-	return new("task", styl, nil, self) --[[@as FOXStencil.Element.Task]]
+function element:update()
+	self.stat = copy(self.styl)
 end
 
 local layout = require("./render/layout")
@@ -248,102 +169,267 @@ local layout = require("./render/layout")
 ---Draws this element to a ModelPart
 ---@generic self
 ---@param self self
----@param part ModelPart
 ---@return self
-function element:draw(part)
+function screen:draw()
 	layout.size(self, 1)
 	layout.grow(self, 1)
 	layout.wrap(self)
 	layout.size(self, 2)
 	layout.grow(self, 2)
 	layout.position(self)
-	-- local a = client.getSystemTime()
-	layout.draw(self, part)
-	-- local b = client.getSystemTime()
-	-- host:actionbar(tostring(b - a))
+	local t = client.getSystemTime()
+	layout.draw(self)
+	host:actionbar(tostring(client.getSystemTime() - t))
 
 	return self
 end
 
----Redraws the current element where a layout recalculation wouldn't be necessary
----@generic self
----@param self self
----@return self
-function element:redraw()
-	self.styl.part:remove()
-	layout.draw(self, self.parn.styl.part)
-
-	return self
+---Merges tables and does surface level scrubbing
+---@param a table
+---@param b table
+---@return table
+local function merge(a, b)
+	if type(b) ~= "table" then return a end
+	for k, v in next, b do
+		if type(a[k]) == type(v) then
+			a[k] = v
+		end
+	end
+	return a
 end
 
----Returns the element being moused over
----
----A position relative to the current element must be given
----@generic self
----@param self self
----@param pos Vector2
----@return FOXStencil.Element.Any?
-function element:hover(pos)
-	return layout.hover(self, pos)
+---@param x number|{mode: "FIT"|"GROW", min: number, max: number, val: number}?
+---@param y number|{mode: "FIT"|"GROW", min: number, max: number, val: number}?
+---@return Stencil.Styles.Size
+function api.size(x, y)
+	local vars = { x, y }
+
+	for i = 1, #vars do
+		-- Accepts numbers as default weight value
+
+		local v = vars[i]
+		if type(v) == "number" then
+			v = { val = v }
+		end
+
+		-- Merge function will throw away non-tables and illegal arguments
+
+		vars[i] = merge({
+			mode = "FIT",
+			min = 0,
+			max = math.huge,
+			val = 0,
+		}, v)
+	end
+
+	---@diagnostic disable-next-line: return-type-mismatch
+	return vars
 end
 
----Returns the screen element being moused over
----@return FOXStencil.Element.Any?
-function element:screenHover()
-	local pos = client.getMousePos() / client.getGuiScale()
-	return self:hover(pos)
+---@param t number|{weight: number, color: Vector4}
+---@param r number|{weight: number, color: Vector4}
+---@param b number|{weight: number, color: Vector4}
+---@param l number|{weight: number, color: Vector4}
+---@return Stencil.Styles.Border
+function api.border(t, r, b, l)
+	local vars = { t, r, b, l }
+
+	for i = 1, #vars do
+		-- Accepts numbers as default weight value
+
+		local v = vars[i]
+		if type(v) == "number" then
+			v = { weight = v }
+		end
+
+		-- Merge function will throw away non-tables and illegal arguments
+
+		vars[i] = merge({
+			weight = 0,
+			color = vec(0, 0, 0, 1),
+		}, v)
+	end
+
+	---@diagnostic disable-next-line: return-type-mismatch
+	return vars
 end
 
-local EPSILON = 2.2204460492503131e-16
-local abs = math.abs
-local dot = vectors.vec3().dot
+---@param t {text: string, color: Vector4, align: "LEFT"|"CENTER"|"RIGHT"}
+---@return Stencil.Styles.Label
+function api.label(t)
+	-- Merge function will throw away non-tables and illegal arguments
 
----@param ray_pos Vector3
----@param ray_dir Vector3
----@param plane_pos Vector3
----@param plane_normal Vector3
----@return Vector3? intersection_point
-local function intersectPlane(ray_pos, ray_dir, plane_pos, plane_normal)
-	local denom = dot(plane_normal, ray_dir)
-	if abs(denom) < EPSILON then return end
-	local d = plane_pos - ray_pos
-	local t = dot(d, plane_normal) / denom
-	if t < EPSILON then return end
-	return ray_pos + ray_dir * t
+	---@diagnostic disable-next-line: return-type-mismatch
+	return merge({
+		text = "",
+		color = vec(0, 0, 0, 1),
+		align = "LEFT",
+	}, t)
 end
 
----@param hit_pos Vector3
----@param plane_mat Matrix4
----@return Vector3
-local function worldToLocal(hit_pos, plane_mat)
-	local pos_mat = matrices.translate4(plane_mat:apply())
-	local rot_mat = matrices.rotation4(0, 180, 0) * (pos_mat:inverted() * plane_mat):inverted()
+---@param t {atlas: Texture, pos: Vector2, size: Vector2, slice: Vector4, extend: Vector4}
+---@return Stencil.Styles.Texture
+function api.texture(t)
+	-- Merge function will throw away non-tables and illegal arguments
 
-	return (rot_mat * matrices.translate4(hit_pos - plane_mat:apply())):apply()
+	---@diagnostic disable-next-line: return-type-mismatch
+	return merge({
+		atlas = textures["FOXStencil_blank"],
+		pos = vec(0, 0),
+		size = vec(0, 0),
+		slice = vec(0, 0, 0, 0),
+		extend = vec(0, 0, 0, 0),
+	}, t)
 end
 
----Returns the world element being moused over
----@return FOXStencil.Element.Any?
-function element:worldHover()
-	local mat = self.styl.part:partToWorldMatrix()
+-- ---@type Stencil.Styles
+-- local simple = {
+-- 	-- Element alignment
 
-	local pos_mat = matrices.translate4(mat:apply())
-	local rot_mat = matrices.rotation4(0, 180, 0) * (pos_mat:inverted() * mat):inverted()
+-- 	pos = vec(0, 0),
+-- 	size = vec(0, 0),
+-- 	scale = 1,
+-- 	margin = 1,
+-- 	border = 1,
 
-	local hit = intersectPlane(
-		client.getCameraPos(),
-		client.getCameraDir(),
-		mat:apply(),
-		mat:applyDir(0, 0, -1)
-	)
+-- 	-- Child alignment
 
-	if not hit then return end
-	
-	local pos = worldToLocal(hit, mat).xy * vec(1, -1)
+-- 	dir = "y",
+-- 	padding = 1,
+-- 	gap = 0,
+-- 	justify = 0,
+-- 	align = 0.5,
 
-	return self:hover(pos)
-end
+-- 	-- Element appearance
 
-require("./styles")
+-- 	color = vec(0, 0, 0, 0),
+-- 	label = ":3",
+-- 	texture = textures[""],
+-- }
+
+-- ---@type Stencil.Styles
+-- local advanced = {
+-- 	-- Element alignment
+
+-- 	pos = vec(0, 0),
+-- 	size = api.size(10, { mode = "GROW" }),
+-- 	scale = vec(1, 1),
+-- 	margin = vec(0, 0, 0, 0),
+-- 	border = api.border({ weight = 1, color = vec(1, 1, 1, 1) }, 0, 0, 0),
+
+-- 	-- Child alignment
+
+-- 	dir = "y",
+-- 	padding = vec(0, 0, 0, 0),
+-- 	gap = 0,
+-- 	justify = 0,
+-- 	align = vec(0, 0),
+
+-- 	-- Element appearance
+
+-- 	color = vec(0, 0, 0, 0),
+-- 	label = api.label({ text = ":3", color = vec(0, 0, 0, 1) }),
+-- 	texture = api.texture({ atlas = textures[""], size = vec(16, 16), slice = vec(2, 2, 2, 2) }),
+-- }
+
+-- ---@type Stencil.State
+-- local raw = {
+-- 	-- Element alignment
+
+-- 	pos = vec(0, 0),
+-- 	size = {
+-- 		{ mode = "FIT", min = 0, max = math.huge, val = 0 },
+-- 		{ mode = "FIT", min = 0, max = math.huge, val = 0 },
+-- 	},
+-- 	scale = vec(1, 1),
+-- 	margin = vec(0, 0, 0, 0),
+-- 	border = {
+-- 		{ weight = 1, color = vec(1, 1, 1, 1) },
+-- 		{ weight = 1, color = vec(1, 1, 1, 1) },
+-- 		{ weight = 1, color = vec(1, 1, 1, 1) },
+-- 		{ weight = 1, color = vec(1, 1, 1, 1) },
+-- 	},
+
+-- 	-- Child alignment
+
+-- 	dir = "y",
+-- 	padding = vec(0, 0, 0, 0),
+-- 	gap = 0,
+-- 	justify = 0,
+-- 	align = vec(0, 0),
+
+-- 	-- Element appearance
+
+-- 	color = vec(0, 0, 0, 0),
+-- 	label = {
+-- 		align = "LEFT",
+-- 		color = vec(0, 0, 0, 1),
+-- 		text = ":3",
+-- 	},
+-- 	texture = {
+-- 		atlas = textures[""],
+-- 		pos = vec(0, 0),
+-- 		size = vec(0, 0),
+-- 		slice = vec(0, 0, 0, 0),
+-- 		extend = vec(0, 0, 0, 0),
+-- 	},
+-- }
+
+-- ---Returns the screen element being moused over
+-- ---@return FOXStencil.Element.Any?
+-- function element:screenHover()
+-- 	local pos = client.getMousePos() / client.getGuiScale()
+-- 	return self:hover(pos)
+-- end
+
+-- local EPSILON = 2.2204460492503131e-16
+-- local abs = math.abs
+-- local dot = vectors.vec3().dot
+
+-- ---@param ray_pos Vector3
+-- ---@param ray_dir Vector3
+-- ---@param plane_pos Vector3
+-- ---@param plane_normal Vector3
+-- ---@return Vector3? intersection_point
+-- local function intersectPlane(ray_pos, ray_dir, plane_pos, plane_normal)
+-- 	local denom = dot(plane_normal, ray_dir)
+-- 	if abs(denom) < EPSILON then return end
+-- 	local d = plane_pos - ray_pos
+-- 	local t = dot(d, plane_normal) / denom
+-- 	if t < EPSILON then return end
+-- 	return ray_pos + ray_dir * t
+-- end
+
+-- ---@param hit_pos Vector3
+-- ---@param plane_mat Matrix4
+-- ---@return Vector3
+-- local function worldToLocal(hit_pos, plane_mat)
+-- 	local pos_mat = matrices.translate4(plane_mat:apply())
+-- 	local rot_mat = matrices.rotation4(0, 180, 0) * (pos_mat:inverted() * plane_mat):inverted()
+
+-- 	return (rot_mat * matrices.translate4(hit_pos - plane_mat:apply())):apply()
+-- end
+
+-- ---Returns the world element being moused over
+-- ---@return FOXStencil.Element.Any?
+-- function element:worldHover()
+-- 	local mat = self.styl.part:partToWorldMatrix()
+
+-- 	local pos_mat = matrices.translate4(mat:apply())
+-- 	local rot_mat = matrices.rotation4(0, 180, 0) * (pos_mat:inverted() * mat):inverted()
+
+-- 	local hit = intersectPlane(
+-- 		client.getCameraPos(),
+-- 		client.getCameraDir(),
+-- 		mat:apply(),
+-- 		mat:applyDir(0, 0, -1)
+-- 	)
+
+-- 	if not hit then return end
+
+-- 	local pos = worldToLocal(hit, mat).xy * vec(1, -1)
+
+-- 	return self:hover(pos)
+-- end
 
 return api

@@ -13,32 +13,32 @@ Add text customizations
 Figure out widgets
 ]]
 
----@param styl FOXStencil.Styles.Any
+---@param stat Stencil.State
 ---@return integer, integer
-local function rotate(styl)
-	local dir = string.find(styl.dir, "^[Vvy]") and 2 or 1
+local function rotate(stat)
+	local dir = string.find(stat.dir, "^[Vvy]") and 2 or 1
 	local a = dir
 	local b = dir % 2 + 1
 
 	return a, b
 end
 
----@param styl FOXStencil.Styles.Any
+---@param stat Stencil.State
 ---@return [{[1]: number, [2]: number}, {[1]: number, [2]: number}]
-local function pad(styl)
+local function pad(stat)
 	return {
-		{ styl.pad[4], styl.pad[2] }, -- x: left, right
-		{ styl.pad[1], styl.pad[3] }, -- y: top, bottom
+		{ stat.padding[4], stat.padding[2] }, -- x: left, right
+		{ stat.padding[1], stat.padding[3] }, -- y: top, bottom
 	}
 end
 
 ---Recursively calculates size of all children
----@param elem FOXStencil.Element.Any
+---@param elem Stencil.Element
 ---@param axis integer
 function lib.size(elem, axis)
-	if not elem.chld then return end
-	local a, b = rotate(elem.styl)
-	local p = pad(elem.styl)
+	if not elem.chld[1] then return end
+	local a, b = rotate(elem.stat)
+	local p = pad(elem.stat)
 
 	-- Fit children
 
@@ -48,61 +48,61 @@ function lib.size(elem, axis)
 		lib.size(chld, axis)
 
 		if a == axis then
-			size = size + chld.styl.size[a]
-			elem.styl.sizing[a].min = elem.styl.sizing[a].min + chld.styl.sizing[a].min
+			size = size + chld.stat.size[a].val
+			elem.stat.size[a].min = elem.stat.size[a].min + chld.stat.size[a].min
 		end
 		if b == axis then
-			elem.styl.size[b] = math.max(elem.styl.size[b], chld.styl.size[b])
-			elem.styl.sizing[b].min = math.max(elem.styl.sizing[b].min, chld.styl.sizing[b].min)
+			elem.stat.size[b].val = math.max(elem.stat.size[b].val, chld.stat.size[b].val)
+			elem.stat.size[b].min = math.max(elem.stat.size[b].min, chld.stat.size[b].min)
 		end
 	end
-	elem.styl.size[a] = math.max(elem.styl.size[a], size)
+	elem.stat.size[a].val = math.max(elem.stat.size[a].val, size)
 
 	-- Gap & Padding
 
 	if a == axis then
-		elem.styl.size[axis] = elem.styl.size[axis] + elem.styl.gap * (#elem.chld - 1)
+		elem.stat.size[axis].val = elem.stat.size[axis].val + elem.stat.gap * (#elem.chld - 1)
 	end
 
-	elem.styl.size[axis] = elem.styl.size[axis] + p[axis][1] + p[axis][2]
+	elem.stat.size[axis].val = elem.stat.size[axis].val + p[axis][1] + p[axis][2]
 end
 
 ---Recursively grows child elements
----@param elem FOXStencil.Element.Any
+---@param elem Stencil.Element
 ---@param axis integer
 function lib.grow(elem, axis)
-	if not elem.chld then return end
-	local a, b = rotate(elem.styl)
-	local p = pad(elem.styl)
+	if not elem.chld[1] then return end
+	local a, b = rotate(elem.stat)
+	local p = pad(elem.stat)
 
 	-- Find flexible
 
-	---@type FOXStencil.Element.Any[]
+	---@type Stencil.Element[]
 	local flexible = {}
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if a == axis and string.find(chld.styl.sizing[a].mode, "^[Gg]") then
+		if a == axis and string.find(chld.stat.size[a].mode, "^[Gg]") then
 			table.insert(flexible, chld)
 		end
-		if b == axis and string.find(chld.styl.sizing[b].mode, "^[Gg]") then
-			chld.styl.size[axis] = elem.styl.size[axis] - p[axis][1] - p[axis][2]
+		if b == axis and string.find(chld.stat.size[b].mode, "^[Gg]") then
+			chld.stat.size[axis].val = elem.stat.size[axis].val - p[axis][1] - p[axis][2]
 		end
 	end
 
 	-- Calculate remaining size
 
-	local rem = elem.styl.size[a] - p[a][1] - p[a][2]
+	local rem = elem.stat.size[a].val - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
-		rem = rem - elem.chld[i].styl.size[a]
+		rem = rem - elem.chld[i].stat.size[a].val
 	end
-	rem = rem - elem.styl.gap * (#elem.chld - 1)
+	rem = rem - elem.stat.gap * (#elem.chld - 1)
 
 	-- Grow and shrink along layout
 
 	while rem - rem % .25 ~= 0 and flexible[1] do
 		local sign = math.sign(rem)
-		local size_l = flexible[1].styl.size[a]
+		local size_l = flexible[1].stat.size[a].val
 		local size_r = math.huge
 		local add = rem
 
@@ -110,7 +110,7 @@ function lib.grow(elem, axis)
 
 		for i = 1, #flexible do
 			local chld = flexible[i]
-			local size = chld.styl.size[a]
+			local size = chld.stat.size[a].val
 			if size ~= size_l then
 				if sign * size < sign * size_l then
 					size_r = size_l
@@ -129,17 +129,17 @@ function lib.grow(elem, axis)
 		-- Grows or shrinks largest children evenly, and pops off children that cannot be sized further
 
 		for i, chld in ipairs(flexible) do
-			local size = chld.styl.size[a]
+			local size = chld.stat.size[a].val
 			local prev = size
 			if size == size_l then
 				size = size + add
-				local sizing = chld.styl.sizing[a]
+				local sizing = chld.stat.size[a]
 				if size <= sizing.min or size >= sizing.max then
 					size = math.clamp(size, sizing.min, sizing.max)
 					table.remove(flexible, i)
 				end
 				rem = rem - (size - prev)
-				chld.styl.size[a] = size
+				chld.stat.size[a].val = size
 			end
 		end
 	end
@@ -152,27 +152,27 @@ function lib.grow(elem, axis)
 	end
 end
 
----@param elem FOXStencil.Element.Any
+---@param elem Stencil.Element
 function lib.wrap(elem)
-	if elem.type == "label" then
-		elem.styl.size = client.getTextDimensions(elem.styl.text, elem.styl.size.x)
-	elseif elem.type == "sprite" then
-		local dim = elem.styl.texture --[[@as Texture]]:getDimensions()
-		elem.styl.size.y = dim.y / dim.x * elem.styl.size.x
-	elseif elem.chld then
-		for i = 1, #elem.chld do
-			local chld = elem.chld[i]
-			lib.wrap(chld)
-		end
-	end
+	-- if elem.type == "label" then
+	-- 	elem.stat.size = client.getTextDimensions(elem.stat.text, elem.stat.size.x)
+	-- elseif elem.type == "sprite" then
+	-- 	local dim = elem.stat.texture --[[@as Texture]]:getDimensions()
+	-- 	elem.stat.size.y = dim.y / dim.x * elem.stat.size.x
+	-- elseif elem.chld[1] then
+	-- 	for i = 1, #elem.chld do
+	-- 		local chld = elem.chld[i]
+	-- 		lib.wrap(chld)
+	-- 	end
+	-- end
 end
 
 ---Recursively calculates position of all children
----@param elem FOXStencil.Element.Any
+---@param elem Stencil.Element
 function lib.position(elem)
-	if not elem.chld then return end
-	local a, b = rotate(elem.styl)
-	local p = pad(elem.styl)
+	if not elem.chld[1] then return end
+	local a, b = rotate(elem.stat)
+	local p = pad(elem.stat)
 
 	-- Distribute
 
@@ -181,73 +181,65 @@ function lib.position(elem)
 		local chld = elem.chld[i]
 		lib.position(chld)
 
-		chld.styl.pos[a] = chld.styl.pos[a] + offset
-		offset = offset + chld.styl.size[a] + elem.styl.gap
-		chld.styl.pos[b] = chld.styl.pos[b] + p[b][1]
+		chld.stat.pos[a] = chld.stat.pos[a] + offset
+		offset = offset + chld.stat.size[a].val + elem.stat.gap
+		chld.stat.pos[b] = chld.stat.pos[b] + p[b][1]
 	end
 
 	-- Align & Justify
 
-	local rem = math.max(elem.styl.size[a] - offset + elem.styl.gap - p[a][2], 0)
-	local inner = rem * elem.styl.justify
-	local outer = rem * -(elem.styl.justify - 1)
+	local rem = math.max(elem.stat.size[a].val - offset + elem.stat.gap - p[a][2], 0)
+	local inner = rem * elem.stat.justify
+	local outer = rem * -(elem.stat.justify - 1)
 	local gap = #elem.chld > 1 and inner / (#elem.chld - 1) or 0
 
-	local y = math.max(elem.styl.size[b] - p[b][1] - p[b][2], 0)
+	local y = math.max(elem.stat.size[b].val - p[b][1] - p[b][2], 0)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 
-		chld.styl.pos[a] = chld.styl.pos[a] + gap * (i - 1) + (outer * elem.styl.align[a])
-		chld.styl.pos[b] = chld.styl.pos[b] + ((y - chld.styl.size[b]) * elem.styl.align[b])
+		chld.stat.pos[a] = chld.stat.pos[a] + gap * (i - 1) + (outer * elem.stat.align[a])
+		chld.stat.pos[b] = chld.stat.pos[b] + ((y - chld.stat.size[b].val) * elem.stat.align[b])
 	end
 end
-
-local path = string.sub(..., 0, string.find(..., "[^/]+$") - 1) .. "element/"
 
 ---Creates ModelParts for this element and all of its children recursively
----@param elem FOXStencil.Element.Any
----@param part ModelPart
-function lib.draw(elem, part)
-	-- Create parent pivot
-
-	elem.styl.part = models:newPart("elem")
-		:moveTo(part)
-		:pos(-elem.styl.pos:augmented(0.0625))
-
-	-- Creates all children
-
+---@param elem Stencil.Element
+function lib.draw(elem)
 	if elem.chld then
 		for i = 1, #elem.chld do
-			lib.draw(elem.chld[i], elem.styl.part)
+			lib.draw(elem.chld[i])
 		end
 	end
-
-	-- Creates the element
-
-	require(path .. elem.type)(elem.styl.part, elem.styl)
+	
+	if not elem.elem then return end
+	
+	elem.elem.border:update(elem.stat)
+	-- elem.elem.label:update(elem.stat)
+	elem.elem.slice:update(elem.stat)
+	elem.elem.texture:update(elem.stat)
 end
 
----Recursively gets the element hovered over
----@param elem FOXStencil.Element.Any
----@param pos Vector2
----@return FOXStencil.Element.Any?
-function lib.hover(elem, pos)
-	local styl = elem.styl
-	if not (styl.pos <= pos and pos <= styl.pos + styl.size) then return end
+-- ---Recursively gets the element hovered over
+-- ---@param elem FOXStencil.Element.Any
+-- ---@param pos Vector2
+-- ---@return FOXStencil.Element.Any?
+-- function lib.hover(elem, pos)
+-- 	local stat = elem.stat
+-- 	if not (stat.pos <= pos and pos <= stat.pos + stat.size) then return end
 
-	-- Find hovered child element
+-- 	-- Find hovered child element
 
-	if elem.chld then
-		for i = #elem.chld, 1, -1 do
-			local res = lib.hover(elem.chld[i], pos - styl.pos)
-			if res then return res end
-		end
-	end
+-- 	if elem.chld then
+-- 		for i = #elem.chld, 1, -1 do
+-- 			local res = lib.hover(elem.chld[i], pos - stat.pos)
+-- 			if res then return res end
+-- 		end
+-- 	end
 
-	-- Fall back to returning current hovered element
+-- 	-- Fall back to returning current hovered element
 
-	return elem
-end
+-- 	return elem
+-- end
 
 return lib
