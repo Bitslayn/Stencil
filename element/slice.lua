@@ -1,5 +1,6 @@
 ---@class Stencil.Elements.Slice
 ---@field [number] SpriteTask[]
+---@field parn Stencil.Element
 local obj = {}
 obj.__index = obj
 
@@ -26,15 +27,15 @@ local unpack4 = vectors.vec4().unpack
 local min = math.min
 
 ---Creates an empty slice that can be stylized later
----@param pivot ModelPart
+---@param parn Stencil.Element
 ---@return Stencil.Elements.Slice
-local function new(pivot)
-	local self = setmetatable({}, obj)
+local function new(parn)
+	local self = setmetatable({ parn = parn }, obj)
 
 	for y = 1, 3 do
 		self[y] = {}
 		for x = 1, 3 do
-			local task = newSprite(pivot, "slice-" .. x .. y)
+			local task = newSprite(parn.part, "slice-" .. x .. y)
 			texture(task, "FOXStencil_blank", 1, 1)
 			size(task, 1, 1)
 			renderType(task, "CUTOUT_EMISSIVE_SOLID")
@@ -46,15 +47,16 @@ local function new(pivot)
 end
 
 ---Updates the current slice
----@param styl Stencil.Styles.Internal
-function obj:update(styl)
+function obj:update()
+	local styl = self.parn.styl
+	local stat = self.parn.stat
 	local tex = styl.texture
 	local dim = getDimensions(tex.atlas)
 
 	local t, r, b, l = unpack4(tex.slice)
 	local atlas_w, atlas_h = unpack2(tex.size)
 	---@diagnostic disable-next-line: param-type-mismatch
-	local model_w, model_h = unpack2(vec2(styl.size[1].val, styl.size[2].val) + tex.extend.yx + tex.extend.wz)
+	local model_w, model_h = unpack2(stat.size + tex.extend.yx + tex.extend.wz)
 
 	l = min(l, model_w / 2)
 	r = min(r, model_w / 2)

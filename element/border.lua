@@ -1,5 +1,6 @@
 ---@class Stencil.Elements.Border
 ---@field [number] SpriteTask
+---@field parn Stencil.Element
 local obj = {}
 obj.__index = obj
 
@@ -18,13 +19,13 @@ local vec2 = vectors.vec2
 local unpack = vec2().unpack
 
 ---Creates an empty outline that can be stylized later
----@param pivot ModelPart
+---@param parn Stencil.Element
 ---@return Stencil.Elements.Border
-local function new(pivot)
-	local self = setmetatable({}, obj)
+local function new(parn)
+	local self = setmetatable({ parn = parn }, obj)
 
 	for i = 1, 4 do
-		local task = newSprite(pivot, "outline-" .. i)
+		local task = newSprite(parn.part, "outline-" .. i)
 		texture(task, textures["FOXStencil_blank"], 1, 1)
 		renderType(task, "CUTOUT_EMISSIVE_SOLID")
 		self[i] = task
@@ -34,12 +35,13 @@ local function new(pivot)
 end
 
 ---Updates the current outline
----@param styl Stencil.Styles.Internal
-function obj:update(styl)
+function obj:update()
+	local styl = self.parn.styl
+	local stat = self.parn.stat
 	local tex = styl.texture
 	local s = styl.border[1].weight
 	---@diagnostic disable-next-line: param-type-mismatch
-	local w, h = unpack(vec2(styl.size[1].val, styl.size[2].val) + tex.extend.yx + tex.extend.wz)
+	local w, h = unpack(stat.size + tex.extend.yx + tex.extend.wz)
 
 	local hor = scale4(w + s * 2, s, 1)
 	local ver = scale4(s, h, 1)

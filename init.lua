@@ -131,12 +131,12 @@ local function newElement(self, styl)
 		styl = styl,
 		stat = {},
 		part = part,
-		elem = {
-			border = border(part),
-			-- label = label(part),
-			slice = slice(part),
-		},
 	}, element)
+	new.elem = {
+		border = border(new),
+		-- label = label(new),
+		slice = slice(new),
+	}
 	table.insert(self.chld, new)
 	return new
 end
