@@ -235,26 +235,26 @@ function lib.draw(elem)
 	elem.elem.slice:update(elem.styl)
 end
 
--- ---Recursively gets the element hovered over
--- ---@param elem FOXStencil.Element.Any
--- ---@param pos Vector2
--- ---@return FOXStencil.Element.Any?
--- function lib.hover(elem, pos)
--- 	local stat = elem.stat
--- 	if not (stat.pos <= pos and pos <= stat.pos + stat.size) then return end
+---Recursively gets the element hovered over
+---@param elem Stencil.Element
+---@param pos Vector2
+---@return Stencil.Element?
+function lib.hover(elem, pos)
+	local stat = elem.stat
+	if not (stat.pos <= pos and pos <= stat.pos + stat.size) then return end
 
--- 	-- Find hovered child element
+	-- Find hovered child element
 
--- 	if elem.chld then
--- 		for i = #elem.chld, 1, -1 do
--- 			local res = lib.hover(elem.chld[i], pos - stat.pos)
--- 			if res then return res end
--- 		end
--- 	end
+	if elem.chld then
+		for i = #elem.chld, 1, -1 do
+			local res = lib.hover(elem.chld[i], pos - stat.pos)
+			if res then return res end
+		end
+	end
 
--- 	-- Fall back to returning current hovered element
+	-- Fall back to returning current hovered element
 
--- 	return elem
--- end
+	return elem
+end
 
 return lib
