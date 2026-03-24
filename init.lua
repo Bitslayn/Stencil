@@ -81,7 +81,7 @@ screen.__index = screen
 function api.newScreen(part)
 	return setmetatable({
 		chld = {},
-		stat = {
+		styl = {
 			padding = vectors.vec4(),
 			dir = "x",
 			size = {
@@ -112,22 +112,6 @@ local border = require("./element/border")
 local label = require("./element/label")
 local slice = require("./element/slice")
 
----Deep copies the given table, including metatables
----@param t table
----@return table
-local function copy(t)
-	local c = {}
-	for k, v in next, t do
-		if type(v) == "table" then
-			rawset(c, k, copy(v))
-		else
-			rawset(c, k, v)
-		end
-	end
-	local m = getmetatable(t)
-	return setmetatable(c, type(m) == "table" and m or nil)
-end
-
 ---Creates a new element with the given styles
 ---@param self Stencil.Element|Stencil.Screen
 ---@param styl Stencil.Styles
@@ -138,7 +122,7 @@ local function newElement(self, styl)
 		chld = {},
 		parn = self,
 		styl = styl,
-		stat = copy(styl),
+		stat = {},
 		part = part,
 		elem = {
 			border = border(part),
@@ -158,10 +142,6 @@ function element:remove()
 	self.parn = nil --TODO ACTUALLY remove child from parent
 end
 
-function element:update()
-	self.stat = copy(self.styl)
-end
-
 local layout = require("./render/layout")
 
 ---Draws this element to a ModelPart
@@ -169,15 +149,15 @@ local layout = require("./render/layout")
 ---@param self self
 ---@return self
 function screen:draw()
+	layout.restore(self)
+
 	layout.size(self, 1)
 	layout.grow(self, 1)
 	layout.wrap(self)
 	layout.size(self, 2)
 	layout.grow(self, 2)
 	layout.position(self)
-	local t = client.getSystemTime()
 	layout.draw(self)
-	host:actionbar(tostring(client.getSystemTime() - t))
 
 	return self
 end

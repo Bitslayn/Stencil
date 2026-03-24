@@ -32,6 +32,32 @@ local function pad(stat)
 	}
 end
 
+
+---Deep copies the given table, including metatables
+---@param t table
+---@return table
+local function copy(t)
+	local c = {}
+	for k, v in next, t do
+		if type(v) == "table" then
+			rawset(c, k, copy(v))
+		else
+			rawset(c, k, v)
+		end
+	end
+	local m = getmetatable(t)
+	return setmetatable(c, type(m) == "table" and m or nil)
+end
+
+---@param elem Stencil.Element
+function lib.restore(elem)
+	elem.stat = copy(elem.styl)
+
+	for i = 1, #elem.chld do
+		lib.restore(elem.chld[i])
+	end
+end
+
 ---Recursively calculates size of all children
 ---@param elem Stencil.Element
 ---@param axis integer
