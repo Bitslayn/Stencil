@@ -34,12 +34,12 @@ local function new(pivot)
 end
 
 ---Updates the current outline
----@param stat Stencil.State
-function obj:update(stat)
-	local tex = stat.texture
-	local s = stat.border[1].weight
+---@param styl Stencil.Styles.Internal
+function obj:update(styl)
+	local tex = styl.texture
+	local s = styl.border[1].weight
 	---@diagnostic disable-next-line: param-type-mismatch
-	local w, h = unpack(vec2(stat.size[1].val, stat.size[2].val) + tex.extend.yx + tex.extend.wz)
+	local w, h = unpack(vec2(styl.size[1].val, styl.size[2].val) + tex.extend.yx + tex.extend.wz)
 
 	local hor = scale4(w + s * 2, s, 1)
 	local ver = scale4(s, h, 1)
@@ -53,7 +53,7 @@ function obj:update(stat)
 
 	for i = 1, 4 do
 		local task = self[i]
-		color(task, stat.border[1].color)
+		color(task, styl.border[1].color)
 		matrix(task, translate4(tex.extend.w, tex.extend.x) * mats[i])
 	end
 end

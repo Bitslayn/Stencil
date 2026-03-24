@@ -55,7 +55,7 @@ local api = {}
 ---@field slice Vector4
 ---@field extend Vector4
 
----@class Stencil.State
+---@class Stencil.Styles.Internal
 ---@field pos Vector2
 ---@field size Stencil.State.Size
 ---@field scale number|Vector2
@@ -70,6 +70,12 @@ local api = {}
 ---@field label Stencil.State.Label
 ---@field texture Stencil.State.Texture
 
+---@class Stencil.State
+---@field pos Vector2
+---@field size Vector2
+---@field size_min Vector2
+---@field size_max Vector2
+
 ---@class Stencil.Screen
 ---@field chld Stencil.Element[]
 ---@field part ModelPart
@@ -82,6 +88,7 @@ function api.newScreen(part)
 	return setmetatable({
 		chld = {},
 		styl = {
+			pos = vec(0, 0),
 			padding = vectors.vec4(),
 			dir = "x",
 			size = {
@@ -99,7 +106,7 @@ end
 ---@class Stencil.Element
 ---@field chld Stencil.Element[]
 ---@field parn Stencil.Element|Stencil.Screen
----@field styl Stencil.Styles
+---@field styl Stencil.Styles.Internal
 ---@field stat Stencil.State
 ---@field part ModelPart
 ---@field elem table<string, Stencil.Elements.Border|Stencil.Elements.Slice>
@@ -149,6 +156,7 @@ local layout = require("./render/layout")
 ---@param self self
 ---@return self
 function screen:draw()
+	local t = client.getSystemTime()
 	layout.restore(self)
 
 	layout.size(self, 1)
@@ -158,6 +166,7 @@ function screen:draw()
 	layout.grow(self, 2)
 	layout.position(self)
 	layout.draw(self)
+	host:actionbar(client.getSystemTime() - t .. "ms")
 
 	return self
 end
