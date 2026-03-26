@@ -40,7 +40,7 @@ function lib.restore(elem)
 		pos = elem.styl.pos:copy(),
 		size = vec(size[1].val, size[2].val),
 		size_min = vec(size[1].min, size[2].min),
-		size_max = vec(size[1].max, size[2].max)
+		size_max = vec(size[1].max, size[2].max),
 	}
 
 	for i = 1, #elem.chld do
@@ -220,19 +220,32 @@ end
 
 ---Creates ModelParts for this element and all of its children recursively
 ---@param elem Stencil.Element
-function lib.draw(elem)
+---@param layr integer
+---@param dist number
+function lib.draw(elem, layr, dist)
+	-- First move pivots and calculate total layer depth
+
+	local parn = elem.parn
+	local debt = dist * layr / (parn and #parn.chld or dist + 1)
+	elem.part:pos(-elem.stat.pos:augmented(debt))
+
+	elem.root.dept = math.max(elem.root.dept, debt)
+
+	-- Recurse
+
 	if elem.chld then
 		for i = 1, #elem.chld do
-			lib.draw(elem.chld[i])
+			lib.draw(elem.chld[i], i, dist)
 		end
 	end
-	
+
+	-- After all that is done, draw the layers
+
 	if not elem.elem then return end
-	
-	elem.part:pos(-elem.stat.pos:augmented(0.0625))
+
+	elem.elem.slice:update(elem.styl)
 	elem.elem.border:update(elem.styl)
 	-- elem.elem.label:update(elem.styl)
-	elem.elem.slice:update(elem.styl)
 end
 
 ---Recursively gets the element hovered over

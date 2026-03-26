@@ -42,15 +42,16 @@ function obj:update()
 	local s = styl.border[1].weight
 	---@diagnostic disable-next-line: param-type-mismatch
 	local w, h = unpack(stat.size + tex.extend.yx + tex.extend.wz)
+	local d = self.parn.root.dept
 
 	local hor = scale4(w + s * 2, s, 1)
 	local ver = scale4(s, h, 1)
 
 	local mats = {
-		translate4(s, s, 0) * hor, -- Top
-		translate4(-w, 0, 0) * ver, -- Right
-		translate4(s, -h, 0) * hor, -- Bottom
-		translate4(s, 0, 0) * ver, -- Left
+		translate4(s, s, -d) * hor, -- Top
+		translate4(-w, 0, -d) * ver, -- Right
+		translate4(s, -h, -d) * hor, -- Bottom
+		translate4(s, 0, -d) * ver, -- Left
 	}
 
 	for i = 1, 4 do

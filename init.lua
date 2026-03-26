@@ -78,14 +78,17 @@ local api = {}
 
 ---@class Stencil.Screen
 ---@field chld Stencil.Element[]
+---@field styl Stencil.Styles
+---@field stat Stencil.State
 ---@field part ModelPart
+---@field dept number
 local screen = {}
 ---@package
 screen.__index = screen
 
 ---@param part ModelPart
 function api.newScreen(part)
-	return setmetatable({
+	local self = setmetatable({
 		chld = {},
 		styl = {
 			pos = vec(0, 0),
@@ -100,12 +103,16 @@ function api.newScreen(part)
 			align = vec(0, 0),
 		},
 		part = part,
+		debt = 0,
 	}, screen)
+	self.root = self
+	return self
 end
 
 ---@class Stencil.Element
 ---@field chld Stencil.Element[]
 ---@field parn Stencil.Element|Stencil.Screen
+---@field root Stencil.Screen
 ---@field styl Stencil.Styles.Internal
 ---@field stat Stencil.State
 ---@field part ModelPart
@@ -128,6 +135,7 @@ local function newElement(self, styl)
 	local new = setmetatable({
 		chld = {},
 		parn = self,
+		root = self.root,
 		styl = styl,
 		stat = {},
 		part = part,
@@ -151,21 +159,37 @@ end
 
 local layout = require("./render/layout")
 
+---@param pos Vector3
+---@param planeDir Vector3
+---@param planePos Vector3
+---@return Vector3
+local function ray2Plane(pos, planePos, planeDir)
+	local pdn = planeDir:normalized()
+	local dtp = pdn:dot(planePos - pos)
+	return pos + pdn * dtp
+end
+
 ---Draws this element to a ModelPart
 ---@generic self
 ---@param self self
 ---@return self
 function screen:draw()
 	local t = client.getSystemTime()
-	layout.restore(self)
 
+	local cam = client.getCameraPos()
+	local mat = self.part:partToWorldMatrix()
+	local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
+
+	self.dept = 0
+	layout.restore(self)
+	
 	layout.size(self, 1)
 	layout.grow(self, 1)
 	layout.wrap(self)
 	layout.size(self, 2)
 	layout.grow(self, 2)
 	layout.position(self)
-	layout.draw(self)
+	layout.draw(self, -1, (cam - poi):length() / 128)
 	host:actionbar(client.getSystemTime() - t .. "ms")
 
 	return self
