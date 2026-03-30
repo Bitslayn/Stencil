@@ -76,7 +76,7 @@ local api = {}
 ---@field size_min Vector2
 ---@field size_max Vector2
 
----@class Stencil.Screen
+---@class Stencil.Screen: Stencil.Element
 ---@field chld Stencil.Element[]
 ---@field styl Stencil.Styles
 ---@field stat Stencil.State
@@ -163,8 +163,6 @@ local function ray2Plane(pos, planePos, planeDir)
 end
 
 ---Draws this element to a ModelPart
----@generic self
----@param self self
 ---@return self
 function screen:draw()
 	local t = client.getSystemTime()
@@ -190,7 +188,7 @@ end
 
 ---Merges tables and does surface level scrubbing
 ---@param a table
----@param b table
+---@param b table?
 ---@return table
 local function merge(a, b)
 	if type(b) ~= "table" then return a end

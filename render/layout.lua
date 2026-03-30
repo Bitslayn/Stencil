@@ -226,10 +226,10 @@ function lib.draw(elem, layr, dist)
 	-- First move pivots and calculate total layer depth
 
 	local parn = elem.parn
-	local debt = dist * layr / (parn and #parn.chld or dist + 1)
-	elem.part:pos(-elem.stat.pos:augmented(debt))
+	local dept = dist * layr / (parn and #parn.chld or dist + 1)
+	elem.part:pos(-elem.stat.pos:augmented(dept))
 
-	elem.root.dept = math.max(elem.root.dept, debt)
+	elem.root.dept = math.max(elem.root.dept, dept)
 
 	-- Recurse
 
