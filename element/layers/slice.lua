@@ -26,26 +26,6 @@ local unpack4 = vectors.vec4().unpack
 
 local min = math.min
 
----Creates an empty slice that can be stylized later
----@param parn Stencil.Element
----@return Stencil.Elements.Slice
-local function new(parn)
-	local self = setmetatable({ parn = parn }, obj)
-
-	for y = 1, 3 do
-		self[y] = {}
-		for x = 1, 3 do
-			local task = newSprite(parn.part, "slice-" .. x .. y)
-			texture(task, "FOXStencil_blank", 1, 1)
-			size(task, 1, 1)
-			renderType(task, "CUTOUT_EMISSIVE_SOLID")
-			self[y][x] = task
-		end
-	end
-
-	return self
-end
-
 ---Updates the current slice
 function obj:update()
 	local styl = self.parn.styl
@@ -93,4 +73,22 @@ function obj:update()
 	end
 end
 
-return new
+---Creates an empty slice that can be stylized later
+---@param parn Stencil.Element
+---@return Stencil.Elements.Slice
+return function(parn)
+	local self = setmetatable({ parn = parn }, obj)
+
+	for y = 1, 3 do
+		self[y] = {}
+		for x = 1, 3 do
+			local task = newSprite(parn.part, "slice-" .. x .. y)
+			texture(task, "FOXStencil_blank", 1, 1)
+			size(task, 1, 1)
+			renderType(task, "CUTOUT_EMISSIVE_SOLID")
+			self[y][x] = task
+		end
+	end
+
+	return self
+end

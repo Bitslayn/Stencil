@@ -116,15 +116,12 @@ end
 ---@field styl Stencil.Styles.Internal
 ---@field stat Stencil.State
 ---@field part ModelPart
----@field elem table<string, Stencil.Elements.Border|Stencil.Elements.Slice>
+---@field elem Stencil.Elements
 local element = {}
 ---@package
 element.__index = element
 
-textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
-local border = require("./element/border")
-local label = require("./element/label")
-local slice = require("./element/slice")
+local elem = require("./element/class")
 
 ---Creates a new element with the given styles
 ---@param self Stencil.Element|Stencil.Screen
@@ -140,11 +137,7 @@ local function newElement(self, styl)
 		stat = {},
 		part = part,
 	}, element)
-	new.elem = {
-		border = border(new),
-		-- label = label(new),
-		slice = slice(new),
-	}
+	new.elem = elem(new)
 	table.insert(self.chld, new)
 	return new
 end

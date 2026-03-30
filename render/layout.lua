@@ -243,9 +243,7 @@ function lib.draw(elem, layr, dist)
 
 	if not elem.elem then return end
 
-	elem.elem.slice:update(elem.styl)
-	elem.elem.border:update(elem.styl)
-	-- elem.elem.label:update(elem.styl)
+	elem.elem:update()
 end
 
 ---Recursively gets the element hovered over

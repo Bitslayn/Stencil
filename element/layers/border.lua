@@ -18,22 +18,6 @@ local scale4 = matrices.scale4
 local vec2 = vectors.vec2
 local unpack = vec2().unpack
 
----Creates an empty outline that can be stylized later
----@param parn Stencil.Element
----@return Stencil.Elements.Border
-local function new(parn)
-	local self = setmetatable({ parn = parn }, obj)
-
-	for i = 1, 4 do
-		local task = newSprite(parn.part, "outline-" .. i)
-		texture(task, textures["FOXStencil_blank"], 1, 1)
-		renderType(task, "CUTOUT_EMISSIVE_SOLID")
-		self[i] = task
-	end
-
-	return self
-end
-
 ---Updates the current outline
 function obj:update()
 	local styl = self.parn.styl
@@ -61,4 +45,18 @@ function obj:update()
 	end
 end
 
-return new
+---Creates an empty outline that can be stylized later
+---@param parn Stencil.Element
+---@return Stencil.Elements.Border
+return function(parn)
+	local self = setmetatable({ parn = parn }, obj)
+
+	for i = 1, 4 do
+		local task = newSprite(parn.part, "outline-" .. i)
+		texture(task, textures["FOXStencil_blank"], 1, 1)
+		renderType(task, "CUTOUT_EMISSIVE_SOLID")
+		self[i] = task
+	end
+
+	return self
+end
