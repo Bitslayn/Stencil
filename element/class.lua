@@ -7,6 +7,7 @@ class.__index = class
 function class:update()
 	self[1]:update()
 	self[2]:update()
+	self[3]:update()
 end
 
 local a = require("./layers/slice")
@@ -16,6 +17,7 @@ local c = require("./layers/label")
 return function(...)
 	return setmetatable({
 		a(...),
-		b(...)
+		b(...),
+		c(...)
 	}, class)
 end
