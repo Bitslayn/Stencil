@@ -44,6 +44,7 @@ local api = {}
 ---@field [number] {mode: "FIT"|"GROW", min: number, max: number, val: number}
 ---@class Stencil.State.Border
 ---@field weight number
+---@field extend number
 ---@field color Vector3|Vector4
 ---@class Stencil.State.Label
 ---@field text string
@@ -229,10 +230,10 @@ function api.size(x, y)
 	return vars
 end
 
----@param t number|{weight: number, color: Vector4}
----@param r number|{weight: number, color: Vector4}
----@param b number|{weight: number, color: Vector4}
----@param l number|{weight: number, color: Vector4}
+---@param t number|Stencil.State.Border
+---@param r number|Stencil.State.Border
+---@param b number|Stencil.State.Border
+---@param l number|Stencil.State.Border
 ---@return Stencil.Styles.Border
 function api.border(t, r, b, l)
 	local vars = { t, r, b, l }
@@ -249,6 +250,7 @@ function api.border(t, r, b, l)
 
 		vars[i] = merge({
 			weight = 0,
+			extend = 0,
 			color = vec(0, 0, 0, 0),
 		}, v)
 	end

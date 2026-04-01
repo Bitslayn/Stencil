@@ -33,6 +33,10 @@ function obj:draw()
 		r.weight,
 		b.weight,
 		l.weight,
+		t.extend,
+		r.extend,
+		b.extend,
+		l.extend,
 	})
 	if self.id == id then return end
 	self.id = id
@@ -40,15 +44,27 @@ function obj:draw()
 	local w, h = unpack2(stat.size + tex.extend.yx --[[@as Vector2]] + tex.extend.wz --[[@as Vector2]])
 
 	local mats = {
-		translate4(l.weight, t.weight, -2) * scale4(w + l.weight + r.weight, t.weight, 1), -- Top
-		translate4(-w, 0, -2) * scale4(r.weight, h, 1),                              -- Right
-		translate4(l.weight, -h, -2) * scale4(w + l.weight + r.weight, b.weight, 1), -- Bottom
-		translate4(l.weight, 0, -2) * scale4(l.weight, h, 1), -- Left
+		-- Top
+		translate4(l.weight + l.extend, t.weight + t.extend, -2)
+		* scale4(w + l.weight + r.weight + l.extend + r.extend, t.weight, 1),
+
+		-- Right
+		translate4(-w - r.extend, t.extend, -2)
+		* scale4(r.weight, h + t.extend + b.extend, 1),
+
+		-- Bottom
+		translate4(l.weight + l.extend, -h - b.extend, -2)
+		* scale4(w + l.weight + r.weight + l.extend + r.extend, b.weight, 1),
+
+		-- Left
+		translate4(l.weight + l.extend, t.extend, -2)
+		* scale4(l.weight, h + t.extend + b.extend, 1),
 	}
 
 	for i = 1, 4 do
 		local task = self[i]
 			:matrix(translate4(tex.extend.w, tex.extend.x) * mats[i])
+			:visible(styl.border[1].weight > 0)
 
 			-- TODO separate into run-on-call method
 			:color(styl.border[1].color)
