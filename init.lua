@@ -81,12 +81,12 @@ local api = {}
 ---@field styl Stencil.Styles
 ---@field stat Stencil.State
 ---@field part ModelPart
----@field dept number
 local screen = {}
 ---@package
 screen.__index = screen
 
 ---@param part ModelPart
+---@return Stencil.Screen
 function api.newScreen(part)
 	local self = setmetatable({
 		chld = {},
@@ -138,7 +138,7 @@ local function newElement(self, styl)
 		part = part,
 	}, element)
 	new.elem = elem(new)
-	table.insert(self.chld, new)
+	self.chld[#self.chld + 1] = new
 	return new
 end
 
@@ -165,23 +165,23 @@ end
 ---Draws this element to a ModelPart
 ---@return self
 function screen:draw()
-	local t = client.getSystemTime()
-
 	local cam = client.getCameraPos()
 	local mat = self.part:partToWorldMatrix()
 	local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
+	self.part:scale(1, 1, (cam - poi):length() * 0.02)
 
-	self.dept = 0
+	local t = client.getSystemTime()
 	layout.restore(self)
-	
+
 	layout.size(self, 1)
 	layout.grow(self, 1)
 	layout.wrap(self)
 	layout.size(self, 2)
 	layout.grow(self, 2)
 	layout.position(self)
-	layout.draw(self, -1, (cam - poi):length() / 128)
-	host:actionbar(client.getSystemTime() - t .. "ms")
+
+	layout.draw(self, 0, 1)
+	-- host:actionbar(client.getSystemTime() - t .. "ms")
 
 	return self
 end
@@ -248,7 +248,7 @@ function api.border(t, r, b, l)
 
 		vars[i] = merge({
 			weight = 0,
-			color = vec(0, 0, 0, 1),
+			color = vec(0, 0, 0, 0),
 		}, v)
 	end
 

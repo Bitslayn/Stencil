@@ -2,15 +2,20 @@
 local lib = {}
 
 --[[ TODO
-Optimize rendering (Allow for reusing layouts):
-	Separate styles and state to avoid mutation and allow safe redraw
-	Split draw into create and transform steps
-	Split elements into separate files again, but drawing elements can draw from any or all element definitions in a flat way
+Move everything to methods and flat properties (basically cleanup)
 Comment ALL math
 Add scale
 Add margins
 Add text customizations
 Figure out widgets
+]]
+
+--[[Rules for future clay optimization
+Elements are updated from their leaves upwards
+Any element can report that they've been updated in some way. During recursion, if an element hasn't reported they've been updated, that element can be skipped entirely.
+A parent can tell its immediate children to update if child styles have been changed. This can only be triggered by the user.
+A child can tell its parent to update if the child has been resized in some way
+A child can tell its siblings that *they* should update if the child has been resized in some way, and these siblings are ordered later than this element
 ]]
 
 ---@param styl Stencil.Styles.Internal
@@ -214,36 +219,29 @@ function lib.position(elem)
 		local chld = elem.chld[i]
 
 		chld.stat.pos[a] = chld.stat.pos[a] + gap * (i - 1) + (outer * elem.styl.align[a])
-		chld.stat.pos[b] = chld.stat.pos[b] + ((y - chld.stat.size[b]) * elem.styl.align[b])
+		chld.stat.pos[b] = chld.stat.pos[b] + ((y - chld.stat.size[b]) * elem.styl.align[b]) - (elem.styl.texture and elem.styl.texture.extend[1] or 0)
 	end
 end
 
 ---Creates ModelParts for this element and all of its children recursively
 ---@param elem Stencil.Element
----@param layr integer
+---@param lace number
 ---@param dist number
-function lib.draw(elem, layr, dist)
-	-- First move pivots and calculate total layer depth
-
-	local parn = elem.parn
-	local dept = dist * layr / (parn and #parn.chld or dist + 1)
-	elem.part:pos(-elem.stat.pos:augmented(dept))
-
-	elem.root.dept = math.max(elem.root.dept, dept)
-
+function lib.draw(elem, lace, dist)
 	-- Recurse
 
 	if elem.chld then
-		for i = 1, #elem.chld do
-			lib.draw(elem.chld[i], i, dist)
+		local len = #elem.chld
+		for i = 1, len do
+			lib.draw(elem.chld[i], dist * i / len, 1 / len)
 		end
 	end
 
-	-- After all that is done, draw the layers
+	-- Draw elements
 
 	if not elem.elem then return end
 
-	elem.elem:update()
+	elem.elem:draw(lace)
 end
 
 ---Recursively gets the element hovered over
