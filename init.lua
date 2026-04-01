@@ -43,7 +43,8 @@ local api = {}
 ---@class Stencil.State.Size
 ---@field [number] {mode: "FIT"|"GROW", min: number, max: number, val: number}
 ---@class Stencil.State.Border
----@field [number] {weight: number, color: Vector3|Vector4}
+---@field weight number
+---@field color Vector3|Vector4
 ---@class Stencil.State.Label
 ---@field text string
 ---@field color Vector3|Vector4
@@ -60,7 +61,7 @@ local api = {}
 ---@field size Stencil.State.Size
 ---@field scale number|Vector2
 ---@field margin Vector4
----@field border Stencil.State.Border
+---@field border Stencil.State.Border[]
 ---@field dir Stencil.Direction
 ---@field padding Vector4
 ---@field gap number
@@ -170,7 +171,7 @@ function screen:draw()
 	local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
 	self.part:scale(1, 1, (cam - poi):length() * 0.02)
 
-	local t = client.getSystemTime()
+	-- local t = client.getSystemTime()
 	layout.restore(self)
 
 	layout.size(self, 1)

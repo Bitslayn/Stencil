@@ -255,7 +255,7 @@ function lib.hover(elem, pos)
 	-- Find hovered child element
 
 	if elem.chld then
-		for i = #elem.chld, 1, -1 do
+		for i = 1, #elem.chld do
 			local res = lib.hover(elem.chld[i], pos - stat.pos)
 			if res then return res end
 		end
