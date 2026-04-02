@@ -39,6 +39,11 @@ end
 
 ---@param elem Stencil.Element
 function lib.restore(elem)
+	if elem.skip then return end
+	for i = 1, #elem.chld do
+		lib.restore(elem.chld[i])
+	end
+
 	local size = elem.styl.size
 
 	elem.stat = {
@@ -47,17 +52,13 @@ function lib.restore(elem)
 		size_min = vec(size[1].min, size[2].min),
 		size_max = vec(size[1].max, size[2].max),
 	}
-
-	for i = 1, #elem.chld do
-		lib.restore(elem.chld[i])
-	end
 end
 
 ---Recursively calculates size of all children
 ---@param elem Stencil.Element
 ---@param axis integer
 function lib.size(elem, axis)
-	if not elem.chld[1] then return end
+	if elem.skip then return end
 	local a, b = rotate(elem.styl)
 	local p = pad(elem.styl)
 
@@ -92,7 +93,7 @@ end
 ---@param elem Stencil.Element
 ---@param axis integer
 function lib.grow(elem, axis)
-	if not elem.chld[1] then return end
+	if elem.skip then return end
 	local a, b = rotate(elem.styl)
 	local p = pad(elem.styl)
 
@@ -190,7 +191,7 @@ end
 ---Recursively calculates position of all children
 ---@param elem Stencil.Element
 function lib.position(elem)
-	if not elem.chld[1] then return end
+	if elem.skip then return end
 	local a, b = rotate(elem.styl)
 	local p = pad(elem.styl)
 
@@ -199,11 +200,13 @@ function lib.position(elem)
 	local offset = p[a][1]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		lib.position(chld)
+		if not chld.skip then
+			lib.position(chld)
 
-		chld.stat.pos[a] = chld.stat.pos[a] + offset
+			chld.stat.pos[a] = chld.stat.pos[a] + offset
+			chld.stat.pos[b] = chld.stat.pos[b] + p[b][1]
+		end
 		offset = offset + chld.stat.size[a] + elem.styl.gap
-		chld.stat.pos[b] = chld.stat.pos[b] + p[b][1]
 	end
 
 	-- Align & Justify
@@ -217,9 +220,11 @@ function lib.position(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-
-		chld.stat.pos[a] = chld.stat.pos[a] + gap * (i - 1) + (outer * elem.styl.align[a])
-		chld.stat.pos[b] = chld.stat.pos[b] + ((y - chld.stat.size[b]) * elem.styl.align[b]) - (elem.styl.texture and elem.styl.texture.extend[1] or 0)
+		if not chld.skip then
+			chld.stat.pos[a] = chld.stat.pos[a] + gap * (i - 1) + (outer * elem.styl.align[a])
+			chld.stat.pos[b] = chld.stat.pos[b] + ((y - chld.stat.size[b]) * elem.styl.align[b]) -
+				(elem.styl.texture and elem.styl.texture.extend[1] or 0)
+		end
 	end
 end
 
@@ -242,6 +247,7 @@ function lib.draw(elem, lace, dist)
 	if not elem.elem then return end
 
 	elem.elem:draw(lace)
+	elem.skip = true
 end
 
 ---Recursively gets the element hovered over
@@ -249,13 +255,16 @@ end
 ---@param pos Vector2
 ---@return Stencil.Element?
 function lib.hover(elem, pos)
+	local extend = elem.styl.texture and elem.styl.texture.extend or vectors.vec4()
 	local stat = elem.stat
-	if not (stat.pos <= pos and pos <= stat.pos + stat.size) then return end
+	local tmp_pos = stat.pos - extend.wx
+	local tmp_size = stat.size + extend.wx + extend.yz
+	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then return end
 
 	-- Find hovered child element
 
 	if elem.chld then
-		for i = 1, #elem.chld do
+		for i = #elem.chld, 1, -1 do
 			local res = lib.hover(elem.chld[i], pos - stat.pos)
 			if res then return res end
 		end

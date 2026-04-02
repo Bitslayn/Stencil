@@ -119,6 +119,7 @@ end
 ---@field stat Stencil.State
 ---@field part ModelPart
 ---@field elem Stencil.Elements
+---@field skip boolean
 local element = {}
 ---@package
 element.__index = element
@@ -138,6 +139,7 @@ local function newElement(self, styl)
 		styl = styl,
 		stat = {},
 		part = part,
+		skip = false
 	}, element)
 	new.elem = elem(new)
 	self.chld[#self.chld + 1] = new
@@ -148,8 +150,14 @@ screen.newElement = newElement
 element.newElement = newElement
 
 ---Removes this element from its parent
-function element:remove()
-	self.parn = nil --TODO ACTUALLY remove child from parent
+function element:queue()
+	-- Queue parent tree
+
+	local tree = self
+	repeat
+		tree.skip = false
+		tree = tree.parn
+	until not tree
 end
 
 local layout = require("./render/layout")
