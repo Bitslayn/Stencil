@@ -180,7 +180,6 @@ function screen:draw()
 	local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
 	self.part:scale(1, 1, (cam - poi):length() * 0.02)
 
-	-- local t = client.getSystemTime()
 	layout.restore(self)
 
 	layout.size(self, 1)
@@ -191,7 +190,6 @@ function screen:draw()
 	layout.position(self)
 
 	layout.draw(self, 0, 1)
-	-- host:actionbar(client.getSystemTime() - t .. "ms")
 
 	return self
 end

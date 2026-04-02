@@ -233,6 +233,8 @@ end
 ---@param lace number
 ---@param dist number
 function lib.draw(elem, lace, dist)
+	if elem.skip then return end
+	
 	-- Recurse
 
 	if elem.chld then
