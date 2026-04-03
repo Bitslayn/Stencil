@@ -79,7 +79,7 @@ local api = {}
 ---@field size_max Vector2
 
 ---@class Stencil.Screen: Stencil.Element
----@field chld Stencil.Element[]
+---@field chld FOXMap<integer, Stencil.Element>
 ---@field styl Stencil.Styles
 ---@field stat Stencil.State
 ---@field part ModelPart
@@ -114,7 +114,7 @@ function api.newScreen(part)
 end
 
 ---@class Stencil.Element
----@field chld FOXMap|Stencil.Element[]
+---@field chld FOXMap<integer, Stencil.Element>
 ---@field parn Stencil.Element|Stencil.Screen
 ---@field root Stencil.Screen
 ---@field styl Stencil.Styles.Internal

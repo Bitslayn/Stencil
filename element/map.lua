@@ -1,6 +1,6 @@
----@class FOXMap
----@field package map table<any, integer>
----@field package val any[]
+---@class FOXMap<K, V>: { [K]: V }
+---@field package map table<V, K>
+---@field package val table<K, V>
 local map = {}
 
 ---Gets a key from its value
@@ -81,23 +81,32 @@ function map:remove(k)
 	return v
 end
 
+---@param k any
+---@return any
+---@package
 function map:__index(k)
 	return rawget(self.val, k) or map[k]
 end
 
+---@param k any
+---@param v any
+---@package
 function map:__newindex(k, v)
 	self.val[k] = v
 	self.map[v] = k
 end
 
+---@package
 function map:__len()
 	return #self.val
 end
 
+---@package
 function map:__pairs()
 	return pairs(self.val)
 end
 
+---@package
 function map:__ipairs()
 	return ipairs(self.val)
 end
