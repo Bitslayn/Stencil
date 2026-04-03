@@ -87,11 +87,13 @@ local screen = {}
 ---@package
 screen.__index = screen
 
+local map = require("./element/map")
+
 ---@param part ModelPart
 ---@return Stencil.Screen
 function api.newScreen(part)
 	local self = setmetatable({
-		chld = {},
+		chld = map(),
 		styl = {
 			pos = vec(0, 0),
 			padding = vectors.vec4(),
@@ -112,7 +114,7 @@ function api.newScreen(part)
 end
 
 ---@class Stencil.Element
----@field chld Stencil.Element[]
+---@field chld FOXMap|Stencil.Element[]
 ---@field parn Stencil.Element|Stencil.Screen
 ---@field root Stencil.Screen
 ---@field styl Stencil.Styles.Internal
@@ -133,7 +135,7 @@ local elem = require("./element/class")
 local function newElement(self, styl)
 	local part = self.part:newPart("elem")
 	local new = setmetatable({
-		chld = {},
+		chld = map(),
 		parn = self,
 		root = self.root,
 		styl = styl,
@@ -142,7 +144,7 @@ local function newElement(self, styl)
 		skip = false
 	}, element)
 	new.elem = elem(new)
-	self.chld[#self.chld + 1] = new
+	self.chld:push(new)
 	return new
 end
 
