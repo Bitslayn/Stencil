@@ -180,7 +180,7 @@ function screen:draw()
 	local cam = client.getCameraPos()
 	local mat = self.part:partToWorldMatrix()
 	local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
-	self.part:scale(1, 1, (cam - poi):length() * 0.02)
+	self.part:scale(1, 1, (cam - poi):length() / 8)
 
 	layout.restore(self)
 
