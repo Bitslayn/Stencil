@@ -7,23 +7,25 @@ class.__index = class
 function class:draw(lace)
 	self.parn.part:pos(-self.parn.stat.pos:augmented(lace))
 
-	self.layers[1]:draw()
-	self.layers[2]:draw()
-	self.layers[3]:draw()
+	for i = 1, #self.layers do
+		self.layers[i]:draw()
+	end
 end
 
 textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
 
-local a = require("./layers/slice")
-local b = require("./layers/border")
-local c = require("./layers/label")
+local new = {
+	slice = require("./task/slice"),
+	border = require("./task/border"),
+	label = require("./task/label")
+}
 
 return function(...)
 	return setmetatable({
 		layers = {
-			a(...),
-			b(...),
-			c(...),
+			new.slice(...),
+			new.border(...),
+			new.label(...),
 		},
 		parn = ...,
 	}, class)

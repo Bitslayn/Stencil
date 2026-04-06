@@ -1,18 +1,26 @@
+--[[
+____  ___ __   __
+| __|/ _ \\ \ / /
+| _|| (_) |> w <
+|_|  \___//_/ \_\
+FOX's Map v1.0
+]]
+
 ---@class FOXMap<K, V>: { [K]: V }
 ---@field package map table<V, K>
 ---@field package val table<K, V>
 local map = {}
 
 ---Gets a key from its value
----@param v any
----@return integer
+---@param v V
+---@return K?
 function map:getKey(v)
 	return self.map[v]
 end
 
 ---Gets a value from its key
----@param k integer
----@return any
+---@param k K
+---@return V?
 function map:getVal(k)
 	return self.val[k]
 end
@@ -20,7 +28,7 @@ end
 ---Pushes this value to the top of the map
 ---
 ---Returns self for chaining
----@param v any
+---@param v V
 ---@return self
 function map:push(v)
 	local k = #self.val + 1
@@ -32,7 +40,7 @@ end
 ---Pops the value at the top of the map
 ---
 ---Returns the popped value
----@return any
+---@return V?
 function map:pop()
 	local k = #self.val
 	local v = self.val[k]
@@ -61,7 +69,7 @@ end
 ---
 ---Returns self for chaining
 ---@param k integer
----@param v any
+---@param v V
 ---@return self
 function map:insert(k, v)
 	table.insert(self.val, k, v)
@@ -72,7 +80,7 @@ end
 ---
 ---Returns the removed value
 ---@param k integer
----@return any
+---@return V?
 function map:remove(k)
 	local v = table.remove(self.val, k)
 	if not v then return end
@@ -81,15 +89,11 @@ function map:remove(k)
 	return v
 end
 
----@param k any
----@return any
 ---@package
 function map:__index(k)
 	return rawget(self.val, k) or map[k]
 end
 
----@param k any
----@param v any
 ---@package
 function map:__newindex(k, v)
 	self.val[k] = v
@@ -111,7 +115,11 @@ function map:__ipairs()
 	return ipairs(self.val)
 end
 
----Creates an empty map
-return function()
-	return setmetatable({ map = {}, val = {} }, map)
-end
+return {
+	class = map,
+	---Creates an empty map
+	---@return FOXMap<unknown, unknown>
+	new = function()
+		return setmetatable({ map = {}, val = {} }, map)
+	end,
+}

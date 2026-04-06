@@ -39,6 +39,8 @@ local api = {}
 ---@field color Stencil.Styles.Color?
 ---@field label Stencil.Styles.Label?
 ---@field texture Stencil.Styles.Texture?
+---@field hover function?
+---@field click function?
 
 ---@class Stencil.State.Size
 ---@field [number] {mode: "FIT"|"GROW", min: number, max: number, val: number}
@@ -71,6 +73,8 @@ local api = {}
 ---@field color Vector3|Vector4
 ---@field label Stencil.State.Label
 ---@field texture Stencil.State.Texture
+---@field hover function?
+---@field click function?
 
 ---@class Stencil.State
 ---@field pos Vector2
@@ -87,13 +91,13 @@ local screen = {}
 ---@package
 screen.__index = screen
 
-local map = require("./element/map")
+local map = require("./lib/map")
 
 ---@param part ModelPart
 ---@return Stencil.Screen
 function api.newScreen(part)
 	local self = setmetatable({
-		chld = map(),
+		chld = map.new(),
 		styl = {
 			pos = vec(0, 0),
 			padding = vectors.vec4(),
@@ -135,16 +139,17 @@ local elem = require("./element/class")
 local function newElement(self, styl)
 	local part = self.part:newPart("elem")
 	local new = setmetatable({
-		chld = map(),
+		chld = map.new(),
 		parn = self,
 		root = self.root,
 		styl = styl,
 		stat = {},
 		part = part,
-		skip = false
+		skip = false,
 	}, element)
 	new.elem = elem(new)
 	self.chld:push(new)
+
 	return new
 end
 
@@ -177,10 +182,16 @@ end
 ---Draws this element to a ModelPart
 ---@return self
 function screen:draw()
-	local cam = client.getCameraPos()
 	local mat = self.part:partToWorldMatrix()
-	local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
-	self.part:scale(1, 1, (cam - poi):length() / 8)
+	if mat == matrices.scale4(1 / 16) then
+		self:screenHover()
+	else
+		local cam = client.getCameraPos()
+		local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
+		self.part:scale(1, 1, (cam - poi):length() / 8)
+
+		self:worldHover()
+	end
 
 	layout.restore(self)
 
@@ -251,6 +262,7 @@ function api.border(t, r, b, l)
 
 		local v = vars[i]
 		if type(v) == "number" then
+			---@diagnostic disable-next-line: missing-fields
 			v = { weight = v }
 		end
 

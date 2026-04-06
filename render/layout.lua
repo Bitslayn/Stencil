@@ -234,7 +234,7 @@ end
 ---@param dist number
 function lib.draw(elem, lace, dist)
 	if elem.skip then return end
-	
+
 	-- Recurse
 
 	if elem.chld then
@@ -257,22 +257,69 @@ end
 ---@param pos Vector2
 ---@return Stencil.Element?
 function lib.hover(elem, pos)
-	local extend = elem.styl.texture and elem.styl.texture.extend or vectors.vec4()
 	local stat = elem.stat
+	if not stat then return end
+
+	local extend = elem.styl.texture and elem.styl.texture.extend or vectors.vec4()
 	local tmp_pos = stat.pos - extend.wx
 	local tmp_size = stat.size + extend.wx + extend.yz
 	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then return end
 
+	pos = pos - stat.pos
+
 	-- Find hovered child element
 
 	if elem.chld then
-		for i = #elem.chld, 1, -1 do
-			local res = lib.hover(elem.chld[i], pos - stat.pos)
+		if elem.hover_index then
+			local res = lib.hover(elem.chld[elem.hover_index], pos)
 			if res then return res end
+		end
+		for i = #elem.chld, 1, -1 do
+			local res = lib.hover(elem.chld[i], pos)
+			if res then
+				elem.hover_index = i
+				return res
+			end
 		end
 	end
 
-	-- Fall back to returning current hovered element
+	-- Interaction
+
+	local root = elem.root
+
+	while elem do
+		if elem.styl.hover or elem.styl.click then break end
+		pos = pos + elem.stat.pos
+		elem = elem.parn
+	end
+
+	local swing = player:getSwingTime()
+
+	-- Unhover last hovered element
+
+	if root.hovered and root.hovered ~= elem and root.hovered.styl.hover then
+		root.hovered.styl.hover(root.hovered, pos, 0) -- TODO: OUTDATED POSITION
+		root.hovered = nil
+	end
+
+	if root.clicked and (swing == 0 or 2 < swing) then
+		root.clicked.styl.click(root.clicked, pos, false) -- TODO: OUTDATED POSITION
+		root.clicked = nil
+	end
+
+	if not elem then return end
+
+	-- Hover currently hovered element
+
+	if elem.styl.hover then
+		elem.styl.hover(elem, pos, root.hovered == elem and 2 or 1)
+		root.hovered = elem
+	end
+
+	if not root.clicked and swing == 1 and elem.styl.click then
+		elem.styl.click(elem, pos, true)
+		root.clicked = elem
+	end
 
 	return elem
 end
