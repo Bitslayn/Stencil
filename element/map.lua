@@ -7,9 +7,15 @@ FOX's Map v1.0
 ]]
 
 ---@class FOXMap<K, V>: { [K]: V }
----@field package map table<V, K>
 ---@field package val table<K, V>
+---@field package map table<V, K>
 local map = {}
+
+---Creates an empty map
+---@return FOXMap
+local function new()
+	return setmetatable({ val = {}, map = {} }, map)
+end
 
 ---Gets a key from its value
 ---@param v V
@@ -115,11 +121,4 @@ function map:__ipairs()
 	return ipairs(self.val)
 end
 
-return {
-	class = map,
-	---Creates an empty map
-	---@return FOXMap<unknown, unknown>
-	new = function()
-		return setmetatable({ map = {}, val = {} }, map)
-	end,
-}
+return new

@@ -1,7 +1,6 @@
----@class Stencil.Elements.Slice
+---@class FOXStencil.Element.Slice
 ---@field cell SpriteTask[][]
----@field id string
----@field parn Stencil.Element
+---@field elem FOXStencil.Element
 local obj = {}
 obj.__index = obj
 
@@ -17,28 +16,14 @@ local concat = table.concat
 
 ---Updates the current slice
 function obj:draw()
-	local styl = self.parn.styl
-	local stat = self.parn.stat
-	local tex = styl.texture
+	local props = self.elem.props
+	local dim = getDimensions(props.tex)
 
-	local id = concat({
-		concat({ unpack2(stat.pos) }),
-		concat({ unpack2(stat.size) }),
-		concat({ unpack2(tex.pos) }),
-		concat({ unpack2(tex.size) }),
-		concat({ unpack4(tex.slice) }),
-		concat({ unpack4(tex.extend) }),
-	})
-	if self.id == id then return end
-	self.id = id
-
-	local dim = getDimensions(tex.atlas)
-
-	local t, r, b, l = unpack4(tex.slice)
-	local atlas_w, atlas_h = unpack2(tex.size)
-	local model_w, model_h = unpack2(stat.size + tex.extend.yx --[[@as Vector2]] + tex.extend.wz --[[@as Vector2]])
-	local e_x = tex.extend.x
-	local e_w = tex.extend.w
+	local t, r, b, l = unpack4(props.tex_slice)
+	local atlas_w, atlas_h = unpack2(props.tex_size)
+	local model_w, model_h = unpack2(props.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+	local e_x = props.tex_extend.x
+	local e_w = props.tex_extend.w
 
 	l = math.min(l, model_w / 2)
 	r = math.min(r, model_w / 2)
@@ -65,35 +50,34 @@ function obj:draw()
 		for x = 1, 3 do
 			self.cell[y][x]
 			-- TODO (maybe) separate uv and region into run-on-call methods
-				:uv((tex.pos + vec2(e_atlas_x[x], e_atlas_y[y])) / dim)
+				:uv((props.tex_pos + vec2(e_atlas_x[x], e_atlas_y[y])) / dim)
 				:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
-				:pos(-e_model_x[x] + tex.extend.w, -e_model_y[y] + tex.extend.x)
+				:pos(-e_model_x[x] + props.tex_extend.w, -e_model_y[y] + props.tex_extend.x)
 				:scale(e_model_w[x], e_model_h[y])
 				:visible(0 < e_atlas_w[x] and 0 < e_atlas_h[y])
 
 			-- TODO separate into run-on-call methods
-				:texture(tex.atlas)
+				:texture(props.tex)
 				:dimensions(dim * 1000)
 
-				:color(styl.color)
+				:color(props.tex_color)
 		end
 	end
 end
 
 ---Creates an empty slice that can be stylized later
----@param parn Stencil.Element
----@return Stencil.Elements.Slice
-return function(parn)
+---@param elem FOXStencil.Element
+---@return FOXStencil.Element.Slice
+return function(elem)
 	local self = setmetatable({
 		cell = {},
-		id = "",
-		parn = parn,
+		elem = elem,
 	}, obj)
 
 	for y = 1, 3 do
 		self.cell[y] = {}
 		for x = 1, 3 do
-			self.cell[y][x] = parn.part:newSprite("slice-" .. x .. y)
+			self.cell[y][x] = elem.part:newSprite("slice-" .. x .. y)
 				:texture(textures["FOXStencil_blank"], 1, 1)
 				:size(1, 1)
 				:renderType("CUTOUT_EMISSIVE_SOLID")

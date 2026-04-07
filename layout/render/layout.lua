@@ -293,7 +293,7 @@ function lib.hover(elem, pos)
 		elem = elem.parn
 	end
 
-	local swing = player:getSwingTime()
+	local swing = client.getViewer():getSwingTime()
 
 	-- Unhover last hovered element
 
