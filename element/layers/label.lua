@@ -15,7 +15,7 @@ local concat = table.concat
 function obj:draw()
 	local props = self.elem.props
 	local task = self.text
-		:width(props.size[1])
+		:width(props.live_size[1])
 		:visible(props.label ~= "")
 
 		-- TODO separate into run-on-call method

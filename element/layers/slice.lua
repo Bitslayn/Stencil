@@ -21,7 +21,7 @@ function obj:draw()
 
 	local t, r, b, l = unpack4(props.tex_slice)
 	local atlas_w, atlas_h = unpack2(props.tex_size)
-	local model_w, model_h = unpack2(props.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+	local model_w, model_h = unpack2(props.live_size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
 	local e_x = props.tex_extend.x
 	local e_w = props.tex_extend.w
 

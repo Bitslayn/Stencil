@@ -22,7 +22,7 @@ function obj:draw()
 	local w_t, w_r, w_b, w_l = unpack4(props.border)
 	local e_t, e_r, e_b, e_l = unpack4(props.border_extend)
 	
-	local w, h = unpack2(props.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+	local w, h = unpack2(props.live_size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
 
 	local mats = {
 		-- Top
