@@ -18,6 +18,7 @@ local function new(part, root, parn)
 		props = {
 			pos = vec(0, 0),
 			live_pos = vec(0, 0),
+			layer = 0,
 
 			scale = vec(1, 1),
 
@@ -28,7 +29,7 @@ local function new(part, root, parn)
 			live_size = vec(0, 0),
 			live_size_min = vec(0, 0),
 			live_size_max = vec(0, 0),
-			
+
 			border = vec(0, 0, 0, 0),
 			border_color = vec(1, 1, 1, 1),
 			border_extend = vec(0, 0, 0, 0),
@@ -97,13 +98,13 @@ function class:queue()
 		tree.skip = false
 		tree = tree.parn
 	until not tree
+
 	return self
 end
 
----@param lace number?
 ---@return self
-function class:draw(lace)
-	self.part:pos(-self.props.live_pos:augmented(lace))
+function class:draw()
+	self.part:pos(-self.props.live_pos:augmented(self.props.layer))
 	self.layers[1]:draw()
 	self.layers[2]:draw()
 	self.layers[3]:draw()

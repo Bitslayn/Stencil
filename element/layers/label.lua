@@ -14,7 +14,13 @@ local concat = table.concat
 
 function obj:draw()
 	local props = self.elem.props
+
+	local label_w, label_h = unpack2(client.getTextDimensions(props.label) - vec(0, 1))
+	local x = -props.tex_extend[4] + math.lerp(0, props.live_size.x - label_w, 0.5)
+	local y = -props.tex_extend[1] + math.lerp(0, props.live_size.y - label_h, 0.5)
+
 	local task = self.text
+		:pos(-x, -y)
 		:width(props.live_size[1])
 		:visible(props.label ~= "")
 

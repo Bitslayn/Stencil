@@ -240,8 +240,9 @@ function lib.draw(elem, lace, dist)
 
 	-- Draw elements
 
-	elem:draw(lace)
+	elem.props.layer = lace
 	elem.skip = true
+	elem:draw()
 end
 
 ---Recursively gets the element hovered over
