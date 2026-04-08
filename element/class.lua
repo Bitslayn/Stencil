@@ -13,6 +13,8 @@ local function new(part, root, parn)
 		part = part,
 
 		---@class FOXStencil.Element.Props
+		---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: integer)?
+		---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
 		props = {
 			pos = vec(0, 0),
 			live_pos = vec(0, 0),
@@ -47,11 +49,6 @@ local function new(part, root, parn)
 			gap = 0,
 			align = vec(0, 0),
 			justify = 0,
-
-			---@type function
-			hover = nil,
-			---@type function
-			click = nil
 		},
 
 		root = root,
@@ -88,6 +85,18 @@ function class:setProps(props)
 		end
 		self.props[k] = v
 	end
+	return self
+end
+
+---@return self
+function class:queue()
+	-- Queue parent tree
+
+	local tree = self
+	repeat
+		tree.skip = false
+		tree = tree.parn
+	until not tree
 	return self
 end
 

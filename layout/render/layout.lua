@@ -42,12 +42,11 @@ function lib.restore(elem)
 		lib.restore(elem.chld[i])
 	end
 
-	elem:setProps({
-		live_pos = elem.props.pos,
-		live_size = elem.props.size,
-		live_size_min = elem.props.size_min,
-		live_size_max = elem.props.size_max,
-	})
+	local props = elem.props
+	props.live_pos = props.pos:copy()
+	props.live_size = props.size:copy()
+	props.live_size_min = props.size_min:copy()
+	props.live_size_max = props.size_max:copy()
 end
 
 ---Recursively calculates size of all children
@@ -280,23 +279,17 @@ function lib.hover(elem, pos)
 
 	local root = elem.root
 
-	while elem do
-		if props.hover or props.click then break end
-		pos = pos + props.live_pos
-		elem = elem.parn
-	end
-
 	local swing = client.getViewer():getSwingTime()
 
 	-- Unhover last hovered element
 
-	if root.hovered and root.hovered ~= elem and root.hovered.styl.hover then
-		root.hovered.styl.hover(root.hovered, pos, 0) -- TODO: OUTDATED POSITION
+	if root.hovered and root.hovered ~= elem and root.hovered.props.hover then
+		root.hovered.props.hover(root.hovered, pos, 0) -- TODO: OUTDATED POSITION
 		root.hovered = nil
 	end
 
 	if root.clicked and (swing == 0 or 2 < swing) then
-		root.clicked.styl.click(root.clicked, pos, false) -- TODO: OUTDATED POSITION
+		root.clicked.props.click(root.clicked, pos, false) -- TODO: OUTDATED POSITION
 		root.clicked = nil
 	end
 
@@ -304,13 +297,13 @@ function lib.hover(elem, pos)
 
 	-- Hover currently hovered element
 
-	if elem.styl.hover then
-		elem.styl.hover(elem, pos, root.hovered == elem and 2 or 1)
+	if elem.props.hover then
+		elem.props.hover(elem, pos, root.hovered == elem and 2 or 1)
 		root.hovered = elem
 	end
 
-	if not root.clicked and swing == 1 and elem.styl.click then
-		elem.styl.click(elem, pos, true)
+	if not root.clicked and swing == 1 and elem.props.click then
+		elem.props.click(elem, pos, true)
 		root.clicked = elem
 	end
 

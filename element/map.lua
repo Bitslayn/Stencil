@@ -97,7 +97,7 @@ end
 
 ---@package
 function map:__index(k)
-	return rawget(self.val, k) or map[k]
+	return self.val[k] or map[k]
 end
 
 ---@package
