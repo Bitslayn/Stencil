@@ -26,19 +26,19 @@ function obj:draw()
 
 	local mats = {
 		-- Top
-		translate4(w_l + e_l, w_t + e_t, -2)
+		translate4(w_l + e_l, w_t + e_t, -1)
 		* scale4(w + w_l + w_r + e_l + e_r, w_t, 1),
 
 		-- Right
-		translate4(-w - e_r, e_t, -2)
+		translate4(-w - e_r, e_t, -1)
 		* scale4(w_r, h + e_t + e_b, 1),
 
 		-- Bottom
-		translate4(w_l + e_l, -h - e_b, -2)
+		translate4(w_l + e_l, -h - e_b, -1)
 		* scale4(w + w_l + w_r + e_l + e_r, w_b, 1),
 
 		-- Left
-		translate4(w_l + e_l, e_t, -2)
+		translate4(w_l + e_l, e_t, -1)
 		* scale4(w_l, h + e_t + e_b, 1),
 	}
 

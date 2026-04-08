@@ -45,6 +45,7 @@ local function new(part, root, parn)
 			tex_slice = vec(0, 0, 0, 0),
 
 			label = "",
+			label_shadow = false,
 
 			vertical = false,
 			gap = 0,

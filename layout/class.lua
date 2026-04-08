@@ -54,7 +54,7 @@ local dot = vectors.vec3().dot
 ---@return Vector3? intersection_point
 local function intersectPlane(ray_pos, ray_dir, plane_pos, plane_normal)
 	local denom = dot(plane_normal, ray_dir)
-	if abs(denom) < EPSILON then return end
+	if -denom < EPSILON then return end
 	local d = plane_pos - ray_pos
 	local t = dot(d, plane_normal) / denom
 	if t < EPSILON then return end
@@ -110,11 +110,11 @@ function class:draw()
 	else
 		local cam = client.getCameraPos()
 		local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
-		self.part:scale(1, 1, (cam - poi):length() / 8)
+		self.part:scale(1, 1, poi:cross(cam):length() * 1e-4)
 
 		self:worldHover()
 	end
-	
+
 	for i = 1, #self.chld do
 		local elem = self.chld[i]
 		layout.restore(elem)
@@ -125,7 +125,7 @@ function class:draw()
 		layout.size(elem, 2)
 		layout.grow(elem, 2)
 		layout.position(elem)
-	
+
 		layout.draw(elem, 0, 1)
 	end
 

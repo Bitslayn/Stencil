@@ -26,6 +26,7 @@ function obj:draw()
 
 		-- TODO separate into run-on-call method
 		:text(props.label)
+		:shadow(props.label_shadow)
 end
 
 ---Creates a label that can be stylized later
