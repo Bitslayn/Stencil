@@ -29,7 +29,7 @@ end
 
 ---@param elem FOXStencil.Element
 function lib.restore(elem)
-	if elem.skip then return end
+	if elem.skip.layout then return end
 	for i = 1, #elem.chld do
 		lib.restore(elem.chld[i])
 	end
@@ -45,7 +45,7 @@ end
 ---@param elem FOXStencil.Element
 ---@param axis integer
 function lib.size(elem, axis)
-	if elem.skip then return end
+	if elem.skip.layout then return end
 	local a, b = rotate(elem.props)
 	local p = pad(elem.props)
 
@@ -87,7 +87,7 @@ end
 ---@param elem FOXStencil.Element
 ---@param axis integer
 function lib.grow(elem, axis)
-	if elem.skip then return end
+	if elem.skip.layout then return end
 	local a, b = rotate(elem.props)
 	local p = pad(elem.props)
 
@@ -170,7 +170,7 @@ end
 ---Recursively calculates position of all children
 ---@param elem FOXStencil.Element
 function lib.position(elem)
-	if elem.skip then return end
+	if elem.skip.layout then return end
 	local a, b = rotate(elem.props)
 	local p = pad(elem.props)
 
@@ -179,7 +179,7 @@ function lib.position(elem)
 	local offset = p[a][1]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if not chld.skip then
+		if not chld.skip.layout then
 			lib.position(chld)
 
 			chld.props.live_pos[a] = chld.props.live_pos[a] + offset
@@ -199,7 +199,7 @@ function lib.position(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if not chld.skip then
+		if not chld.skip.layout then
 			chld.props.live_pos[a] = chld.props.live_pos[a] + gap * (i - 1) + (outer * elem.props.align[a])
 			chld.props.live_pos[b] = chld.props.live_pos[b] + ((y - chld.props.live_size[b]) * elem.props.align[b])
 		end
@@ -211,7 +211,7 @@ end
 ---@param lace number
 ---@param dist number
 function lib.draw(elem, lace, dist)
-	if elem.skip then return end
+	if elem.skip.layout then return end
 
 	-- Recurse
 
@@ -225,8 +225,9 @@ function lib.draw(elem, lace, dist)
 	-- Draw elements
 
 	elem.props.layer = lace
-	elem.skip = true
 	elem:draw()
+	elem.skip.layout = true
+	elem.skip.redraw = true
 end
 
 ---Recursively gets the element hovered over

@@ -59,7 +59,10 @@ local function new(part, root, parn, sibl)
 		sibl = sibl,
 		chld = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
 
-		skip = false,
+		skip = {
+			layout = false,
+			redraw = false,
+		},
 	}
 	self.layers = {
 		require("./layers/slice")(self),
@@ -99,20 +102,25 @@ function class:queue()
 	local tree = self
 	repeat
 		for i = tree.sibl:getKey(tree), #tree.sibl do
-			tree.sibl[i].skip = false
+			tree.sibl[i].skip.layout = false
 		end
+		tree.skip.redraw = false
 		tree = tree.parn
 	until not tree
 
 	return self
 end
 
+---@param forced boolean?
 ---@return self
-function class:draw()
+function class:draw(forced)
 	self.part:pos(-self.props.live_pos:augmented(self.props.layer))
+	if self.skip.redraw and not forced then return self end
+
 	self.layers[1]:draw()
 	self.layers[2]:draw()
 	self.layers[3]:draw()
+
 	return self
 end
 

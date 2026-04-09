@@ -37,6 +37,8 @@ function class:hover(pos)
 	return self
 end
 
+-- TODO Move alternate hover functions to user space or something
+
 ---Returns the screen element being moused over
 function class:screenHover()
 	local pos = client.getMousePos() / client.getGuiScale()
@@ -117,6 +119,7 @@ function class:draw()
 
 	for i = 1, #self.chld do
 		local elem = self.chld[i]
+		local t = client.getSystemTime()
 		layout.restore(elem)
 
 		layout.size(elem, 1)
@@ -126,6 +129,7 @@ function class:draw()
 		layout.position(elem)
 
 		layout.draw(elem, 0, 1)
+		host:actionbar(tostring(client.getSystemTime() - t))
 	end
 
 	return self
