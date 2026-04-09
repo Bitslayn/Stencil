@@ -3,7 +3,6 @@ local lib = {}
 
 --[[ TODO
 Comment ALL math
-Add scale
 Add margins
 Add text customizations
 Add copy, remove, sort, and other methods to elements
@@ -48,15 +47,17 @@ end
 ---@param axis integer
 function lib.size(elem, axis)
 	if elem.skip.layout then return end
-	local a, b = rotate(elem.props)
-	local p = pad(elem.props)
+	local props = elem.props
+
+	local a, b = rotate(props)
+	local p = pad(props)
 
 	-- Fit label
 
-	-- if elem.props.label ~= "" then
-	-- 	local wrd_size = client.getTextDimensions(elem.props.label:gsub("%s", "\n"), 0)
-	-- 	elem.props.live_size[axis] = math.max(elem.props.live_size[axis], wrd_size[axis])
-	-- end
+	if props.label ~= "" then
+		local wrd_size = client.getTextDimensions(props.label:gsub("%s", "\n"), 0) * props.label_size
+		props.live_size[axis] = math.max(props.live_size[axis], wrd_size[axis])
+	end
 
 	-- Fit children
 
@@ -67,22 +68,22 @@ function lib.size(elem, axis)
 
 		if a == axis then
 			size = size + chld.props.live_size[a]
-			elem.props.live_size_min[a] = elem.props.live_size_min[a] + chld.props.live_size_min[a]
+			props.live_size_min[a] = props.live_size_min[a] + chld.props.live_size_min[a]
 		end
 		if b == axis then
-			elem.props.live_size[b] = math.max(elem.props.live_size[b], chld.props.live_size[b])
-			elem.props.live_size_min[b] = math.max(elem.props.live_size_min[b], chld.props.live_size_min[b])
+			props.live_size[b] = math.max(props.live_size[b], chld.props.live_size[b])
+			props.live_size_min[b] = math.max(props.live_size_min[b], chld.props.live_size_min[b])
 		end
 	end
-	elem.props.live_size[a] = math.max(elem.props.live_size[a], size)
+	props.live_size[a] = math.max(props.live_size[a], size)
 
 	-- Gap & Padding
 
 	if a == axis then
-		elem.props.live_size[axis] = elem.props.live_size[axis] + elem.props.gap * (#elem.chld - 1)
+		props.live_size[axis] = props.live_size[axis] + props.gap * (#elem.chld - 1)
 	end
 
-	elem.props.live_size[axis] = elem.props.live_size[axis] + p[axis][1] + p[axis][2]
+	props.live_size[axis] = props.live_size[axis] + p[axis][1] + p[axis][2]
 end
 
 ---Recursively grows child elements
@@ -275,7 +276,7 @@ end
 ---@param pos Vector2?
 function lib.interact(root, elem, pos)
 	-- Interaction
-	
+
 	local swing = client.getViewer():getSwingTime()
 
 	-- Unhover last hovered element

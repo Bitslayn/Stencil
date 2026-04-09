@@ -21,9 +21,7 @@ local function new(part, root, parn, sibl)
 			live_pos = vec(0, 0),
 			hover_pos = vec(0, 0),
 			layer = 0,
-
-			scale = vec(1, 1),
-
+			
 			size = vec(0, 0),
 			size_min = vec(0, 0),
 			size_max = vec(0, 0),
@@ -31,23 +29,24 @@ local function new(part, root, parn, sibl)
 			live_size = vec(0, 0),
 			live_size_min = vec(0, 0),
 			live_size_max = vec(0, 0),
-
+			
 			border = vec(0, 0, 0, 0),
 			border_color = vec(1, 1, 1, 1),
 			border_extend = vec(0, 0, 0, 0),
-
+			
 			padding = vec(0, 0, 0, 0),
 			margin = vec(0, 0, 0, 0),
-
+			
 			tex = textures["FOXStencil_blank"] --[[@as Texture]],
 			tex_pos = vec(0, 0),
 			tex_size = vec(1, 1),
 			tex_color = vec(1, 1, 1, 1),
 			tex_extend = vec(0, 0, 0, 0),
 			tex_slice = vec(0, 0, 0, 0),
-
+			
 			label = "",
 			label_shadow = false,
+			label_size = 1,
 
 			vertical = false,
 			gap = 0,
@@ -99,6 +98,8 @@ end
 ---@return self
 function class:queue()
 	-- Queue late siblings up parent tree
+
+	-- TODO: Potential optimization here would be to check if the element changed size along or against layout and only queue elements on that axis
 
 	local tree = self
 	repeat
