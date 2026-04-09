@@ -6,8 +6,9 @@ class.__index = class
 ---@param part ModelPart
 ---@param root FOXStencil.Layout
 ---@param parn FOXStencil.Element?
+---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
-local function new(part, root, parn)
+local function new(part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = {
 		part = part,
@@ -55,6 +56,7 @@ local function new(part, root, parn)
 
 		root = root,
 		parn = parn,
+		sibl = sibl,
 		chld = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
 
 		skip = false,
@@ -70,7 +72,7 @@ end
 ---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
 function class:newElement(props)
-	local elem = new(self.part:newPart("elem"), self.root, self):setProps(props)
+	local elem = new(self.part:newPart("elem"), self.root, self, self.chld):setProps(props)
 	self.chld:push(elem)
 	return elem
 end
@@ -92,11 +94,13 @@ end
 
 ---@return self
 function class:queue()
-	-- Queue parent tree
+	-- Queue late siblings up parent tree
 
 	local tree = self
 	repeat
-		tree.skip = false
+		for i = tree.sibl:getKey(tree), #tree.sibl do
+			tree.sibl[i].skip = false
+		end
 		tree = tree.parn
 	until not tree
 

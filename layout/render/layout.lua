@@ -8,14 +8,6 @@ Add margins
 Add text customizations
 ]]
 
---[[Rules for future clay optimization
-Elements are updated from their leaves upwards
-Any element can report that they've been updated in some way. During recursion, if an element hasn't reported they've been updated, that element can be skipped entirely.
-A parent can tell its immediate children to update if child styles have been changed. This can only be triggered by the user.
-A child can tell its parent to update if the child has been resized in some way
-A child can tell its siblings that *they* should update if the child has been resized in some way, and these siblings are ordered later than this element
-]]
-
 ---@param props FOXStencil.Element.Props
 ---@return integer, integer
 local function rotate(props)
@@ -59,12 +51,10 @@ function lib.size(elem, axis)
 
 	-- Fit label
 
-	local wrd_size = client.getTextDimensions(elem.props.label:gsub("%s", "\n"), 0)
-	if 1 == axis then
-		elem.props.live_size.x = math.max(elem.props.live_size.x, wrd_size.x)
-	else
-		elem.props.live_size.y = math.max(elem.props.live_size.y, wrd_size.y)
-	end
+	-- if elem.props.label ~= "" then
+	-- 	local wrd_size = client.getTextDimensions(elem.props.label:gsub("%s", "\n"), 0)
+	-- 	elem.props.live_size[axis] = math.max(elem.props.live_size[axis], wrd_size[axis])
+	-- end
 
 	-- Fit children
 
@@ -175,21 +165,6 @@ function lib.grow(elem, axis)
 		local chld = elem.chld[i]
 		lib.grow(chld, axis)
 	end
-end
-
----@param elem FOXStencil.Element
-function lib.wrap(elem)
-	-- if elem.type == "label" then
-	-- 	elem.stat.size = client.getTextDimensions(elem.stat.text, elem.stat.size.x)
-	-- elseif elem.type == "sprite" then
-	-- 	local dim = elem.stat.texture --[[@as Texture]]:getDimensions()
-	-- 	elem.stat.size.y = dim.y / dim.x * elem.stat.size.x
-	-- elseif elem.chld[1] then
-	-- 	for i = 1, #elem.chld do
-	-- 		local chld = elem.chld[i]
-	-- 		lib.wrap(chld)
-	-- 	end
-	-- end
 end
 
 ---Recursively calculates position of all children

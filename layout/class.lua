@@ -17,7 +17,7 @@ end
 ---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
 function class:newElement(props)
-	local elem = require("../element/class")(self.part:newPart("elem"), self):setProps(props)
+	local elem = require("../element/class")(self.part:newPart("elem"), self, nil, self.chld):setProps(props)
 	self.chld:push(elem)
 	return elem
 end
@@ -110,7 +110,7 @@ function class:draw()
 	else
 		local cam = client.getCameraPos()
 		local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
-		self.part:scale(1, 1, poi:cross(cam):length() * 1e-4)
+		self.part:scale(1, 1, math.abs((poi - cam):dot(mat:applyDir(0, 0, 1):normalize() * 0.5))) -- Fixes bug when traveling through x/z = 0
 
 		self:worldHover()
 	end
@@ -121,7 +121,6 @@ function class:draw()
 
 		layout.size(elem, 1)
 		layout.grow(elem, 1)
-		layout.wrap(elem)
 		layout.size(elem, 2)
 		layout.grow(elem, 2)
 		layout.position(elem)
