@@ -8,7 +8,7 @@ class.__index = class
 local function new(part)
 	---@class FOXStencil.Layout
 	local self = {
-		part = part,
+		part = part:newPart("root"):scale(1, 1, 0.2),
 		chld = require("../element/map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
 	}
 	return setmetatable(self, class)
@@ -92,15 +92,15 @@ function class:worldHover()
 	return self:hover(pos)
 end
 
----@param pos Vector3
----@param planeDir Vector3
----@param planePos Vector3
----@return Vector3
-local function ray2Plane(pos, planePos, planeDir)
-	local pdn = planeDir:normalized()
-	local dtp = pdn:dot(planePos - pos)
-	return pos + pdn * dtp
-end
+-- ---@param pos Vector3
+-- ---@param planeDir Vector3
+-- ---@param planePos Vector3
+-- ---@return Vector3
+-- local function ray2Plane(pos, planePos, planeDir)
+-- 	local pdn = planeDir:normalized()
+-- 	local dtp = pdn:dot(planePos - pos)
+-- 	return pos + pdn * dtp
+-- end
 
 ---@return self
 function class:draw()
@@ -108,11 +108,11 @@ function class:draw()
 	if mat == matrices.scale4(1 / 16) then
 		self:screenHover()
 	else
-		local cam = client.getCameraPos()
-		local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
-		self.part:scale(1, 1, math.abs((poi - cam):dot(mat:applyDir(0, 0, 1):normalize() * 0.5))) -- Fixes bug when traveling through x/z = 0
-
 		self:worldHover()
+
+		-- local cam = client.getCameraPos()
+		-- local poi = ray2Plane(cam, mat:apply(), mat:applyDir(0, 0, -1))
+		-- self.part:scale(1, 1, math.abs((poi - cam):dot(mat:applyDir(0, 0, 1):normalize() * 0.5))) -- Fixes bug when traveling through x/z = 0
 	end
 
 	for i = 1, #self.chld do
