@@ -27,7 +27,7 @@ local layout = require("./render/layout")
 ---Returns the element being moused over
 ---
 ---A position relative to the current element must be given
----@param pos Vector2
+---@param pos Vector2?
 ---@return self
 function class:hover(pos)
 	for i = 1, #self.chld do
@@ -87,11 +87,7 @@ function class:worldHover()
 		mat:applyDir(0, 0, -1)
 	)
 
-	if not hit then return end
-
-	local pos = worldToLocal(hit, mat).xy * vec(1, -1)
-
-	return self:hover(pos)
+	return self:hover(hit and worldToLocal(hit, mat).xy * vec(1, -1))
 end
 
 -- ---@param pos Vector3

@@ -232,17 +232,21 @@ end
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
----@param pos Vector2
+---@param pos Vector2?
 ---@return FOXStencil.Element?
 function lib.hover(elem, pos)
 	local root = elem.root
 	local props = elem.props
 
+	if not pos then
+		return lib.interact(root)
+	end
+
 	local extend = props.tex_extend
 	local tmp_pos = props.live_pos - extend.wx
 	local tmp_size = props.live_size + extend.wx + extend.yz
 	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then
-		return lib.interact(root, pos, elem)
+		return lib.interact(root)
 	end
 
 	pos = pos - props.live_pos
@@ -261,15 +265,15 @@ function lib.hover(elem, pos)
 		end
 	end
 
-	lib.interact(root, pos, elem)
+	lib.interact(root, elem, pos)
 
 	return elem
 end
 
 ---@param root FOXStencil.Layout
 ---@param elem FOXStencil.Element?
----@param pos Vector2
-function lib.interact(root, pos, elem)
+---@param pos Vector2?
+function lib.interact(root, elem, pos)
 	-- Interaction
 	
 	local swing = client.getViewer():getSwingTime()
@@ -286,7 +290,7 @@ function lib.interact(root, pos, elem)
 		root.clicked = nil
 	end
 
-	if not elem then return end
+	if not (elem and pos) then return end
 
 	-- Hover currently hovered element
 
