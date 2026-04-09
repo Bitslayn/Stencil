@@ -19,6 +19,7 @@ local function new(part, root, parn, sibl)
 		props = {
 			pos = vec(0, 0),
 			live_pos = vec(0, 0),
+			hover_pos = vec(0, 0),
 			layer = 0,
 
 			scale = vec(1, 1),

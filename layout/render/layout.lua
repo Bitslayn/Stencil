@@ -6,6 +6,8 @@ Comment ALL math
 Add scale
 Add margins
 Add text customizations
+Add copy, remove, sort, and other methods to elements
+Add copy to layout element
 ]]
 
 ---@param props FOXStencil.Element.Props
@@ -275,12 +277,12 @@ function lib.interact(root, pos, elem)
 	-- Unhover last hovered element
 
 	if root.hovered and root.hovered ~= elem and root.hovered.props.hover then
-		root.hovered.props.hover(root.hovered, pos, 0) -- TODO: OUTDATED POSITION
+		root.hovered.props.hover(root.hovered, root.hovered.props.hover_pos, 0)
 		root.hovered = nil
 	end
 
 	if root.clicked and (swing == 0 or 2 < swing) then
-		root.clicked.props.click(root.clicked, pos, false) -- TODO: OUTDATED POSITION
+		root.clicked.props.click(root.clicked, root.clicked.props.hover_pos, false)
 		root.clicked = nil
 	end
 
@@ -297,6 +299,8 @@ function lib.interact(root, pos, elem)
 		elem.props.click(elem, pos, true)
 		root.clicked = elem
 	end
+
+	elem.props.hover_pos = pos
 end
 
 return lib
