@@ -181,7 +181,7 @@ function lib.position(elem)
 		local chld = elem.chld[i]
 		if not chld.skip.layout then
 			lib.position(chld)
-
+			
 			chld.props.live_pos[a] = chld.props.live_pos[a] + offset
 			chld.props.live_pos[b] = chld.props.live_pos[b] + p[b][1]
 		end
@@ -215,11 +215,9 @@ function lib.draw(elem, lace, dist)
 
 	-- Recurse
 
-	if elem.chld then
-		local len = #elem.chld
-		for i = 1, len do
-			lib.draw(elem.chld[i], dist * i / len, 1 / len)
-		end
+	local len = #elem.chld
+	for i = 1, len do
+		lib.draw(elem.chld[i], dist * i / len, 1 / len)
 	end
 
 	-- Draw elements
@@ -247,17 +245,15 @@ function lib.hover(elem, pos)
 
 	-- Find hovered child element
 
-	if elem.chld then
-		if elem.hover_index then
-			local res = lib.hover(elem.chld[elem.hover_index], pos)
-			if res then return res end
-		end
-		for i = #elem.chld, 1, -1 do
-			local res = lib.hover(elem.chld[i], pos)
-			if res then
-				elem.hover_index = i
-				return res
-			end
+	if elem.hover_index then
+		local res = lib.hover(elem.chld[elem.hover_index], pos)
+		if res then return res end
+	end
+	for i = #elem.chld, 1, -1 do
+		local res = lib.hover(elem.chld[i], pos)
+		if res then
+			elem.hover_index = i
+			return res
 		end
 	end
 
