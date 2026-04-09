@@ -57,6 +57,15 @@ function lib.size(elem, axis)
 	local a, b = rotate(elem.props)
 	local p = pad(elem.props)
 
+	-- Fit label
+
+	local wrd_size = client.getTextDimensions(elem.props.label:gsub("%s", "\n"), 0)
+	if 1 == axis then
+		elem.props.live_size.x = math.max(elem.props.live_size.x, wrd_size.x)
+	else
+		elem.props.live_size.y = math.max(elem.props.live_size.y, wrd_size.y)
+	end
+
 	-- Fit children
 
 	local size = 0

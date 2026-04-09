@@ -12,10 +12,18 @@ local unpack2 = vec2().unpack
 local tostring = tostring
 local concat = table.concat
 
+---Fixes emojis on <0.1.6
+---@param str string
+---@return string
+local function emoji_fix(str)
+	str = str:gsub(":[^:]+:", "  ")
+	return str
+end
+
 function obj:draw()
 	local props = self.elem.props
 
-	local label_w, label_h = unpack2(client.getTextDimensions(props.label) - vec(0, 1))
+	local label_w, label_h = unpack2(client.getTextDimensions(emoji_fix(props.label), props.live_size.x) - vec(0, 1))
 	local x = -props.tex_extend[4] + math.lerp(0, props.live_size.x - label_w, 0.5)
 	local y = -props.tex_extend[1] + math.lerp(0, props.live_size.y - label_h, 0.5)
 
