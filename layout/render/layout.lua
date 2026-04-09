@@ -181,7 +181,7 @@ function lib.position(elem)
 		local chld = elem.chld[i]
 		if not chld.skip.layout then
 			lib.position(chld)
-			
+
 			chld.props.live_pos[a] = chld.props.live_pos[a] + offset
 			chld.props.live_pos[b] = chld.props.live_pos[b] + p[b][1]
 		end
@@ -233,13 +233,15 @@ end
 ---@param pos Vector2
 ---@return FOXStencil.Element?
 function lib.hover(elem, pos)
+	local root = elem.root
 	local props = elem.props
-	if not props then return end
 
 	local extend = props.tex_extend
 	local tmp_pos = props.live_pos - extend.wx
 	local tmp_size = props.live_size + extend.wx + extend.yz
-	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then return end
+	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then
+		return lib.interact(root, pos, elem)
+	end
 
 	pos = pos - props.live_pos
 
@@ -257,10 +259,17 @@ function lib.hover(elem, pos)
 		end
 	end
 
+	lib.interact(root, pos, elem)
+
+	return elem
+end
+
+---@param root FOXStencil.Layout
+---@param elem FOXStencil.Element?
+---@param pos Vector2
+function lib.interact(root, pos, elem)
 	-- Interaction
-
-	local root = elem.root
-
+	
 	local swing = client.getViewer():getSwingTime()
 
 	-- Unhover last hovered element
@@ -288,8 +297,6 @@ function lib.hover(elem, pos)
 		elem.props.click(elem, pos, true)
 		root.clicked = elem
 	end
-
-	return elem
 end
 
 return lib
