@@ -8,4 +8,9 @@ function api.newLayout(part)
 	return require("./layout/class").new(part)
 end
 
+local presets = listFiles(... .. "/element/presets")
+for i = 1, #presets do
+	require(presets[i])(require("./element/class").class)
+end
+
 return api

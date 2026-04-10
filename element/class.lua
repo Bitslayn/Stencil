@@ -77,7 +77,7 @@ end
 ---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
 function class:newElement(props)
-	local elem = new(self.part:newPart("elem"), self.root, self, self.chld):setProps(props)
+	local elem = new(self.part:newPart("elem"), self.root, self ~= self.root and self or nil, self.chld):setProps(props)
 	self.chld:push(elem)
 	return elem
 end
