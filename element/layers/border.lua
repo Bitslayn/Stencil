@@ -43,7 +43,7 @@ function obj:draw()
 	}
 
 	for i = 1, 4 do
-		local task = self[i]
+		self[i]
 			:matrix(translate4(props.tex_extend.w, props.tex_extend.x) * mats[i])
 			:visible(props.border:length() > 0)
 

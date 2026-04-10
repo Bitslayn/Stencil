@@ -46,6 +46,8 @@ local function new(part, root, parn, sibl)
 			
 			label = "",
 			label_shadow = false,
+			label_outline = false,
+			label_outline_color = vec(1, 1, 1) / 8,
 			label_size = 1,
 
 			vertical = false,

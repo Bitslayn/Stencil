@@ -4,7 +4,6 @@ local lib = {}
 --[[ TODO
 Comment ALL math
 Add margins
-Add text customizations
 Add copy, remove, sort, and other methods to elements
 Add copy to layout element
 ]]

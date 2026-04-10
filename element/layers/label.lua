@@ -28,8 +28,8 @@ function obj:draw()
 	local x = -props.tex_extend[4] + math.lerp(0, props.live_size.x - label_w, 0.5)
 	local y = -props.tex_extend[1] + math.lerp(0, props.live_size.y - label_h, 0.5)
 
-	local task = self.text
-		:pos(-x, -y)
+	self.text
+		:pos(-x, -y, -0.5)
 		:scale(props.label_size)
 		:width(props.live_size[1])
 		:visible(props.label ~= "")
@@ -37,6 +37,8 @@ function obj:draw()
 		-- TODO separate into run-on-call method
 		:text(props.label)
 		:shadow(props.label_shadow)
+		:outline(props.label_outline)
+		:outlineColor(props.label_outline_color)
 end
 
 ---Creates a label that can be stylized later
