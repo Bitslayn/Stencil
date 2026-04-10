@@ -17,43 +17,73 @@ local function new(part, root, parn, sibl)
 		---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: integer)?
 		---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
 		props = {
+			---This element's preferred offset position
 			pos = vec(0, 0),
+			---READ-ONLY This element's calculated position relative to its parent
 			live_pos = vec(0, 0),
+			---READ-ONLY Position on this element that was hovered
 			hover_pos = vec(0, 0),
+			---READ-ONLY Interlaced layer used to prevent z fighting elements
 			layer = 0,
 
+			---This element's preferred size
 			size = vec(0, 0),
+			---This element's minimum size
 			size_min = vec(0, 0),
+			---This element's maximum size
 			size_max = vec(0, 0),
+			---States define whether this element is allowed to dynamically scale within min and max bounds
 			size_flex = { false, false },
+			---READ-ONLY This element's calculated size
 			live_size = vec(0, 0),
+			---READ-ONLY This element's calculated minimum size
 			live_size_min = vec(0, 0),
+			---READ-ONLY This element's calculated maximum size
 			live_size_max = vec(0, 0),
 
-			border = vec(0, 0, 0, 0),
-			border_color = vec(1, 1, 1, 1),
-			border_extend = vec(0, 0, 0, 0),
-
+			---Child padding, or space around children
 			padding = vec(0, 0, 0, 0),
+			---Element margin, or space around element
 			margin = vec(0, 0, 0, 0),
+			---Child gap, or space between children
+			gap = 0,
+			---Child layout direction, false is horizontal and true is vertical
+			vertical = false,
+			---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
+			align = vec(0, 0),
+			---Percentage (0 to 1) of available space distributed between children rather than around children
+			justify = 0,
 
+			---Background texture
 			tex = textures["FOXStencil_blank"] --[[@as Texture]],
+			---UV position on the texture
 			tex_pos = vec(0, 0),
+			---UV region on the texture
 			tex_size = vec(1, 1),
+			---Background tint
 			tex_color = vec(1, 1, 1, 1),
+			---Amount of pixels to overlap in each direction
 			tex_extend = vec(0, 0, 0, 0),
+			---UV pixels starting at each edge to slice inwards
 			tex_slice = vec(0, 0, 0, 0),
 
-			label = "",
-			label_shadow = false,
-			label_outline = false,
-			label_outline_color = vec(1, 1, 1) / 8,
-			label_size = 1,
+			---Border line weight at each edge
+			border = vec(0, 0, 0, 0),
+			---Border color
+			border_color = vec(1, 1, 1, 1),
+			---Border offset at each edge
+			border_extend = vec(0, 0, 0, 0),
 
-			vertical = false,
-			gap = 0,
-			align = vec(0, 0),
-			justify = 0,
+			---Text string
+			label = "",
+			---Text shadow state
+			label_shadow = false,
+			---Text outline state
+			label_outline = false,
+			---Text outline color
+			label_outline_color = vec(1, 1, 1) / 8,
+			---Text size
+			label_size = 1,
 		},
 
 		root = root,
@@ -76,7 +106,8 @@ end
 
 ---@return FOXStencil.Element
 function class:newElement(props)
-	local elem = new(self.part:newPart("elem"), self.root, self ~= self.root and self or nil, self.chld):setProps(props or {})
+	local elem = new(self.part:newPart("elem"), self.root, self ~= self.root and self or nil, self.chld):setProps(props or
+	{})
 	self.chld:push(elem)
 	return elem
 end
