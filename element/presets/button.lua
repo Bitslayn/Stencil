@@ -1,12 +1,14 @@
+---@class FOXStencil.Button.Props: FOXStencil.Element.Props
+---@field hover fun(self: FOXStencil.Button, pos: Vector2, state: integer)?
+---@field click fun(self: FOXStencil.Button, pos: Vector2, state: boolean)?
 ---@class FOXStencil.Button: FOXStencil.Element
+---@field setProps fun(self: self, props: FOXStencil.Button.Props): self
+---@field queue fun(self: self): self
+---@field draw fun(self: self, forced: boolean): self
 local class = {}
 ---@package
 function class:__index(k)
 	return class[k] or require("../class").class[k]
-end
-
-function class:meow()
-	error("meow")
 end
 
 ---@param elem FOXStencil.Element
@@ -14,7 +16,7 @@ return function(elem)
 	---@class FOXStencil.Element
 	elem = elem
 
-	---@param props FOXStencil.Element.Props
+	---@param props FOXStencil.Button.Props?
 	---@return FOXStencil.Button
 	function elem:newButton(props)
 		return setmetatable(self:newElement({
@@ -52,6 +54,6 @@ return function(elem)
 
 				btn:draw(true)
 			end,
-		}):setProps(props), class)
+		}):setProps(props or {}), class) --[[@as FOXStencil.Button]]
 	end
 end
