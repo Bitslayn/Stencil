@@ -74,6 +74,7 @@ local function new(part, root, parn, sibl)
 	return setmetatable(self, class)
 end
 
+---@generic self: FOXStencil.Element
 ---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
 function class:newElement(props)
@@ -82,6 +83,7 @@ function class:newElement(props)
 	return elem
 end
 
+---@generic self: FOXStencil.Element
 ---@param props FOXStencil.Element.Props?
 ---@return self
 function class:setProps(props)
@@ -97,6 +99,7 @@ function class:setProps(props)
 	return self
 end
 
+---@generic self: FOXStencil.Element
 ---@return self
 function class:queue()
 	-- Queue late siblings up parent tree
@@ -115,6 +118,7 @@ function class:queue()
 	return self
 end
 
+---@generic self: FOXStencil.Element
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)

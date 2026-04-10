@@ -1,5 +1,13 @@
----@class FOXStencil.Button
-local class
+---@class FOXStencil.Button: FOXStencil.Element
+local class = {}
+---@package
+function class:__index(k)
+	return class[k] or require("../class").class[k]
+end
+
+function class:meow()
+	error("meow")
+end
 
 ---@param elem FOXStencil.Element
 return function(elem)
@@ -7,8 +15,9 @@ return function(elem)
 	elem = elem
 
 	---@param props FOXStencil.Element.Props
+	---@return FOXStencil.Button
 	function elem:newButton(props)
-		return self:newElement({
+		return setmetatable(self:newElement({
 			tex = textures["assets.textures.ui"],
 			tex_color = vectors.hsvToRGB(math.random(), 1, 1),
 			tex_pos = vec(0, 0),
@@ -43,6 +52,6 @@ return function(elem)
 
 				btn:draw(true)
 			end,
-		}):setProps(props)
+		}):setProps(props), class)
 	end
 end
