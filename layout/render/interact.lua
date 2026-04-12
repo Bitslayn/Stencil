@@ -2,21 +2,18 @@
 local lib = {}
 
 ---@param root FOXStencil.Layout
+---@param click boolean
 ---@param elem FOXStencil.Element?
 ---@param pos Vector2?
-local function interact(root, elem, pos)
-	-- Interaction
-
-	local swing = client.getViewer():getSwingTime()
-
+local function interact(root, click, elem, pos)
 	-- Unhover last hovered element
 
-	if root.hovered and root.hovered ~= elem and root.hovered.props.hover then
-		root.hovered.props.hover(root.hovered, root.hovered.props.hover_pos, 0)
+	if root.hovered and root.hovered.props.hover and root.hovered ~= elem then
+		root.hovered.props.hover(root.hovered, root.hovered.props.hover_pos, false, true)
 		root.hovered = nil
 	end
 
-	if root.clicked and (swing == 0 or 2 < swing) then
+	if root.clicked and root.clicked.props.click and not click then
 		root.clicked.props.click(root.clicked, root.clicked.props.hover_pos, false)
 		root.clicked = nil
 	end
@@ -26,11 +23,11 @@ local function interact(root, elem, pos)
 	-- Hover currently hovered element
 
 	if elem.props.hover then
-		elem.props.hover(elem, pos, root.hovered == elem and 2 or 1)
+		elem.props.hover(elem, pos, true, root.hovered ~= elem)
 		root.hovered = elem
 	end
 
-	if not root.clicked and swing == 1 and elem.props.click then
+	if not root.clicked and elem.props.click and click then
 		elem.props.click(elem, pos, true)
 		root.clicked = elem
 	end
@@ -40,21 +37,22 @@ end
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
+---@param click boolean
 ---@param pos Vector2?
 ---@return FOXStencil.Element?
-function lib.relative_hover(elem, pos)
+function lib.relative_hover(elem, click, pos)
 	local root = elem.root
 	local props = elem.props
 
 	if not pos then
-		return interact(root)
+		return interact(root, click)
 	end
 
 	local extend = props.tex_extend
 	local tmp_pos = props.live_pos - extend.wx
 	local tmp_size = props.live_size + extend.wx + extend.yz
 	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then
-		return interact(root)
+		return interact(root, click)
 	end
 
 	pos = pos - props.live_pos
@@ -62,27 +60,35 @@ function lib.relative_hover(elem, pos)
 	-- Find hovered child element
 
 	if elem.hover_index then
-		local res = lib.relative_hover(elem.chld[elem.hover_index], pos)
+		local res = lib.relative_hover(elem.chld[elem.hover_index], click, pos)
 		if res then return res end
 	end
 	for i = #elem.chld, 1, -1 do
-		local res = lib.relative_hover(elem.chld[i], pos)
+		local res = lib.relative_hover(elem.chld[i], click, pos)
 		if res then
 			elem.hover_index = i
 			return res
 		end
 	end
 
-	interact(root, elem, pos)
+	interact(root, click, elem, pos)
 
 	return elem
+end
+
+local mouse_press
+function events.mouse_press(button, state)
+	if host:getScreen() and not host:isChatOpen() or action_wheel:isEnabled() then return end
+	if 1 < button then return end
+	mouse_press = state ~= 0
+	-- mouse_press = state ~= 0 and button % 2
 end
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
 ---@return FOXStencil.Element?
 function lib.screen_hover(elem)
-	return lib.relative_hover(elem, client.getMousePos() / client.getGuiScale())
+	return lib.relative_hover(elem, mouse_press, client.getMousePos() / client.getGuiScale())
 end
 
 local EPSILON = 2.2204460492503131e-16
@@ -129,7 +135,10 @@ function lib.world_hover(elem)
 		mat:applyDir(0, 0, -1)
 	)
 
-	return lib.relative_hover(elem, hit and worldToLocal(hit, mat).xy * vec(1, -1))
+	local viewer = client.getViewer()
+	local click = viewer:getSwingTime() == 1 or viewer:isUsingItem()
+
+	return lib.relative_hover(elem, click, hit and worldToLocal(hit, mat).xy * vec(1, -1))
 end
 
 return lib

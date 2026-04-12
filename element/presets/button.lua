@@ -27,9 +27,9 @@ return function(elem)
 			tex_slice = vec(2, 2, 4, 2),
 			tex_extend = vec(2, 0, 0, 0),
 
-			hover = function(btn, pos, state)
-				if state == 2 then return end
-				btn:setProps({ border = vectors.vec4() + state }):draw(true)
+			hover = function(btn, pos, state, changed)
+				if not changed then return end
+				btn:setProps({ border = vectors.vec4() + (state and 1 or 0) }):draw(true)
 			end,
 			click = function(btn, pos, state)
 				sounds:playSound(

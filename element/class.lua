@@ -14,7 +14,7 @@ local function new(part, root, parn, sibl)
 		part = part,
 
 		---@class FOXStencil.Element.Props
-		---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: integer)?
+		---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: boolean, changed: boolean)?
 		---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
 		props = {
 			---This element's preferred offset position
