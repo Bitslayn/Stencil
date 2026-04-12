@@ -1,3 +1,6 @@
+---@type FOXStencil.Element
+local super = require("../element/class").class
+
 ---@class FOXStencil.Button.Props: FOXStencil.Element.Props
 ---@field hover fun(self: FOXStencil.Button, pos: Vector2, state: integer)?
 ---@field click fun(self: FOXStencil.Button, pos: Vector2, state: boolean)?
@@ -8,7 +11,7 @@
 local class = {}
 ---@package
 function class:__index(k)
-	return class[k] or require("../class").class[k]
+	return class[k] or super[k]
 end
 
 ---@param elem FOXStencil.Element

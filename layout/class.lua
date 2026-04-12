@@ -1,8 +1,11 @@
+---@type FOXStencil.Element
+local super = require("../element/class").class
+
 ---@class FOXStencil.Layout: FOXStencil.Element
 local class = {}
 ---@package
 function class:__index(k)
-	return class[k] or require("../element/class").class[k]
+	return class[k] or super[k]
 end
 
 ---@param part ModelPart
