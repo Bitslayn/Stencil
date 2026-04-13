@@ -46,7 +46,7 @@ return function(elem)
 			tex_extend = vec(2, 0, 0, 0),
 
 			border = vec(0, 0, 0, 0),
-			
+
 			hover = function(_, pos, state, changed)
 				if not changed then return end
 
@@ -70,9 +70,10 @@ return function(elem)
 
 				btn:draw(true)
 			end,
-		}):setProps(props or {}):setProps({
-			border = vec(1, 1, 1, 1),
-		}, "hover"):setProps({
+		}):setProps(props or {})
+
+		btn:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+		btn:setProps({
 			tex_pos = vec(4, 0),
 			tex_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),

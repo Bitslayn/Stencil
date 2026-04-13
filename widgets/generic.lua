@@ -19,7 +19,7 @@ end
 ---@return self
 function class:setPos(x, y)
 	y = y or x
-	self.props.pos = vectors.vec2():set(x, y)
+	self.props.normal.pos = vectors.vec2():set(x, y)
 	return self
 end
 
@@ -30,7 +30,7 @@ end
 ---@return self
 function class:setSize(x, y)
 	y = y or x
-	self.props.size = vectors.vec2():set(x, y)
+	self.props.normal.size = vectors.vec2():set(x, y)
 	return self
 end
 
@@ -54,7 +54,7 @@ function class:setPadding(x, y, z, w)
 	y = y or x
 	z = z or x
 	w = w or y or x
-	self.props.padding = vectors.vec4():set(x, y, z, w)
+	self.props.normal.padding = vectors.vec4():set(x, y, z, w)
 	return self
 end
 
@@ -78,7 +78,7 @@ function class:setMargin(x, y, z, w)
 	y = y or x
 	z = z or x
 	w = w or y or x
-	self.props.margin = vectors.vec4():set(x, y, z, w)
+	self.props.normal.margin = vectors.vec4():set(x, y, z, w)
 	return self
 end
 
@@ -87,7 +87,7 @@ end
 ---@param x number
 ---@return self
 function class:setGap(x)
-	self.props.gap = x
+	self.props.normal.gap = x
 	return self
 end
 
@@ -98,7 +98,7 @@ end
 ---@return self
 function class:setAlign(x, y)
 	y = y or x
-	self.props.align = vectors.vec2():set(x, y)
+	self.props.normal.align = vectors.vec2():set(x, y)
 	return self
 end
 
@@ -107,7 +107,7 @@ end
 ---@param x number
 ---@return self
 function class:setJustify(x)
-	self.props.justify = x
+	self.props.normal.justify = x
 	return self
 end
 
