@@ -112,6 +112,8 @@ function class:newElement(props)
 	return elem
 end
 
+---@generic self: FOXStencil.Element
+---@param self self
 ---@param props FOXStencil.Element.Props
 ---@return self
 function class:setProps(props)
@@ -127,6 +129,8 @@ function class:setProps(props)
 	return self
 end
 
+---@generic self: FOXStencil.Element
+---@param self self
 ---@return self
 function class:queue()
 	-- Queue late siblings up parent tree
@@ -145,6 +149,8 @@ function class:queue()
 	return self
 end
 
+---@generic self: FOXStencil.Element
+---@param self self
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)
