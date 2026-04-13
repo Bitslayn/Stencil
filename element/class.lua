@@ -144,7 +144,7 @@ end
 ---@param group FOXStencil.Element.Props.Group?
 ---@return self
 function class:setProps(props, group)
-	group = group or group_id[self.group]
+	group = group or "normal"
 	for k, v in pairs(props) do
 		local t = type(v)
 		if t == "table" then
@@ -160,7 +160,7 @@ end
 ---@param group FOXStencil.Element.Props.Group?
 ---@return FOXStencil.Element.Props
 function class:getProps(group)
-	return self.props[group or group_id[self.group]]
+	return self.props[group or "normal"]
 end
 
 ---@generic self: FOXStencil.Element
