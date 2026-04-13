@@ -7,7 +7,7 @@ api.newLayout = require("./layout/class").new
 local class = require("./element/class").class
 local presets = listFiles(... .. "/widgets")
 for i = 1, #presets do
-	require(presets[i])(class)
+	pcall(require(presets[i]), class)
 end
 
 return api

@@ -1,11 +1,11 @@
----@type FOXStencil.Element
-local super = require("../element/class").class
+---@type FOXStencil.Widgets.Generic
+local super = require("./generic")
 
----@class FOXStencil.Button.Props: FOXStencil.Element.Props
----@field hover fun(self: FOXStencil.Button, pos: Vector2, state: integer)?
----@field click fun(self: FOXStencil.Button, pos: Vector2, state: boolean)?
----@class FOXStencil.Button: FOXStencil.Element
----@field setProps fun(self: self, props: FOXStencil.Button.Props): self
+---@class FOXStencil.Widgets.Button.Props: FOXStencil.Widgets.Generic.Props
+---@field hover fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: integer)?
+---@field click fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
+---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
+---@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props): self
 ---@field queue fun(self: self): self
 ---@field draw fun(self: self, forced: boolean): self
 local class = {}
@@ -19,8 +19,8 @@ return function(elem)
 	---@class FOXStencil.Element
 	elem = elem
 
-	---@param props FOXStencil.Button.Props?
-	---@return FOXStencil.Button
+	---@param props FOXStencil.Widgets.Button.Props?
+	---@return FOXStencil.Widgets.Button
 	function elem:newButton(props)
 		return setmetatable(self:newElement({
 			tex = textures["assets.textures.ui"],
@@ -57,6 +57,6 @@ return function(elem)
 
 				btn:draw(true)
 			end,
-		}):setProps(props or {}), class) --[[@as FOXStencil.Button]]
+		}):setProps(props or {}), class) --[[@as FOXStencil.Widgets.Button]]
 	end
 end
