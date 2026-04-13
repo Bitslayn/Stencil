@@ -3,6 +3,15 @@ local class = {}
 ---@package
 class.__index = class
 
+---@alias FOXStencil.Element.Props.Group "normal"|"hover"|"click"|"hover_click"
+
+local group_id = {
+	[0] = "normal",
+	"hover",
+	"click",
+	"hover_click",
+}
+
 ---@param part ModelPart
 ---@param root FOXStencil.Layout
 ---@param parn FOXStencil.Element?
@@ -10,80 +19,90 @@ class.__index = class
 ---@return FOXStencil.Element
 local function new(part, root, parn, sibl)
 	---@class FOXStencil.Element
-	local self = {
+	local self = setmetatable({
 		part = part,
-
-		---@class FOXStencil.Element.Props
-		---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: boolean, changed: boolean)?
-		---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
+		
+		group = 0,
 		props = {
-			---This element's preferred offset position
+			---@class FOXStencil.Element.Props
+			---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: boolean, changed: boolean)?
+			---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
+			normal = {
+				---This element's preferred offset position
+				pos = vec(0, 0),
+
+				---This element's preferred size
+				size = vec(0, 0),
+				---This element's minimum size
+				size_min = vec(0, 0),
+				---This element's maximum size
+				size_max = vec(0, 0),
+				---States define whether this element is allowed to dynamically scale within min and max bounds
+				size_flex = { false, false },
+
+				---Child padding, or space around children
+				padding = vec(0, 0, 0, 0),
+				---Element margin, or space around element
+				margin = vec(0, 0, 0, 0),
+				---Child gap, or space between children
+				gap = 0,
+				---Child layout direction, false is horizontal and true is vertical
+				vertical = false,
+				---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
+				align = vec(0, 0),
+				---Percentage (0 to 1) of available space distributed between children rather than around children
+				justify = 0,
+
+				---Background texture
+				tex = textures["FOXStencil_blank"] --[[@as Texture]],
+				---UV position on the texture
+				tex_pos = vec(0, 0),
+				---UV region on the texture
+				tex_size = vec(1, 1),
+				---Background tint
+				tex_color = vec(1, 1, 1, 1),
+				---Amount of pixels to overlap in each direction
+				tex_extend = vec(0, 0, 0, 0),
+				---UV pixels starting at each edge to slice inwards
+				tex_slice = vec(0, 0, 0, 0),
+
+				---Border line weight at each edge
+				border = vec(0, 0, 0, 0),
+				---Border color
+				border_color = vec(1, 1, 1, 1),
+				---Border offset at each edge
+				border_extend = vec(0, 0, 0, 0),
+
+				---Text string
+				label = "",
+				---Text shadow state
+				label_shadow = false,
+				---Text outline state
+				label_outline = false,
+				---Text outline color
+				label_outline_color = vec(1, 1, 1) / 8,
+				---Text size
+				label_size = 1,
+			},
+			hover = {},
+			click = {},
+			hover_click = {},
+		},
+		---@class FOXStencil.Element.State
+		state = {
+			---This element's calculated position relative to its parent
 			pos = vec(0, 0),
-			---READ-ONLY This element's calculated position relative to its parent
-			live_pos = vec(0, 0),
-			---READ-ONLY Position on this element that was hovered
+			---Position on this element that was hovered
 			hover_pos = vec(0, 0),
-			---READ-ONLY Interlaced layer used to prevent z fighting elements
+			---Interlaced layer used to prevent z fighting elements
 			layer = 0,
 
-			---This element's preferred size
+			---This element's calculated size
 			size = vec(0, 0),
-			---This element's minimum size
+			---This element's calculated minimum size
 			size_min = vec(0, 0),
-			---This element's maximum size
+			---This element's calculated maximum size
 			size_max = vec(0, 0),
-			---States define whether this element is allowed to dynamically scale within min and max bounds
-			size_flex = { false, false },
-			---READ-ONLY This element's calculated size
-			live_size = vec(0, 0),
-			---READ-ONLY This element's calculated minimum size
-			live_size_min = vec(0, 0),
-			---READ-ONLY This element's calculated maximum size
-			live_size_max = vec(0, 0),
-
-			---Child padding, or space around children
-			padding = vec(0, 0, 0, 0),
-			---Element margin, or space around element
-			margin = vec(0, 0, 0, 0),
-			---Child gap, or space between children
-			gap = 0,
-			---Child layout direction, false is horizontal and true is vertical
-			vertical = false,
-			---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
-			align = vec(0, 0),
-			---Percentage (0 to 1) of available space distributed between children rather than around children
-			justify = 0,
-
-			---Background texture
-			tex = textures["FOXStencil_blank"] --[[@as Texture]],
-			---UV position on the texture
-			tex_pos = vec(0, 0),
-			---UV region on the texture
-			tex_size = vec(1, 1),
-			---Background tint
-			tex_color = vec(1, 1, 1, 1),
-			---Amount of pixels to overlap in each direction
-			tex_extend = vec(0, 0, 0, 0),
-			---UV pixels starting at each edge to slice inwards
-			tex_slice = vec(0, 0, 0, 0),
-
-			---Border line weight at each edge
-			border = vec(0, 0, 0, 0),
-			---Border color
-			border_color = vec(1, 1, 1, 1),
-			---Border offset at each edge
-			border_extend = vec(0, 0, 0, 0),
-
-			---Text string
-			label = "",
-			---Text shadow state
-			label_shadow = false,
-			---Text outline state
-			label_outline = false,
-			---Text outline color
-			label_outline_color = vec(1, 1, 1) / 8,
-			---Text size
-			label_size = 1,
 		},
 
 		root = root,
@@ -91,23 +110,30 @@ local function new(part, root, parn, sibl)
 		sibl = sibl,
 		chld = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
 
-		skip = {
-			layout = false,
-			redraw = false,
-		},
-	}
+		skip = { layout = false, redraw = false },
+	}, class)
 	self.layers = {
 		require("./layers/slice")(self),
 		require("./layers/border")(self),
 		require("./layers/label")(self),
 	}
-	return setmetatable(self, class)
+
+	local props = self.props
+	setmetatable(props.hover, { __index = props.normal })
+	setmetatable(props.click, { __index = props.normal })
+	setmetatable(props.hover_click, {
+		__index = function(_, k)
+			return rawget(props.hover, k) or rawget(props.click, k) or props.normal[k]
+		end
+	})
+
+	return self
 end
 
 ---@return FOXStencil.Element
 function class:newElement(props)
 	local elem = new(self.part:newPart("elem"), self.root, self ~= self.root and self or nil, self.chld):setProps(props or
-	{})
+		{})
 	self.chld:push(elem)
 	return elem
 end
@@ -115,8 +141,10 @@ end
 ---@generic self: FOXStencil.Element
 ---@param self self
 ---@param props FOXStencil.Element.Props
+---@param group FOXStencil.Element.Props.Group?
 ---@return self
-function class:setProps(props)
+function class:setProps(props, group)
+	group = group or group_id[self.group]
 	for k, v in pairs(props) do
 		local t = type(v)
 		if t == "table" then
@@ -124,9 +152,15 @@ function class:setProps(props)
 		elseif t:find("^Vector") then
 			v = v:copy()
 		end
-		self.props[k] = v
+		self.props[group][k] = v
 	end
 	return self
+end
+
+---@param group FOXStencil.Element.Props.Group?
+---@return FOXStencil.Element.Props
+function class:getProps(group)
+	return self.props[group or group_id[self.group]]
 end
 
 ---@generic self: FOXStencil.Element
@@ -154,7 +188,7 @@ end
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)
-	self.part:pos(-self.props.live_pos:augmented(self.props.layer))
+	self.part:pos(-self.state.pos:augmented(self.props.layer))
 	if self.skip.redraw and not forced then return self end
 
 	self.layers[1]:draw()

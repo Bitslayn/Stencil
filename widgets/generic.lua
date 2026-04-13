@@ -5,7 +5,7 @@ local super = require("../element/class").class
 ---@field hover fun(self: FOXStencil.Widgets.Generic, pos: Vector2, state: boolean, changed: boolean)?
 ---@field click fun(self: FOXStencil.Widgets.Generic, pos: Vector2, state: boolean)?
 ---@class FOXStencil.Widgets.Generic: FOXStencil.Element
----@field setProps fun(self: self, props: FOXStencil.Widgets.Generic.Props): self
+---@field setProps fun(self: self, props: FOXStencil.Widgets.Generic.Props, group: FOXStencil.Element.Props.Group?): self
 local class = {}
 ---@package
 function class:__index(k)

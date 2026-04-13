@@ -14,7 +14,7 @@ local function new(part)
 	---@class FOXStencil.Layout
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = require("../element/map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
+		chld = require("../element/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]
 	}
 	self.root = self
 	return setmetatable(self, class)

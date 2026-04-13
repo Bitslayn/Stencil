@@ -5,7 +5,7 @@ local super = require("./generic")
 ---@field hover fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean, changed: boolean)?
 ---@field click fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 ---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
----@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props): self
+---@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props, group: FOXStencil.Element.Props.Group?): self
 ---@field onClick fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 ---@field onHover fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 local class = {}
@@ -37,33 +37,16 @@ return function(elem)
 	---@return FOXStencil.Widgets.Button
 	function elem:newButton(props)
 		local btn = self:newElement() --[[@as FOXStencil.Widgets.Button]]
-		local props_normal = {
+
+		btn:setProps({
 			tex = textures["assets.textures.ui"],
-			tex_color = vectors.hsvToRGB(math.random(), 1, 1),
 			tex_pos = vec(0, 0),
 			tex_size = vec(5, 7),
 			tex_slice = vec(2, 2, 4, 2),
 			tex_extend = vec(2, 0, 0, 0),
-		}
-		local props_pressed = {
-			tex = textures["assets.textures.ui"],
-			tex_color = vectors.hsvToRGB(math.random(), 1, 1),
-			tex_pos = vec(4, 0),
-			tex_size = vec(5, 5),
-			tex_slice = vec(2, 2, 2, 2),
-			tex_extend = vec(0, 0, 0, 0),
-		}
-		local props_hovered = { border = vec(1, 1, 1, 1) }
-		local props_hovered_away = { border = vec(0, 0, 0, 0) }
-		local props_priority = props or {}
 
-		btn.props_normal = props_normal
-		btn.props_pressed = props_pressed
-		btn.props_hovered = props_hovered
-		btn.props_hovered_away = props_hovered_away
-		btn.props_priority = props_priority
-
-		btn:setProps({
+			border = vec(0, 0, 0, 0),
+			
 			hover = function(_, pos, state, changed)
 				if not changed then return end
 
@@ -71,7 +54,7 @@ return function(elem)
 					btn.onHover(btn, pos, state)
 				end
 
-				btn:setProps(state and props_hovered or props_hovered_away):setProps(props_priority):draw(true)
+				btn:draw(true)
 			end,
 			click = function(_, pos, state)
 				sounds:playSound(
@@ -85,9 +68,16 @@ return function(elem)
 					btn.onClick(btn, pos, state)
 				end
 
-				btn:setProps(state and props_pressed or props_normal):setProps(props_priority):draw(true)
+				btn:draw(true)
 			end,
-		}):setProps(props_normal):setProps(props_priority)
+		}):setProps(props or {}):setProps({
+			border = vec(1, 1, 1, 1),
+		}, "hover"):setProps({
+			tex_pos = vec(4, 0),
+			tex_size = vec(5, 5),
+			tex_slice = vec(2, 2, 2, 2),
+			tex_extend = vec(0, 0, 0, 0),
+		}, "click")
 
 		return setmetatable(btn, class)
 	end

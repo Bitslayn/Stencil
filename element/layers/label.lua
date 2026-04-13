@@ -21,17 +21,18 @@ local function emoji_fix(str)
 end
 
 function obj:draw()
-	local props = self.elem.props
+	local props = self.elem:getProps()
+	local state = self.elem.state
 
-	local label_size = client.getTextDimensions(emoji_fix(props.label), props.live_size.x) * props.label_size
+	local label_size = client.getTextDimensions(emoji_fix(props.label), state.size.x) * props.label_size
 	local label_w, label_h = unpack2(label_size)
-	local x = -props.tex_extend[4] + math.lerp(0, props.live_size.x - label_w, 0.5)
-	local y = -props.tex_extend[1] + math.lerp(0, props.live_size.y - label_h, 0.5)
+	local x = -props.tex_extend[4] + math.lerp(0, state.size.x - label_w, 0.5)
+	local y = -props.tex_extend[1] + math.lerp(0, state.size.y - label_h, 0.5)
 
 	self.text
 		:pos(-x, -y, -0.5)
 		:scale(props.label_size)
-		:width(props.live_size[1])
+		:width(state.size.x)
 		:visible(props.label ~= "")
 
 		-- TODO separate into run-on-call method

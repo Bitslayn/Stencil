@@ -16,12 +16,13 @@ local concat = table.concat
 
 ---Updates the current slice
 function obj:draw()
-	local props = self.elem.props
+	local props = self.elem:getProps()
+	local state = self.elem.state
 	local dim = getDimensions(props.tex)
 
 	local t, r, b, l = unpack4(props.tex_slice)
 	local atlas_w, atlas_h = unpack2(props.tex_size)
-	local model_w, model_h = unpack2(props.live_size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+	local model_w, model_h = unpack2(state.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
 	local e_x = props.tex_extend.x
 	local e_w = props.tex_extend.w
 

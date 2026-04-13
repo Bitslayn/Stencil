@@ -8,31 +8,48 @@ local lib = {}
 local function interact(root, click, elem, pos)
 	-- Unhover last hovered element
 
-	if root.hovered and root.hovered.props.hover and root.hovered ~= elem then
-		root.hovered.props.hover(root.hovered, root.hovered.props.hover_pos, false, true)
-		root.hovered = nil
+	if root.hovered and root.hovered ~= elem then
+		local props = root.hovered:getProps()
+		local state = root.hovered.state
+		if props.hover then
+			props.hover(root.hovered, state.hover_pos, false, true)
+			root.hovered.group = bit32.band(root.hovered.group, 2)
+			root.hovered:draw(true)
+			root.hovered = nil
+		end
 	end
 
-	if root.clicked and root.clicked.props.click and not click then
-		root.clicked.props.click(root.clicked, root.clicked.props.hover_pos, false)
-		root.clicked = nil
+	if root.clicked and not click then
+		local props = root.clicked:getProps()
+		local state = root.clicked.state
+		if props.click then
+			props.click(root.clicked, state.hover_pos, false)
+			root.clicked.group = bit32.band(root.clicked.group, 1)
+			root.clicked:draw(true)
+			root.clicked = nil
+		end
 	end
 
 	if not (elem and pos) then return end
 
+	local props = elem:getProps()
+
 	-- Hover currently hovered element
 
-	if elem.props.hover then
-		elem.props.hover(elem, pos, true, root.hovered ~= elem)
+	if props.hover then
+		props.hover(elem, pos, true, root.hovered ~= elem)
+		elem.group = bit32.bor(elem.group, 1)
 		root.hovered = elem
 	end
 
-	if not root.clicked and elem.props.click and click then
-		elem.props.click(elem, pos, true)
+	if not root.clicked and props.click and click then
+		props.click(elem, pos, true)
+		elem.group = bit32.bor(elem.group, 2)
 		root.clicked = elem
 	end
 
-	elem.props.hover_pos = pos
+	props.hover_pos = pos
+	elem:draw(true)
 end
 
 ---Recursively gets the element hovered over
@@ -42,20 +59,21 @@ end
 ---@return FOXStencil.Element?
 function lib.relative_hover(elem, click, pos)
 	local root = elem.root
-	local props = elem.props
+	local props = elem:getProps()
+	local state = elem.state
 
 	if not pos then
 		return interact(root, click)
 	end
 
 	local extend = props.tex_extend
-	local tmp_pos = props.live_pos - extend.wx
-	local tmp_size = props.live_size + extend.wx + extend.yz
+	local tmp_pos = state.pos - extend.wx
+	local tmp_size = state.size + extend.wx + extend.yz
 	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then
 		return interact(root, click)
 	end
 
-	pos = pos - props.live_pos
+	pos = pos - state.pos
 
 	-- Find hovered child element
 

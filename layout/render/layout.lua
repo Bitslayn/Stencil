@@ -34,11 +34,12 @@ function lib.restore(elem)
 		lib.restore(elem.chld[i])
 	end
 
-	local props = elem.props
-	props.live_pos = props.pos:copy()
-	props.live_size = props.size:copy()
-	props.live_size_min = props.size_min:copy()
-	props.live_size_max = props.size_max:copy()
+	local props = elem:getProps()
+	local state = elem.state
+	state.pos = props.pos:copy()
+	state.size = props.size:copy()
+	state.size_min = props.size_min:copy()
+	state.size_max = props.size_max:copy()
 end
 
 ---Recursively calculates size of all children
@@ -46,7 +47,8 @@ end
 ---@param axis integer
 function lib.size(elem, axis)
 	if elem.skip.layout then return end
-	local props = elem.props
+	local props = elem:getProps()
+	local state = elem.state
 
 	local a, b = rotate(props)
 	local p = pad(props)
@@ -57,7 +59,7 @@ function lib.size(elem, axis)
 
 	if props.label ~= "" then
 		local wrd_size = client.getTextDimensions(props.label:gsub("%s", "\n"), 0) * props.label_size
-		props.live_size[axis] = math.max(props.live_size[axis], wrd_size[axis])
+		state.size[axis] = math.max(state.size[axis], wrd_size[axis])
 	end
 
 	-- Fit children
@@ -68,23 +70,23 @@ function lib.size(elem, axis)
 		lib.size(chld, axis)
 
 		if a == axis then
-			size = size + chld.props.live_size[a]
-			props.live_size_min[a] = props.live_size_min[a] + chld.props.live_size_min[a]
+			size = size + chld.state.size[a]
+			state.size_min[a] = state.size_min[a] + chld.state.size_min[a]
 		end
 		if b == axis then
-			props.live_size[b] = math.max(props.live_size[b], chld.props.live_size[b])
-			props.live_size_min[b] = math.max(props.live_size_min[b], chld.props.live_size_min[b])
+			state.size[b] = math.max(state.size[b], chld.state.size[b])
+			state.size_min[b] = math.max(state.size_min[b], chld.state.size_min[b])
 		end
 	end
-	props.live_size[a] = math.max(props.live_size[a], size)
+	state.size[a] = math.max(state.size[a], size)
 
 	-- Gap & Padding
 
 	if a == axis then
-		props.live_size[axis] = props.live_size[axis] + props.gap * (#elem.chld - 1)
+		state.size[axis] = state.size[axis] + props.gap * (#elem.chld - 1)
 	end
 
-	props.live_size[axis] = props.live_size[axis] + p[axis][1] + p[axis][2]
+	state.size[axis] = state.size[axis] + p[axis][1] + p[axis][2]
 end
 
 ---Recursively grows child elements
@@ -92,8 +94,9 @@ end
 ---@param axis integer
 function lib.grow(elem, axis)
 	if elem.skip.layout then return end
-	local a, b = rotate(elem.props)
-	local p = pad(elem.props)
+	local props = elem:getProps()
+	local a, b = rotate(props)
+	local p = pad(props)
 
 	-- Find flexible
 
@@ -102,27 +105,27 @@ function lib.grow(elem, axis)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if a == axis and chld.props.size_flex[a] then
+		if a == axis and chld:getProps().size_flex[a] then
 			table.insert(flexible, chld)
 		end
-		if b == axis and chld.props.size_flex[b] then
-			chld.props.live_size[axis] = elem.props.live_size[axis] - p[axis][1] - p[axis][2]
+		if b == axis and chld:getProps().size_flex[b] then
+			chld.state.size[axis] = elem.state.size[axis] - p[axis][1] - p[axis][2]
 		end
 	end
 
 	-- Calculate remaining size
 
-	local rem = elem.props.live_size[a] - p[a][1] - p[a][2]
+	local rem = elem.state.size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
-		rem = rem - elem.chld[i].props.live_size[a]
+		rem = rem - elem.chld[i].state.size[a]
 	end
-	rem = rem - elem.props.gap * (#elem.chld - 1)
+	rem = rem - props.gap * (#elem.chld - 1)
 
 	-- Grow and shrink along layout
 
 	while rem - rem % .25 ~= 0 and flexible[1] do
 		local sign = math.sign(rem)
-		local size_l = flexible[1].props.live_size[a]
+		local size_l = flexible[1].state.size[a]
 		local size_r = math.huge
 		local add = rem
 
@@ -130,7 +133,7 @@ function lib.grow(elem, axis)
 
 		for i = 1, #flexible do
 			local chld = flexible[i]
-			local size = chld.props.live_size[a]
+			local size = chld.state.size[a]
 			if size ~= size_l then
 				if sign * size < sign * size_l then
 					size_r = size_l
@@ -149,16 +152,16 @@ function lib.grow(elem, axis)
 		-- Grows or shrinks largest children evenly, and pops off children that cannot be sized further
 
 		for i, chld in ipairs(flexible) do
-			local size = chld.props.live_size[a]
+			local size = chld.state.size[a]
 			local prev = size
 			if size == size_l then
 				size = size + add
-				if size <= chld.props.live_size_min[a] or size >= chld.props.live_size_max[a] then
-					size = math.clamp(size, chld.props.live_size_min[a], chld.props.live_size_max[a])
+				if size <= chld.state.size_min[a] or size >= chld.state.size_max[a] then
+					size = math.clamp(size, chld.state.size_min[a], chld.state.size_max[a])
 					table.remove(flexible, i)
 				end
 				rem = rem - (size - prev)
-				chld.props.live_size[a] = size
+				chld.state.size[a] = size
 			end
 		end
 	end
@@ -175,8 +178,9 @@ end
 ---@param elem FOXStencil.Element
 function lib.position(elem)
 	if elem.skip.layout then return end
-	local a, b = rotate(elem.props)
-	local p = pad(elem.props)
+	local props = elem:getProps()
+	local a, b = rotate(props)
+	local p = pad(props)
 
 	-- Distribute
 
@@ -186,26 +190,26 @@ function lib.position(elem)
 		if not chld.skip.layout then
 			lib.position(chld)
 
-			chld.props.live_pos[a] = chld.props.live_pos[a] + offset
-			chld.props.live_pos[b] = chld.props.live_pos[b] + p[b][1]
+			chld.state.pos[a] = chld.state.pos[a] + offset
+			chld.state.pos[b] = chld.state.pos[b] + p[b][1]
 		end
-		offset = offset + chld.props.live_size[a] + elem.props.gap
+		offset = offset + chld.state.size[a] + props.gap
 	end
 
 	-- Align & Justify
 
-	local rem = math.max(elem.props.live_size[a] - offset + elem.props.gap - p[a][2], 0)
-	local inner = rem * elem.props.justify
-	local outer = rem * -(elem.props.justify - 1)
+	local rem = math.max(elem.state.size[a] - offset + props.gap - p[a][2], 0)
+	local inner = rem * props.justify
+	local outer = rem * -(props.justify - 1)
 	local gap = #elem.chld > 1 and inner / (#elem.chld - 1) or 0
 
-	local y = math.max(elem.props.live_size[b] - p[b][1] - p[b][2], 0)
+	local y = math.max(elem.state.size[b] - p[b][1] - p[b][2], 0)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if not chld.skip.layout then
-			chld.props.live_pos[a] = chld.props.live_pos[a] + gap * (i - 1) + (outer * elem.props.align[a])
-			chld.props.live_pos[b] = chld.props.live_pos[b] + ((y - chld.props.live_size[b]) * elem.props.align[b])
+			chld.state.pos[a] = chld.state.pos[a] + gap * (i - 1) + (outer * props.align[a])
+			chld.state.pos[b] = chld.state.pos[b] + ((y - chld.state.size[b]) * props.align[b])
 		end
 	end
 end
