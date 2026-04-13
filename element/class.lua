@@ -160,7 +160,7 @@ end
 ---@param group FOXStencil.Element.Props.Group?
 ---@return FOXStencil.Element.Props
 function class:getProps(group)
-	return self.props[group or "normal"]
+	return self.props[group or group_id[self.group]]
 end
 
 ---@generic self: FOXStencil.Element
