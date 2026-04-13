@@ -6,6 +6,7 @@ local super = require("../element/class").class
 ---@field click fun(self: FOXStencil.Widgets.Generic, pos: Vector2, state: boolean)?
 ---@class FOXStencil.Widgets.Generic: FOXStencil.Element
 ---@field setProps fun(self: self, props: FOXStencil.Widgets.Generic.Props, group: FOXStencil.Element.Props.Group?): self
+---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Generic.Props
 local class = {}
 ---@package
 function class:__index(k)

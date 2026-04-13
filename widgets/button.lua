@@ -6,6 +6,7 @@ local super = require("./generic")
 ---@field click fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 ---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
 ---@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props, group: FOXStencil.Element.Props.Group?): self
+---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Button.Props
 ---@field onClick fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 ---@field onHover fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 local class = {}
@@ -36,9 +37,9 @@ return function(elem)
 	---@param props FOXStencil.Widgets.Button.Props?
 	---@return FOXStencil.Widgets.Button
 	function elem:newButton(props)
-		local btn = self:newElement() --[[@as FOXStencil.Widgets.Button]]
+		local widg = self:newElement() --[[@as FOXStencil.Widgets.Button]]
 
-		btn:setProps({
+		widg:setProps({
 			tex = textures["assets.textures.ui"],
 			tex_pos = vec(0, 0),
 			tex_size = vec(5, 7),
@@ -50,36 +51,36 @@ return function(elem)
 			hover = function(_, pos, state, changed)
 				if not changed then return end
 
-				if btn.onHover then
-					btn.onHover(btn, pos, state)
+				if widg.onHover then
+					widg.onHover(widg, pos, state)
 				end
 
-				btn:draw(true)
+				widg:draw(true)
 			end,
 			click = function(_, pos, state)
 				sounds:playSound(
 					"minecraft:block.lava.pop",
-					btn.part:partToWorldMatrix():apply(-pos.xy_),
+					widg.part:partToWorldMatrix():apply(-pos.xy_),
 					1,
 					state and 8 or 9
 				)
 
-				if btn.onClick then
-					btn.onClick(btn, pos, state)
+				if widg.onClick then
+					widg.onClick(widg, pos, state)
 				end
 
-				btn:draw(true)
+				widg:draw(true)
 			end,
 		}):setProps(props or {})
 
-		btn:setProps({ border = vec(1, 1, 1, 1) }, "hover")
-		btn:setProps({
+		widg:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+		widg:setProps({
 			tex_pos = vec(4, 0),
 			tex_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_extend = vec(0, 0, 0, 0),
 		}, "click")
 
-		return setmetatable(btn, class)
+		return setmetatable(widg, class)
 	end
 end
