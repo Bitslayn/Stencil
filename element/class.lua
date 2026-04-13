@@ -5,13 +5,6 @@ class.__index = class
 
 ---@alias FOXStencil.Element.Props.Group "normal"|"hover"|"click"|"hover_click"
 
-local group_id = {
-	[0] = "normal",
-	"hover",
-	"click",
-	"hover_click",
-}
-
 ---@param part ModelPart
 ---@param root FOXStencil.Layout
 ---@param parn FOXStencil.Element?
@@ -156,6 +149,13 @@ function class:setProps(props, group)
 	end
 	return self
 end
+
+local group_id = {
+	[0] = "normal",
+	"hover",
+	"click",
+	"hover_click",
+}
 
 ---@param group FOXStencil.Element.Props.Group?
 ---@return FOXStencil.Element.Props

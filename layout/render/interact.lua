@@ -154,7 +154,8 @@ function lib.world_hover(elem)
 	)
 
 	local viewer = client.getViewer()
-	local click = viewer:getSwingTime() == 1 or viewer:isUsingItem()
+	local swing = viewer:getSwingTime()
+	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
 	return lib.relative_hover(elem, click, hit and worldToLocal(hit, mat).xy * vec(1, -1))
 end
