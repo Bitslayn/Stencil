@@ -47,6 +47,7 @@ return function(elem)
 			tex_extend = vec(2, 0, 0, 0),
 
 			border = vec(0, 0, 0, 0),
+			border_extend = vec(0, 0, -2, 0),
 
 			hover = function(_, pos, state, changed)
 				if not changed then return end
