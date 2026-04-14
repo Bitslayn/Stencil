@@ -15,6 +15,7 @@ local function interact(root, click, elem, pos)
 			props.hover(root.hovered, state.hover_pos, false, true)
 			root.hovered.group = bit32.band(root.hovered.group, 2)
 			root.hovered:draw(true)
+
 			root.hovered = nil
 		end
 	end
@@ -22,12 +23,12 @@ local function interact(root, click, elem, pos)
 	if root.clicked and not click then
 		local props = root.clicked:getProps()
 		local state = root.clicked.state
-		if props.click then
-			props.click(root.clicked, state.hover_pos, false)
-			root.clicked.group = bit32.band(root.clicked.group, 1)
-			root.clicked:draw(true)
-			root.clicked = nil
-		end
+
+		props.click(root.clicked, state.hover_pos, false)
+		root.clicked.group = bit32.band(root.clicked.group, 1)
+		root.clicked:draw(true)
+
+		root.clicked = nil
 	end
 
 	if not (elem and pos) then return end
@@ -37,19 +38,27 @@ local function interact(root, click, elem, pos)
 	-- Hover currently hovered element
 
 	if props.hover then
-		props.hover(elem, pos, true, root.hovered ~= elem)
-		if root.hovered ~= elem then
+		local changed = root.hovered ~= elem
+		root.hovered = elem
+		
+		props.hover(elem, pos, true, changed)
+		if changed then
 			elem.group = bit32.bor(elem.group, 1)
 			elem:draw(true)
 		end
-		root.hovered = elem
 	end
 
 	if not root.clicked and props.click and click then
+		root.clicked = elem
+
+		local time = world.getTime()
+		if root.click_time == time then return end
+
 		props.click(elem, pos, true)
 		elem.group = bit32.bor(elem.group, 2)
 		elem:draw(true)
-		root.clicked = elem
+
+		root.click_time = time
 	end
 
 	props.hover_pos = pos

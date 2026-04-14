@@ -167,9 +167,11 @@ end
 function class:remove()
 	self:queue()
 	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
+	self.sibl = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
 	self.part:remove()
-	self.sibl = nil
 	self.parn = nil
+	self.root:render()
+	self.root = nil
 	return self
 end
 

@@ -12,6 +12,8 @@ end
 ---@return FOXStencil.Layout
 local function new(part)
 	---@class FOXStencil.Layout
+	---@field clicked FOXStencil.Element?
+	---@field hovered FOXStencil.Element?
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
 		chld = require("../element/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
