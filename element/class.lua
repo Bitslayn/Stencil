@@ -163,15 +163,65 @@ function class:getProps(group)
 	return self.props[group or group_id[self.group]]
 end
 
----@return FOXStencil.Element
+---Removes this element from its parent
+---@return self
 function class:remove()
 	self:queue()
 	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
 	self.sibl = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
 	self.part:remove()
 	self.parn = nil
-	self.root:render()
 	self.root = nil
+	return self
+end
+
+---Makes this element a child of the given element
+---@param elem FOXStencil.Element
+---@param pos integer?
+---@return self
+function class:moveTo(elem, pos)
+	self.sibl[1]:queue()
+	if pos then
+		elem.chld:insert(math.clamp(pos, 1, #elem.chld), self:remove())
+	else
+		elem.chld:push(self:remove())
+	end
+	self.parn = elem
+	self.root = elem.root
+	self.sibl = elem.chld
+	self.sibl[1]:queue()
+	self.part:moveTo(elem.part)
+	self.root:render()
+	return self
+end
+
+---Adds the given element as a child of this element
+---@param elem FOXStencil.Element
+---@param pos integer?
+---@return self
+function class:addChild(elem, pos)
+	elem:moveTo(self, pos)
+	return self
+end
+
+---Moves this element through its siblings by a given interval
+---@return self
+function class:drop(interval)
+	local sibl = self.sibl
+	local key = sibl:getKey(self) --[[@as integer]]
+	sibl:insert(math.clamp(key + interval, 1, #sibl), sibl:remove(key) --[[@as FOXStencil.Element]])
+	sibl[math.clamp(key - math.abs(interval), 1, #sibl)]:queue()
+	return self
+end
+
+---Swaps an element with another element
+---@param elem FOXStencil.Element
+---@return self
+function class:swap(elem)
+	local parn = self.parn --[[@as FOXStencil.Element]]
+	local key = self.sibl:getKey(self)
+	self:moveTo(elem.parn, elem.sibl:getKey(elem))
+	elem:moveTo(parn, key)
 	return self
 end
 

@@ -4,8 +4,6 @@ local lib = {}
 --[[ TODO
 Comment ALL math
 Add margins
-Add copy, remove, sort, and other methods to elements
-Add copy to layout element
 ]]
 
 ---@param props FOXStencil.Element.Props
@@ -58,7 +56,7 @@ function lib.size(elem, axis)
 	---TODO: Make sure label respects maximum sizing
 
 	if props.label ~= "" then
-		local wrd_size = client.getTextDimensions(props.label:gsub("%s", "\n"), 0) * props.label_size
+		local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0) * props.label_size
 		state.size[axis] = math.max(state.size[axis], wrd_size[axis])
 	end
 

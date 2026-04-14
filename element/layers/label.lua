@@ -13,10 +13,10 @@ local tostring = tostring
 local concat = table.concat
 
 ---Fixes emojis on <0.1.6
----@param str string
+---@param str string|number
 ---@return string
 local function emoji_fix(str)
-	str = str:gsub(":[^:]+:", "  ")
+	str = string.gsub(str, ":[^:]+:", "  ")
 	return str
 end
 
@@ -35,7 +35,7 @@ function obj:draw()
 		:width(state.size.x)
 		:visible(props.label ~= "")
 
-		-- TODO separate into run-on-call method
+	-- TODO separate into run-on-call method
 		:text(props.label)
 		:shadow(props.label_shadow)
 		:outline(props.label_outline)

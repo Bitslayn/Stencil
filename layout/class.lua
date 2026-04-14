@@ -39,13 +39,13 @@ function class:render()
 		layout.grow(elem, 2)
 		layout.position(elem)
 
+		layout.draw(elem, 0, 1)
+		
 		if is_screen then
 			interact.screen_hover(elem)
 		else
 			interact.world_hover(elem)
 		end
-
-		layout.draw(elem, 0, 1)
 	end
 
 	return self
