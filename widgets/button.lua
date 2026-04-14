@@ -54,8 +54,6 @@ return function(elem)
 				if widg.onHover then
 					widg.onHover(widg, pos, state)
 				end
-
-				widg:draw(true)
 			end,
 			click = function(_, pos, state)
 				sounds:playSound(
@@ -68,8 +66,6 @@ return function(elem)
 				if widg.onClick then
 					widg.onClick(widg, pos, state)
 				end
-
-				widg:draw(true)
 			end,
 		}):setProps(props or {})
 

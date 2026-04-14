@@ -38,18 +38,21 @@ local function interact(root, click, elem, pos)
 
 	if props.hover then
 		props.hover(elem, pos, true, root.hovered ~= elem)
-		elem.group = bit32.bor(elem.group, 1)
+		if root.hovered ~= elem then
+			elem.group = bit32.bor(elem.group, 1)
+			elem:draw(true)
+		end
 		root.hovered = elem
 	end
 
 	if not root.clicked and props.click and click then
 		props.click(elem, pos, true)
 		elem.group = bit32.bor(elem.group, 2)
+		elem:draw(true)
 		root.clicked = elem
 	end
 
 	props.hover_pos = pos
-	elem:draw(true)
 end
 
 ---Recursively gets the element hovered over
@@ -70,17 +73,16 @@ function lib.relative_hover(elem, click, pos)
 	local tmp_pos = state.pos - extend.wx
 	local tmp_size = state.size + extend.wx + extend.yz
 	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then
-		return interact(root, click)
+		if not elem.parn then
+			interact(root, click)
+		end
+		return
 	end
 
 	pos = pos - state.pos
 
 	-- Find hovered child element
 
-	if elem.hover_index then
-		local res = lib.relative_hover(elem.chld[elem.hover_index], click, pos)
-		if res then return res end
-	end
 	for i = #elem.chld, 1, -1 do
 		local res = lib.relative_hover(elem.chld[i], click, pos)
 		if res then

@@ -14,7 +14,7 @@ local function new(part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
-		
+
 		group = 0,
 		props = {
 			---@class FOXStencil.Element.Props
@@ -117,7 +117,7 @@ local function new(part, root, parn, sibl)
 	setmetatable(props.hover_click, {
 		__index = function(_, k)
 			return rawget(props.hover, k) or rawget(props.click, k) or props.normal[k]
-		end
+		end,
 	})
 
 	return self
@@ -161,6 +161,16 @@ local group_id = {
 ---@return FOXStencil.Element.Props
 function class:getProps(group)
 	return self.props[group or group_id[self.group]]
+end
+
+---@return FOXStencil.Element
+function class:remove()
+	self:queue()
+	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
+	self.part:remove()
+	self.sibl = nil
+	self.parn = nil
+	return self
 end
 
 ---@generic self: FOXStencil.Element
