@@ -1,5 +1,5 @@
 ---@type FOXStencil.Widgets.Generic
-local super = require("./generic")
+local super = require(string.match(..., "^.+widgets") .. "/generic")
 
 ---@class FOXStencil.Widgets.Button.Props: FOXStencil.Widgets.Generic.Props
 ---@field hover fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean, changed: boolean)?

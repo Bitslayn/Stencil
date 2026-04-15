@@ -26,8 +26,8 @@ function obj:draw()
 
 	local label_size = client.getTextDimensions(emoji_fix(props.label), state.size.x) * props.label_size
 	local label_w, label_h = unpack2(label_size)
-	local x = -props.tex_extend[4] + math.lerp(0, state.size.x - label_w, 0.5)
-	local y = -props.tex_extend[1] + math.lerp(0, state.size.y - label_h, 0.5)
+	local x = -props.tex_extend[4] + math.lerp(0, state.size.x - label_w + props.tex_extend[2], 0.5)
+	local y = -props.tex_extend[1] + math.lerp(0, state.size.y - label_h + props.tex_extend[3], 0.5)
 
 	self.text
 		:pos(-x, -y, -0.5)
