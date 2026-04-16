@@ -57,8 +57,8 @@ return function(elem)
 			end,
 			hover = function(_, rel_pos, true_pos, state, changed)
 				if not drag then return end
-				widg.props.normal.align = (true_pos - anchor + rel_pos) / widg.state.size
-				switch:queue()
+				switch.state.pos = true_pos - anchor + rel_pos
+				switch:draw(true)
 			end,
 		}):setProps(props or {})
 
