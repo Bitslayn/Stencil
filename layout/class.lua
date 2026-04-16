@@ -29,7 +29,34 @@ local interact = require("./render/interact")
 function class:render()
 	local is_screen = self.part:partToWorldMatrix() == matrices.scale4(1 / 16)
 
-	for i = 1, #self.chld do
+	-- Do interaction
+
+	local hovering = false
+
+	local len = #self.chld
+	for i = len, 1, -1 do
+		local elem = self.chld[i]
+
+		local hovered
+		if is_screen then
+			hovered = interact.screen_hover(elem)
+		else
+			hovered = interact.world_hover(elem)
+		end
+
+		if hovered then
+			hovering = true
+			break
+		end
+	end
+
+	if not hovering then
+		interact.reset(self)
+	end
+
+	-- Draw screen
+
+	for i = 1, len do
 		local elem = self.chld[i]
 		layout.restore(elem)
 
@@ -39,13 +66,7 @@ function class:render()
 		layout.grow(elem, 2)
 		layout.position(elem)
 
-		layout.draw(elem, 0, 1)
-		
-		if is_screen then
-			interact.screen_hover(elem)
-		else
-			interact.world_hover(elem)
-		end
+		layout.draw(elem, (i - 1) * 4, 1 / len)
 	end
 
 	return self

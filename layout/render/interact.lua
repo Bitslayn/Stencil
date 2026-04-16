@@ -40,7 +40,7 @@ local function interact(root, click, elem, pos)
 	if props.hover then
 		local changed = root.hovered ~= elem
 		root.hovered = elem
-		
+
 		props.hover(elem, pos, true, changed)
 		if changed then
 			elem.group = bit32.bor(elem.group, 1)
@@ -70,23 +70,26 @@ end
 ---@param pos Vector2?
 ---@return FOXStencil.Element?
 function lib.relative_hover(elem, click, pos)
+	if not pos then return end
 	local root = elem.root
+
+	-- Focus elements that have been clicked, up until they are no longer clicked
+
+	local clicked = elem.root.clicked
+	if clicked then
+		interact(root, click, clicked, pos)
+		return clicked
+	end
+
+	-- TODO Fix clicking outside an element then moving cursor into element triggering a click for that element
+
 	local props = elem:getProps()
 	local state = elem.state
-
-	if not pos then
-		return interact(root, click)
-	end
 
 	local extend = props.tex_extend
 	local tmp_pos = state.pos - extend.wx
 	local tmp_size = state.size + extend.wx + extend.yz
-	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then
-		if not elem.parn then
-			interact(root, click)
-		end
-		return
-	end
+	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then return end
 
 	pos = pos - state.pos
 
@@ -103,6 +106,10 @@ function lib.relative_hover(elem, click, pos)
 	interact(root, click, elem, pos)
 
 	return elem
+end
+
+function lib.reset(root)
+	interact(root, false)
 end
 
 local mouse_press
@@ -155,10 +162,7 @@ end
 ---@param elem FOXStencil.Element
 ---@return FOXStencil.Element?
 function lib.world_hover(elem)
-	local mat = elem.part:partToWorldMatrix()
-
-	local pos_mat = matrices.translate4(mat:apply())
-	local rot_mat = matrices.rotation4(0, 180, 0) * (pos_mat:inverted() * mat):inverted()
+	local mat = elem.root.part:partToWorldMatrix()
 
 	local hit = intersectPlane(
 		client.getCameraPos(),

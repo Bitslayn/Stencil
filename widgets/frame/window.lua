@@ -22,7 +22,7 @@ return function(elem)
 	---@return FOXStencil.Widgets.Window
 	function elem:newWindow(props)
 		local window = self:newElement({
-			pos = vec(5, 5),
+			tex_color = vec(0, 0, 0, 0),
 			vertical = true,
 		})
 
@@ -58,17 +58,13 @@ return function(elem)
 				-- end
 
 				drag = state
-				anchor = client.getMousePos() / client.getGuiScale() - window.props.normal.pos
+				anchor = pos
+
+				window:drop(math.huge)
 			end,
-			hover = function(_, _, state, changed)
+			hover = function(_, pos, state, changed)
 				if not drag then return end
-
-				local pos = client.getMousePos() / client.getGuiScale() - anchor
-				local max = client.getScaledWindowSize() - tool.state.size
-				pos.y = math.clamp(pos.y, 0, max.y)
-				pos.x = math.clamp(pos.x, 0, max.x)
-
-				window:setProps({ pos = pos }):queue()
+				window:setProps({ pos = pos - anchor }):queue()
 			end,
 		})
 
