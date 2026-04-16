@@ -41,7 +41,7 @@ return function(elem)
 
 		widg:setProps({
 			label = "Button",
-			label_margin = vec(3, 3, 3, 3),
+			label_margin = vec(3, 2, 2, 3),
 
 			tex = textures["assets.textures.ui"],
 			tex_pos = vec(0, 0),

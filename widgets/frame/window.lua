@@ -36,12 +36,9 @@ return function(elem)
 
 		local tool
 		tool = window:newElement({
-			size = vec(0, 15),
-			size_min = vec(0, 15),
-			size_max = vec(math.huge, 15),
-
 			size_flex = { true, false },
-			label = "Untitled",
+			label = "Window",
+			label_margin = vec(3, 2, 2, 3),
 
 			tex = textures["assets.textures.ui"],
 			tex_color = vec(0.3, 0.3, 0.3, 1),
