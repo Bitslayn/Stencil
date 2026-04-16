@@ -2,17 +2,27 @@
 local lib = {}
 
 ---@param root FOXStencil.Layout
----@param click boolean
 ---@param elem FOXStencil.Element?
----@param pos Vector2?
-local function interact(root, click, elem, pos)
+---@param click boolean
+---@param rel_pos Vector2
+---@param true_pos Vector2
+local function interact(root, elem, click, rel_pos, true_pos)
 	-- Unhover last hovered element
+
+	if root.clicked and not click then
+		local props = root.clicked:getProps()
+
+		props.click(root.clicked, rel_pos, true_pos, false)
+		root.clicked.group = bit32.band(root.clicked.group, 1)
+		root.clicked:draw(true)
+
+		root.clicked = nil
+	end
 
 	if root.hovered and root.hovered ~= elem then
 		local props = root.hovered:getProps()
-		local state = root.hovered.state
 		if props.hover then
-			props.hover(root.hovered, state.hover_pos, false, true)
+			props.hover(root.hovered, rel_pos, true_pos, false, true)
 			root.hovered.group = bit32.band(root.hovered.group, 2)
 			root.hovered:draw(true)
 
@@ -20,33 +30,11 @@ local function interact(root, click, elem, pos)
 		end
 	end
 
-	if root.clicked and not click then
-		local props = root.clicked:getProps()
-		local state = root.clicked.state
-
-		props.click(root.clicked, state.hover_pos, false)
-		root.clicked.group = bit32.band(root.clicked.group, 1)
-		root.clicked:draw(true)
-
-		root.clicked = nil
-	end
-
-	if not (elem and pos) then return end
+	if not elem then return end
 
 	local props = elem:getProps()
 
 	-- Hover currently hovered element
-
-	if props.hover then
-		local changed = root.hovered ~= elem
-		root.hovered = elem
-
-		props.hover(elem, pos, true, changed)
-		if changed then
-			elem.group = bit32.bor(elem.group, 1)
-			elem:draw(true)
-		end
-	end
 
 	if not root.clicked and props.click and click then
 		root.clicked = elem
@@ -54,30 +42,42 @@ local function interact(root, click, elem, pos)
 		local time = world.getTime()
 		if root.click_time == time then return end
 
-		props.click(elem, pos, true)
+		props.click(elem, rel_pos, true_pos, true)
 		elem.group = bit32.bor(elem.group, 2)
 		elem:draw(true)
 
 		root.click_time = time
 	end
 
-	props.hover_pos = pos
+	if props.hover then
+		local changed = root.hovered ~= elem
+		root.hovered = elem
+
+		props.hover(elem, rel_pos, true_pos, true, changed)
+		if changed then
+			elem.group = bit32.bor(elem.group, 1)
+			elem:draw(true)
+		end
+	end
+
+	elem.state.hover_pos = rel_pos
 end
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
 ---@param click boolean
----@param pos Vector2?
+---@param rel_pos Vector2
+---@param true_pos Vector2
 ---@return FOXStencil.Element?
-function lib.relative_hover(elem, click, pos)
-	if not pos then return end
+function lib.relative_hover(elem, click, rel_pos, true_pos)
+	if not rel_pos then return end
 	local root = elem.root
 
 	-- Focus elements that have been clicked, up until they are no longer clicked
 
 	local clicked = elem.root.clicked
 	if clicked then
-		interact(root, click, clicked, pos)
+		interact(root, clicked, click, clicked.state.hover_pos, true_pos)
 		return clicked
 	end
 
@@ -89,27 +89,28 @@ function lib.relative_hover(elem, click, pos)
 	local extend = props.tex_extend
 	local tmp_pos = state.pos - extend.wx
 	local tmp_size = state.size + extend.wx + extend.yz
-	if not (tmp_pos <= pos and pos <= tmp_pos + tmp_size) then return end
+	if not (tmp_pos <= rel_pos and rel_pos <= tmp_pos + tmp_size and elem.state.visible) then return end
 
-	pos = pos - state.pos
+	rel_pos = rel_pos - state.pos
 
 	-- Find hovered child element
 
 	for i = #elem.chld, 1, -1 do
-		local res = lib.relative_hover(elem.chld[i], click, pos)
+		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos)
 		if res then
 			elem.hover_index = i
 			return res
 		end
 	end
 
-	interact(root, click, elem, pos)
+	interact(root, elem, click, rel_pos, true_pos)
 
 	return elem
 end
 
+---@param root FOXStencil.Layout
 function lib.reset(root)
-	interact(root, false)
+	interact(root, nil, false, vec(0, 0), vec(0, 0))
 end
 
 local mouse_press
@@ -121,13 +122,15 @@ function events.mouse_press(button, state)
 end
 
 -- TODO Fix bug where holding down click and hiding mouse cursor will cause the click to still be held
+-- TODO Precalculate these values from the layout class
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
 ---@return FOXStencil.Element?
 function lib.screen_hover(elem)
 	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
-	return lib.relative_hover(elem, mouse_press, client.getMousePos() / client.getGuiScale())
+	local true_pos = client.getMousePos() / client.getGuiScale()
+	return lib.relative_hover(elem, mouse_press, true_pos, true_pos)
 end
 
 local EPSILON = 2.2204460492503131e-16
@@ -170,12 +173,14 @@ function lib.world_hover(elem)
 		mat:apply(),
 		mat:applyDir(0, 0, -1)
 	)
+	if not hit then return end
 
 	local viewer = client.getViewer()
 	local swing = viewer:getSwingTime()
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
-	return lib.relative_hover(elem, click, hit and worldToLocal(hit, mat).xy * vec(1, -1))
+	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
+	return lib.relative_hover(elem, click, true_pos, true_pos)
 end
 
 return lib

@@ -18,8 +18,8 @@ local function new(part, root, parn, sibl)
 		group = 0,
 		props = {
 			---@class FOXStencil.Element.Props
-			---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: boolean, changed: boolean)?
-			---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
+			---@field click fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+			---@field hover fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
 			normal = {
 				---This element's preferred offset position
 				pos = vec(0, 0),
@@ -83,6 +83,8 @@ local function new(part, root, parn, sibl)
 		},
 		---@class FOXStencil.Element.State
 		state = {
+			---This element's visibility state
+			visible = true,
 			---This element's calculated position relative to its parent
 			pos = vec(0, 0),
 			---Position on this element that was hovered
@@ -251,7 +253,7 @@ end
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)
-	self.part:pos(-self.state.pos:augmented(self.props.layer))
+	self.part:pos(-self.state.pos:augmented(self.props.layer)):visible(self.state.visible)
 	if self.skip.redraw and not forced then return self end
 
 	self.layers[1]:draw()

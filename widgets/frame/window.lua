@@ -2,8 +2,8 @@
 local super = require(string.match(..., "^.+widgets") .. "/generic")
 
 ---@class FOXStencil.Widgets.Window.Props: FOXStencil.Widgets.Generic.Props
----@field hover fun(self: FOXStencil.Widgets.Window, pos: Vector2, state: boolean, changed: boolean)?
----@field click fun(self: FOXStencil.Widgets.Window, pos: Vector2, state: boolean)?
+---@field click fun(self: FOXStencil.Widgets.Window, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+---@field hover fun(self: FOXStencil.Widgets.Window, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
 ---@class FOXStencil.Widgets.Window: FOXStencil.Widgets.Generic
 ---@field setProps fun(self: self, props: FOXStencil.Widgets.Window.Props, group: FOXStencil.Element.Props.Group?): self
 ---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Window.Props
@@ -23,12 +23,14 @@ return function(elem)
 	function elem:newWindow(props)
 		local window = self:newElement({
 			tex_color = vec(0, 0, 0, 0),
+			pos = vec(10, 10),
 			vertical = true,
 		})
 
-		local hidden = false
+		local visible = true
 		local drag = false
 		local anchor = vec(0, 0)
+		local click_stamp = 0
 
 		local page
 
@@ -48,23 +50,27 @@ return function(elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_extend = vec(0, 0, 1, 0),
 
-			click = function(_, pos, state)
-				-- if not state then return end
-				-- hidden = not hidden
-				-- if hidden then
-				-- 	page:remove()
-				-- else
-				-- 	page:moveTo(window)
-				-- end
+			click = function(_, rel_pos, true_pos, state)
+				if state then
+					window:drop(math.huge)
+
+					-- Check double click
+
+					if client.getSystemTime() - click_stamp < 500 then
+						visible = not visible
+						page.state.visible = visible
+						page:draw(true)
+					else
+						click_stamp = client.getSystemTime()
+					end
+				end
 
 				drag = state
-				anchor = pos
-
-				window:drop(math.huge)
+				anchor = rel_pos
 			end,
-			hover = function(_, pos, state, changed)
+			hover = function(_, rel_pos, true_pos, state, changed)
 				if not drag then return end
-				window:setProps({ pos = pos - anchor }):queue()
+				window:setProps({ pos = true_pos - anchor }):queue()
 			end,
 		})
 

@@ -2,8 +2,8 @@
 local super = require(string.match(..., "^.+widgets") .. "/generic")
 
 ---@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widgets.Generic.Props
----@field hover fun(self: FOXStencil.Widgets.Switch, pos: Vector2, state: boolean, changed: boolean)?
----@field click fun(self: FOXStencil.Widgets.Switch, pos: Vector2, state: boolean)?
+---@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+---@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
 ---@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
 ---@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
 ---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
@@ -48,9 +48,9 @@ return function(elem)
 		})
 		switch:setProps({ border = vec(1, 1, 1, 1) }, "hover")
 
-		---@param pos Vector2
+		---@param rel_pos Vector2
 		---@param state boolean
-		local function toggle(_, pos, state)
+		local function toggle(_, rel_pos, _, state)
 			if not state then return end
 			if a then return end
 			a = true
@@ -82,7 +82,7 @@ return function(elem)
 
 			sounds:playSound(
 				"minecraft:block.lava.pop",
-				widg.part:partToWorldMatrix():apply(-pos.xy_),
+				widg.part:partToWorldMatrix():apply(-rel_pos.xy_),
 				1,
 				s and 9 or 8
 			)

@@ -28,6 +28,7 @@ end
 ---@param elem FOXStencil.Element
 function lib.restore(elem)
 	if elem.skip.layout then return end
+	if not elem.state.visible then return end
 	for i = 1, #elem.chld do
 		lib.restore(elem.chld[i])
 	end
@@ -45,6 +46,7 @@ end
 ---@param axis integer
 function lib.size(elem, axis)
 	if elem.skip.layout then return end
+	if not elem.state.visible then return end
 	local props = elem:getProps()
 	local state = elem.state
 
@@ -65,15 +67,17 @@ function lib.size(elem, axis)
 	local size = 0
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		lib.size(chld, axis)
+		if chld.state.visible then
+			lib.size(chld, axis)
 
-		if a == axis then
-			size = size + chld.state.size[a]
-			state.size_min[a] = state.size_min[a] + chld.state.size_min[a]
-		end
-		if b == axis then
-			state.size[b] = math.max(state.size[b], chld.state.size[b])
-			state.size_min[b] = math.max(state.size_min[b], chld.state.size_min[b])
+			if a == axis then
+				size = size + chld.state.size[a]
+				state.size_min[a] = state.size_min[a] + chld.state.size_min[a]
+			end
+			if b == axis then
+				state.size[b] = math.max(state.size[b], chld.state.size[b])
+				state.size_min[b] = math.max(state.size_min[b], chld.state.size_min[b])
+			end
 		end
 	end
 	state.size[a] = math.max(state.size[a], size)
@@ -92,6 +96,7 @@ end
 ---@param axis integer
 function lib.grow(elem, axis)
 	if elem.skip.layout then return end
+	if not elem.state.visible then return end
 	local props = elem:getProps()
 	local a, b = rotate(props)
 	local p = pad(props)
@@ -176,6 +181,7 @@ end
 ---@param elem FOXStencil.Element
 function lib.position(elem)
 	if elem.skip.layout then return end
+	if not elem.state.visible then return end
 	local props = elem:getProps()
 	local a, b = rotate(props)
 	local p = pad(props)
@@ -185,7 +191,7 @@ function lib.position(elem)
 	local offset = p[a][1]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if not chld.skip.layout then
+		if chld.state.visible and not chld.skip.layout then
 			lib.position(chld)
 
 			chld.state.pos[a] = chld.state.pos[a] + offset
@@ -205,7 +211,7 @@ function lib.position(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if not chld.skip.layout then
+		if chld.state.visible and not chld.skip.layout then
 			chld.state.pos[a] = chld.state.pos[a] + gap * (i - 1) + (outer * props.align[a])
 			chld.state.pos[b] = chld.state.pos[b] + ((y - chld.state.size[b]) * props.align[b])
 		end
