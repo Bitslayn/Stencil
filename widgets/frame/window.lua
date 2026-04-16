@@ -25,6 +25,7 @@ return function(elem)
 			tex_color = vec(0, 0, 0, 0),
 			pos = vec(10, 10),
 			vertical = true,
+			size_max = vec(10, 100)
 		})
 
 		local visible = true

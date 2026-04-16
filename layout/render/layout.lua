@@ -53,17 +53,6 @@ function lib.size(elem, axis)
 	local a, b = rotate(props)
 	local p = pad(props)
 
-	-- Fit label
-
-	---TODO: Make sure label respects maximum sizing
-
-	if props.label ~= "" then
-		local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0)
-		* props.label_size
-		+ props.label_margin.wx + props.label_margin.yz
-		state.size[axis] = math.max(state.size[axis], wrd_size[axis])
-	end
-
 	-- Fit children
 
 	local size = 0
@@ -91,6 +80,21 @@ function lib.size(elem, axis)
 	end
 
 	state.size[axis] = state.size[axis] + p[axis][1] + p[axis][2]
+
+	-- Fit label
+	-- TODO
+
+	if props.label ~= "" then
+		if axis == 1 then
+			local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0)
+				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
+			state.size.x = math.max(state.size.x, wrd_size.x)
+		else
+			local wrd_size = client.getTextDimensions(props.label, state.size.x)
+				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
+			state.size.y = math.max(state.size.y, wrd_size.y)
+		end
+	end
 end
 
 ---Recursively grows child elements
@@ -100,6 +104,7 @@ function lib.grow(elem, axis)
 	if elem.skip.layout then return end
 	if not elem.state.visible then return end
 	local props = elem:getProps()
+	local state = elem.state
 	local a, b = rotate(props)
 	local p = pad(props)
 
@@ -114,13 +119,13 @@ function lib.grow(elem, axis)
 			table.insert(flexible, chld)
 		end
 		if b == axis and chld:getProps().size_flex[b] then
-			chld.state.size[axis] = elem.state.size[axis] - p[axis][1] - p[axis][2]
+			chld.state.size[axis] = state.size[axis] - p[axis][1] - p[axis][2]
 		end
 	end
 
 	-- Calculate remaining size
 
-	local rem = elem.state.size[a] - p[a][1] - p[a][2]
+	local rem = state.size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
 		rem = rem - elem.chld[i].state.size[a]
 	end
