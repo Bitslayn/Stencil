@@ -23,27 +23,44 @@ return function(elem)
 	function elem:newSlider(props)
 		local widg = self:newElement() --[[@as FOXStencil.Widgets.Slider]]
 
-		-- Set main props here
+		local switch = widg:newElement({
+			size = vec(10, 0),
+			size_flex = { false, true },
 
-		widg:setProps({
-			label = "Text",
-			tex_color = vec(0, 0, 0, 0),
+			tex = textures["assets.textures.ui"],
+			tex_pos = vec(0, 0),
+			tex_size = vec(5, 7),
+			tex_slice = vec(2, 2, 4, 2),
+			tex_extend = vec(2, 0, 0, 0),
 
-			-- Functions need to be defined if this element should be interactable, even if they are empty
+			border_extend = vec(0, 0, -2, 0),
 
 			hover = function(_, pos, state, changed) end,
-			click = function(_, pos, state) end,
+		})
+		switch:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+
+		local drag
+		local anchor = vec(0, 0)
+
+		widg:setProps({
+			size = vec(50, 10),
+
+			tex = textures["assets.textures.ui"],
+			tex_pos = vec(4, 4),
+			tex_size = vec(5, 5),
+			tex_slice = vec(2, 2, 2, 2),
+			tex_color = vec(0.5, 0.5, 0.5, 1),
+
+			click = function(_, rel_pos, true_pos, state)
+				drag = state
+				anchor = true_pos
+			end,
+			hover = function(_, rel_pos, true_pos, state, changed)
+				if not drag then return end
+				widg.props.normal.align = (true_pos - anchor + rel_pos) / widg.state.size
+				switch:queue()
+			end,
 		}):setProps(props or {})
-
-		-- Set interact props
-		-- Refrain from setting position and size as the layout is not updated when these are applied
-
-		widg:setProps({ label = "Hovered" }, "hover")
-		widg:setProps({ label = "Clicked" }, "click")
-
-		-- Optional: Use in case of conflict in above props
-
-		widg:setProps({ label = "Hovered + Clicked" }, "hover_click")
 
 		return setmetatable(widg, class)
 	end

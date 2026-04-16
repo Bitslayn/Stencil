@@ -79,8 +79,6 @@ function lib.size(elem, axis)
 		state.size[axis] = state.size[axis] + props.gap * (#elem.chld - 1)
 	end
 
-	state.size[axis] = state.size[axis] + p[axis][1] + p[axis][2]
-
 	-- Fit label
 	-- TODO
 
@@ -89,12 +87,19 @@ function lib.size(elem, axis)
 			local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0)
 				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
 			state.size.x = math.max(state.size.x, wrd_size.x)
+			state.size_min.x = math.max(state.size_min.x, wrd_size.x)
+			state.size_max.x = math.min(state.size_max.x, client.getTextWidth(props.label))
 		else
 			local wrd_size = client.getTextDimensions(props.label, state.size.x)
 				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
 			state.size.y = math.max(state.size.y, wrd_size.y)
+			state.size_min.y = math.max(state.size_min.y, wrd_size.y)
+			state.size_max.y = math.min(state.size_max.y,
+			client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0).y)
 		end
 	end
+
+	state.size[axis] = state.size[axis] + p[axis][1] + p[axis][2]
 end
 
 ---Recursively grows child elements

@@ -24,8 +24,7 @@ return function(elem)
 		local window = self:newElement({
 			tex_color = vec(0, 0, 0, 0),
 			pos = vec(10, 10),
-			vertical = true,
-			size_max = vec(10, 100)
+			vertical = true
 		})
 
 		local visible = true
@@ -37,7 +36,7 @@ return function(elem)
 
 		local tool
 		tool = window:newElement({
-			size_flex = { true, false },
+			size_flex = { true, true },
 			label = "Window",
 			label_margin = vec(3, 2, 2, 3),
 
@@ -52,15 +51,17 @@ return function(elem)
 				if state then
 					window:drop(math.huge)
 
-					-- Check double click
+					-- TODO After retained flex queue is fixed
 
-					if client.getSystemTime() - click_stamp < 500 then
-						visible = not visible
-						page.state.visible = visible
-						page:draw(true)
-					else
-						click_stamp = client.getSystemTime()
-					end
+					-- -- Check double click
+
+					-- if client.getSystemTime() - click_stamp < 500 then
+					-- 	visible = not visible
+					-- 	page.state.visible = visible
+					-- 	page:draw(true)
+					-- else
+					-- 	click_stamp = client.getSystemTime()
+					-- end
 				end
 
 				drag = state

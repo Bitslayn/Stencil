@@ -25,7 +25,7 @@ return function(elem)
 
 		widg:setProps({
 			label = "Text",
-			size_flex = { true, true },
+			size_flex = { false, false }, -- TODO or something
 			tex_color = vec(0, 0, 0, 0),
 		}):setProps(props or {})
 
