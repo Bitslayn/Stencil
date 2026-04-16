@@ -31,6 +31,7 @@ local function new(part, root, parn, sibl)
 				---This element's maximum size
 				size_max = vec(0, 0),
 				---States define whether this element is allowed to dynamically scale within min and max bounds
+				---@type [boolean, boolean]
 				size_flex = { false, false },
 
 				---Child padding, or space around children
@@ -40,6 +41,7 @@ local function new(part, root, parn, sibl)
 				---Child gap, or space between children
 				gap = 0,
 				---Child layout direction, false is horizontal and true is vertical
+				---@type boolean
 				vertical = false,
 				---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
 				align = vec(0, 0),
@@ -47,12 +49,14 @@ local function new(part, root, parn, sibl)
 				justify = 0,
 
 				---Background texture
-				tex = textures["FOXStencil_blank"] --[[@as Texture]],
+				---@type Texture
+				tex = textures["FOXStencil_blank"],
 				---UV position on the texture
 				tex_pos = vec(0, 0),
 				---UV region on the texture
 				tex_size = vec(1, 1),
 				---Background tint
+				---@type Vector3|Vector4
 				tex_color = vec(1, 1, 1, 1),
 				---Amount of pixels to overlap in each direction
 				tex_extend = vec(0, 0, 0, 0),
@@ -62,6 +66,7 @@ local function new(part, root, parn, sibl)
 				---Border line weight at each edge
 				border = vec(0, 0, 0, 0),
 				---Border color
+				---@type Vector3|Vector4
 				border_color = vec(1, 1, 1, 1),
 				---Border offset at each edge
 				border_extend = vec(0, 0, 0, 0),
@@ -69,8 +74,10 @@ local function new(part, root, parn, sibl)
 				---Text string
 				label = "",
 				---Text shadow state
+				---@type boolean
 				label_shadow = false,
 				---Text outline state
+				---@type boolean
 				label_outline = false,
 				---Text outline color
 				label_outline_color = vec(1, 1, 1) / 8,
@@ -84,6 +91,7 @@ local function new(part, root, parn, sibl)
 		---@class FOXStencil.Element.State
 		state = {
 			---This element's visibility state
+			---@type boolean
 			visible = true,
 			---This element's calculated position relative to its parent
 			pos = vec(0, 0),
@@ -103,9 +111,15 @@ local function new(part, root, parn, sibl)
 		root = root,
 		parn = parn,
 		sibl = sibl,
-		chld = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
+		---@type FOXMap<integer, FOXStencil.Element>
+		chld = require("./map")(),
 
-		skip = { layout = false, redraw = false },
+		skip = {
+			---@type boolean
+			layout = false,
+			---@type boolean
+			redraw = false,
+		},
 	}, class)
 	self.layers = {
 		require("./layers/slice")(self),
