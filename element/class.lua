@@ -83,6 +83,8 @@ local function new(part, root, parn, sibl)
 				label_outline_color = vec(1, 1, 1) / 8,
 				---Text size
 				label_size = 1,
+				---Text margin
+				label_margin = vec(0, 0, 0, 0)
 			},
 			hover = {},
 			click = {},

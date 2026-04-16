@@ -58,7 +58,9 @@ function lib.size(elem, axis)
 	---TODO: Make sure label respects maximum sizing
 
 	if props.label ~= "" then
-		local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0) * props.label_size
+		local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0)
+		* props.label_size
+		+ props.label_margin.wx + props.label_margin.yz
 		state.size[axis] = math.max(state.size[axis], wrd_size[axis])
 	end
 

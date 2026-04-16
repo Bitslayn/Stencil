@@ -40,6 +40,9 @@ return function(elem)
 		local widg = self:newElement() --[[@as FOXStencil.Widgets.Button]]
 
 		widg:setProps({
+			label = "Button",
+			label_margin = vec(3, 3, 3, 3),
+
 			tex = textures["assets.textures.ui"],
 			tex_pos = vec(0, 0),
 			tex_size = vec(5, 7),

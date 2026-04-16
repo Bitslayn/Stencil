@@ -77,6 +77,8 @@ return function(elem)
 		page = window:newElement({
 			padding = vec(3, 3, 3, 3),
 
+			size_flex = { true, true },
+
 			tex = textures["assets.textures.ui"],
 			tex_color = vec(0.3, 0.3, 0.3, 1),
 			tex_pos = vec(4, 4),
