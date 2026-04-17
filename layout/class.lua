@@ -25,8 +25,9 @@ end
 local layout = require("./render/layout")
 local interact = require("./render/interact")
 
+---@param block BlockState?
 ---@return self
-function class:render()
+function class:render(block)
 	local is_screen = self.part:partToWorldMatrix() == matrices.scale4(1 / 16)
 
 	-- Do interaction
@@ -38,7 +39,9 @@ function class:render()
 		local elem = self.chld[i]
 
 		local hovered
-		if is_screen then
+		if block then
+			hovered = interact.skull_hover(elem, block)
+		elseif is_screen then
 			hovered = interact.screen_hover(elem)
 		else
 			hovered = interact.world_hover(elem)

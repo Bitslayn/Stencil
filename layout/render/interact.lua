@@ -175,6 +175,36 @@ function lib.world_hover(elem)
 	)
 	if not hit then return end
 
+	particles:newParticle("minecraft:end_rod", hit)
+
+	local viewer = client.getViewer()
+	local swing = viewer:getSwingTime()
+	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
+
+	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
+	return lib.relative_hover(elem, click, true_pos, true_pos)
+end
+
+---Recursively gets the element hovered over
+---@param elem FOXStencil.Element
+---@param block BlockState
+---@return FOXStencil.Element?
+function lib.skull_hover(elem, block)
+	local mat = matrices.translate4(block:getPos())
+		-- * matrices.translate4(vec(0.5, 2 / 16, 0.5)) -- Floor
+		* matrices.translate4(vec(0.5, 4 / 16, 0.5)) -- Wall
+		* matrices.scale4(1 / 16)
+
+	local hit = intersectPlane(
+		client.getCameraPos(),
+		client.getCameraDir(),
+		mat:apply(),
+		mat:applyDir(0, 0, -1)
+	)
+	if not hit then return end
+
+	particles:newParticle("minecraft:end_rod", hit)
+
 	local viewer = client.getViewer()
 	local swing = viewer:getSwingTime()
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
