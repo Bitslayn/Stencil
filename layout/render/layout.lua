@@ -85,6 +85,7 @@ function lib.size(elem, axis)
 	if props.label ~= "" then
 		if axis == 1 then
 			local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0)
+			-- local wrd_size = client.getTextDimensions(props.label, 0)
 				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
 			state.size.x = math.max(state.size.x, wrd_size.x)
 			state.size_min.x = math.max(state.size_min.x, wrd_size.x)

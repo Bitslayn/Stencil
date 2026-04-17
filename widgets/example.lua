@@ -42,8 +42,8 @@ return function(elem)
 
 			-- Functions need to be defined if this element should be interactable, even if they are empty
 
-			hover = function(_, pos, state, changed) end,
-			click = function(_, pos, state) end,
+			hover = function(_, rel_pos, true_pos, state, changed) end,
+			click = function(_, rel_pos, true_pos, state) end,
 		}):setProps(props or {})
 
 		-- Set interact props
