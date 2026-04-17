@@ -203,8 +203,6 @@ function lib.skull_hover(elem, block)
 	)
 	if not hit then return end
 
-	particles:newParticle("minecraft:end_rod", hit)
-
 	local viewer = client.getViewer()
 	local swing = viewer:getSwingTime()
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
