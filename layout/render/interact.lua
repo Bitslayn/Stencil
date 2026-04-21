@@ -86,6 +86,8 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	local props = elem:getProps()
 	local state = elem.state
 
+	-- TODO Precalculate these values from the layout class
+
 	local extend = props.tex_extend
 	local tmp_pos = state.pos - extend.wx
 	local tmp_size = state.size + extend.wx + extend.yz
@@ -122,7 +124,6 @@ function events.mouse_press(button, state)
 end
 
 -- TODO Fix bug where holding down click and hiding mouse cursor will cause the click to still be held
--- TODO Precalculate these values from the layout class
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
@@ -196,10 +197,10 @@ local face = {
 ---@return FOXStencil.Element?
 function lib.skull_hover(elem, block)
 	local pos = block.id:find("wall") and vec(0, -0.25, 0.25) or vec(0, -0.5, 0)
-	local yaw = tonumber(block.properties.rotation) or face[block.properties.facing]
-	local rot = vec(0, yaw and yaw * 22.5 or 0, 0)
+	local rot = tonumber(block.properties.rotation) or face[block.properties.facing]
+
 	local mat = matrices.translate4(block:getPos() + 0.5)
-		* matrices.rotation4(-rot)
+		* matrices.rotation4(0, rot and rot * -22.5 or 0, 0)
 		* matrices.translate4(pos)
 		* matrices.scale4(1 / 16)
 		* elem.root.part:getParent():getPositionMatrixRaw()

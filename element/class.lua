@@ -127,6 +127,7 @@ local function new(part, root, parn, sibl)
 		require("./layers/slice")(self),
 		require("./layers/border")(self),
 		require("./layers/label")(self),
+		require("./layers/debug")(self),
 	}
 
 	local props = self.props
@@ -272,9 +273,9 @@ function class:draw(forced)
 	self.part:pos(-self.state.pos:augmented(self.props.layer)):visible(self.state.visible)
 	if self.skip.redraw and not forced then return self end
 
-	self.layers[1]:draw()
-	self.layers[2]:draw()
-	self.layers[3]:draw()
+	for i = 1, #self.layers do
+		self.layers[i]:draw()
+	end
 
 	return self
 end

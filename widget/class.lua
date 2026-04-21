@@ -13,17 +13,22 @@ function class:__index(k)
 	return class[k] or super[k]
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
----@param x number|Vector2
----@param y number?
----@return self
----@overload fun(self: self, vec: Vector2)
-function class:setPos(x, y)
-	if type(x) == "Vector2" then
-		x, y = x:unpack()
+local presets = listFiles(... .. "/presets", true)
+for i = 1, #presets do
+	local self = {}
+	function self:__index(k)
+		return class[k] or super[k]
 	end
 
+	pcall(require(presets[i]), self, class, super)
+end
+
+---@generic self: FOXStencil.Widgets.Generic
+---@param self self
+---@param x number
+---@param y number?
+---@return self
+function class:setPos(x, y)
 	y = y or x
 	self.props.normal.pos = vec(x, y)
 	return self
@@ -34,12 +39,7 @@ end
 ---@param x number
 ---@param y number?
 ---@return self
----@overload fun(self: self, vec: Vector2)
 function class:setSize(x, y)
-	if type(x) == "Vector2" then
-		x, y = x:unpack()
-	end
-
 	y = y or x
 	self.props.normal.size = vec(x, y)
 	return self
@@ -47,7 +47,7 @@ end
 
 ---@generic self: FOXStencil.Widgets.Generic
 ---@param self self
----@param x number|Vector2|Vector3|Vector4
+---@param x number
 ---@param y number?
 ---@param z number?
 ---@param w number?
@@ -56,12 +56,7 @@ end
 ---@overload fun(self: self, top: number, horizontal: number, bottom: number)
 ---@overload fun(self: self, vertical: number, horizontal: number)
 ---@overload fun(self: self, all: number)
----@overload fun(self: self, vec: Vector2|Vector3|Vector4)
 function class:setPadding(x, y, z, w)
-	if type(x):find("^Vector") then
-		x, y, z, w = x --[[@as Vector.any]]:unpack()
-	end
-
 	-- a          -> a, a, a, a
 	-- a, b       -> a, b, a, b
 	-- a, b, c    -> a, b, c, b
@@ -76,7 +71,7 @@ end
 
 ---@generic self: FOXStencil.Widgets.Generic
 ---@param self self
----@param x number|Vector2|Vector3|Vector4
+---@param x number
 ---@param y number?
 ---@param z number?
 ---@param w number?
@@ -85,12 +80,7 @@ end
 ---@overload fun(self: self, top: number, horizontal: number, bottom: number)
 ---@overload fun(self: self, vertical: number, horizontal: number)
 ---@overload fun(self: self, all: number)
----@overload fun(self: self, vec: Vector2|Vector3|Vector4)
 function class:setMargin(x, y, z, w)
-	if type(x):find("^Vector") then
-		x, y, z, w = x --[[@as Vector.any]]:unpack()
-	end
-
 	-- a          -> a, a, a, a
 	-- a, b       -> a, b, a, b
 	-- a, b, c    -> a, b, c, b
@@ -117,12 +107,7 @@ end
 ---@param x number
 ---@param y number?
 ---@return self
----@overload fun(self: self, vec: Vector2)
 function class:setAlign(x, y)
-	if type(x) == "Vector2" then
-		x, y = x:unpack()
-	end
-
 	y = y or x
 	self.props.normal.align = vec(x, y)
 	return self

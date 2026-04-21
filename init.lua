@@ -4,10 +4,6 @@ local api = {}
 textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
 api.newLayout = require("./layout/class").new
 
-local class = require("./element/class").class
-local presets = listFiles(... .. "/widgets", true)
-for i = 1, #presets do
-	pcall(require(presets[i]), class)
-end
+require("./widget/class")
 
 return api

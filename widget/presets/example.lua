@@ -1,30 +1,24 @@
----@type FOXStencil.Widgets.Generic
-local super = require(string.match(..., "^.+widgets") .. "/generic")
-
----@class FOXStencil.Widgets.EXAMPLE.Props: FOXStencil.Widgets.Generic.Props
----@field click fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
----@field hover fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
----@class FOXStencil.Widgets.EXAMPLE: FOXStencil.Widgets.Generic
----@field setProps fun(self: self, props: FOXStencil.Widgets.EXAMPLE.Props, group: FOXStencil.Element.Props.Group?): self
----@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.EXAMPLE.Props
-local class = {}
----@package
-function class:__index(k)
-	return class[k] or super[k]
-end
-
--- Functions registered on this class
-
----@return self
-function class:example(func)
-	print("Meow")
-	return self
-end
-
+---@param class FOXStencil.Widgets.EXAMPLE
+---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
-return function(elem)
+return function(class, super, elem)
+	---@class FOXStencil.Widgets.EXAMPLE.Props: FOXStencil.Widgets.Generic.Props
+	---@field click fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@class FOXStencil.Widgets.EXAMPLE: FOXStencil.Widgets.Generic
+	---@field setProps fun(self: self, props: FOXStencil.Widgets.EXAMPLE.Props, group: FOXStencil.Element.Props.Group?): self
+	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.EXAMPLE.Props
+	class = class
+
 	---@class FOXStencil.Element
 	elem = elem
+
+	---Test funciton
+	---@return self
+	function class:meow(func)
+		print("Meow")
+		return self
+	end
 
 	-- Create function registered to element superclass
 	-- Be sure to change this

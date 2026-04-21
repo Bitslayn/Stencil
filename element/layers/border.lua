@@ -44,7 +44,7 @@ function obj:draw()
 	}
 
 	for i = 1, 4 do
-		self[i]
+		self.line[i]
 			:matrix(translate4(props.tex_extend.w, props.tex_extend.x) * mats[i])
 			:visible(props.border:length() > 0)
 
@@ -58,11 +58,12 @@ end
 ---@return FOXStencil.Element.Border
 return function(elem)
 	local self = setmetatable({
+		line = {},
 		elem = elem,
 	}, obj)
 
 	for i = 1, 4 do
-		self[i] = elem.part:newSprite("outline-" .. i)
+		self.line[i] = elem.part:newSprite("outline-" .. i)
 			:texture(textures["FOXStencil_blank"], 1, 1)
 			:renderType("CUTOUT_EMISSIVE_SOLID")
 	end
