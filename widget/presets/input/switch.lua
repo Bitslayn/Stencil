@@ -1,20 +1,15 @@
----@type FOXStencil.Widgets.Generic
-local super = require(string.match(..., "^.+widgets") .. "/generic")
-
----@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widgets.Generic.Props
----@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
----@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
----@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
----@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
----@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
-local class = {}
----@package
-function class:__index(k)
-	return class[k] or super[k]
-end
-
+---@param class FOXStencil.Widgets.Switch
+---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
-return function(elem)
+return function(class, super, elem)
+	---@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widgets.Generic.Props
+	---@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
+	---@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
+	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
+	class = class
+
 	---@class FOXStencil.Element
 	elem = elem
 

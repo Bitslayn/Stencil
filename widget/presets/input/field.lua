@@ -1,25 +1,17 @@
----@type FOXStencil.Widgets.Generic
-local super = require(string.match(..., "^.+widgets") .. "/generic")
-
----@class FOXStencil.Widgets.Field.Props: FOXStencil.Widgets.Generic.Props
----@field click fun(self: FOXStencil.Widgets.Field, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
----@field hover fun(self: FOXStencil.Widgets.Field, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
----@class FOXStencil.Widgets.Field: FOXStencil.Widgets.Generic
----@field setProps fun(self: self, props: FOXStencil.Widgets.Field.Props, group: FOXStencil.Element.Props.Group?): self
----@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Field.Props
-local class = {}
----@package
-function class:__index(k)
-	return class[k] or super[k]
-end
-
+---@param class FOXStencil.Widgets.Field
+---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
-return function(elem)
+return function(class, super, elem)
+	---@class FOXStencil.Widgets.Field.Props: FOXStencil.Widgets.Generic.Props
+	---@field click fun(self: FOXStencil.Widgets.Field, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.Field, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@class FOXStencil.Widgets.Field: FOXStencil.Widgets.Generic
+	---@field setProps fun(self: self, props: FOXStencil.Widgets.Field.Props, group: FOXStencil.Element.Props.Group?): self
+	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Field.Props
+	class = class
+
 	---@class FOXStencil.Element
 	elem = elem
-
-	-- Create function registered to element superclass
-	-- Be sure to change this
 
 	---@param props FOXStencil.Widgets.Field.Props?
 	---@return FOXStencil.Widgets.Field
@@ -33,7 +25,7 @@ return function(elem)
 
 			label = "Text",
 			label_margin = vec(3, 2, 2, 3),
-			
+
 			tex = textures["assets.textures.ui"],
 			tex_pos = vec(2, 6),
 			tex_size = vec(3, 3),

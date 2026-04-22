@@ -1,20 +1,15 @@
----@type FOXStencil.Widgets.Generic
-local super = require(string.match(..., "^.+widgets") .. "/generic")
-
----@class FOXStencil.Widgets.Slider.Props: FOXStencil.Widgets.Generic.Props
----@field click fun(self: FOXStencil.Widgets.Slider, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
----@field hover fun(self: FOXStencil.Widgets.Slider, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
----@class FOXStencil.Widgets.Slider: FOXStencil.Widgets.Generic
----@field setProps fun(self: self, props: FOXStencil.Widgets.Slider.Props, group: FOXStencil.Element.Props.Group?): self
----@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Slider.Props
-local class = {}
----@package
-function class:__index(k)
-	return class[k] or super[k]
-end
-
+---@param class FOXStencil.Widgets.Slider
+---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
-return function(elem)
+return function(class, super, elem)
+	---@class FOXStencil.Widgets.Slider.Props: FOXStencil.Widgets.Generic.Props
+	---@field click fun(self: FOXStencil.Widgets.Slider, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.Slider, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@class FOXStencil.Widgets.Slider: FOXStencil.Widgets.Generic
+	---@field setProps fun(self: self, props: FOXStencil.Widgets.Slider.Props, group: FOXStencil.Element.Props.Group?): self
+	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Slider.Props
+	class = class
+
 	---@class FOXStencil.Element
 	elem = elem
 
@@ -57,7 +52,8 @@ return function(elem)
 			end,
 			hover = function(_, rel_pos, true_pos, state, changed)
 				if not drag then return end
-				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2) / (widg.state.size - switch.state.size)
+				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2) /
+				(widg.state.size - switch.state.size)
 				-- slide_pos.x = math.round(slide_pos.x * 9) / 9
 				switch.state.pos.x = math.clamp(slide_pos.x, 0, 1) * (widg.state.size.x - switch.state.size.x)
 				switch:draw(true)
