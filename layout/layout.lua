@@ -1,5 +1,5 @@
 ---@type FOXStencil.Element
-local super = require("../element/class").class
+local super = require("../element/element").class
 
 ---@class FOXStencil.Layout: FOXStencil.Element
 local class = {}
@@ -67,7 +67,7 @@ function class:render(block)
 		layout.grow(elem, 1)
 		layout.size(elem, 2)
 		layout.grow(elem, 2)
-		layout.position(elem)
+		layout.position(elem, (i - 1) * 4, 1 / len)
 
 		layout.draw(elem, (i - 1) * 4, 1 / len)
 	end

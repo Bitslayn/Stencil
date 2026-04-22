@@ -1,29 +1,24 @@
 ---@type FOXStencil.Element
-local super = require("../element/class").class
+local super = require("../element/element").class
 
----@class FOXStencil.Widgets.Generic.Props: FOXStencil.Element.Props
----@field click fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
----@field hover fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
----@class FOXStencil.Widgets.Generic: FOXStencil.Element
----@field setProps fun(self: self, props: FOXStencil.Widgets.Generic.Props, group: FOXStencil.Element.Props.Group?): self
----@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Generic.Props
+---@class FOXStencil.Widget.Props: FOXStencil.Props
+---@field click fun(self: FOXStencil.Widget.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+---@field hover fun(self: FOXStencil.Widget.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+---@class FOXStencil.Widget.Generic: FOXStencil.Element
+---@field setProps fun(self: self, props: FOXStencil.Widget.Props): self
 local class = {}
----@package
-function class:__index(k)
-	return class[k] or super[k]
-end
 
 local presets = listFiles(... .. "/presets", true)
 for i = 1, #presets do
 	local self = {}
-	function self:__index(k)
-		return class[k] or super[k]
+	function self.__index(_, k)
+		return self[k] or class[k] or super[k]
 	end
 
 	pcall(require(presets[i]), self, class, super)
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@param y number?
@@ -34,7 +29,7 @@ function class:setPos(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@param y number?
@@ -45,7 +40,7 @@ function class:setSize(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@param y number?
@@ -69,7 +64,7 @@ function class:setPadding(x, y, z, w)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@param y number?
@@ -93,7 +88,7 @@ function class:setMargin(x, y, z, w)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@return self
@@ -102,7 +97,7 @@ function class:setGap(x)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@param y number?
@@ -113,7 +108,7 @@ function class:setAlign(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
+---@generic self: FOXStencil.Widget.Generic
 ---@param self self
 ---@param x number
 ---@return self

@@ -1,10 +1,10 @@
----@type FOXStencil.Widgets.Generic
+---@type FOXStencil.Widget.Generic
 local super = require(string.match(..., "^.+widgets") .. "/generic")
 
----@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widgets.Generic.Props
+---@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widget.Generic.Props
 ---@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
 ---@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
----@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
+---@class FOXStencil.Widgets.Switch: FOXStencil.Widget.Generic
 ---@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
 ---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
 local class = {}

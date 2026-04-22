@@ -10,21 +10,21 @@ local function interact(root, elem, click, rel_pos, true_pos)
 	-- Unhover last hovered element
 
 	if root.clicked and not click then
-		local props = root.clicked:getProps()
+		local props = root.clicked.props
 
 		props.click(root.clicked, rel_pos, true_pos, false)
 		root.clicked.group = bit32.band(root.clicked.group, 1)
-		root.clicked:draw(true)
+		root.clicked:draw()
 
 		root.clicked = nil
 	end
 
 	if root.hovered and root.hovered ~= elem then
-		local props = root.hovered:getProps()
+		local props = root.hovered.props
 		if props.hover then
 			props.hover(root.hovered, rel_pos, true_pos, false, true)
 			root.hovered.group = bit32.band(root.hovered.group, 2)
-			root.hovered:draw(true)
+			root.hovered:draw()
 
 			root.hovered = nil
 		end
@@ -32,7 +32,7 @@ local function interact(root, elem, click, rel_pos, true_pos)
 
 	if not elem then return end
 
-	local props = elem:getProps()
+	local props = elem.props
 
 	-- Hover currently hovered element
 
@@ -44,7 +44,7 @@ local function interact(root, elem, click, rel_pos, true_pos)
 
 		props.click(elem, rel_pos, true_pos, true)
 		elem.group = bit32.bor(elem.group, 2)
-		elem:draw(true)
+		elem:draw()
 
 		root.click_time = time
 	end
@@ -56,7 +56,7 @@ local function interact(root, elem, click, rel_pos, true_pos)
 		props.hover(elem, rel_pos, true_pos, true, changed)
 		if changed then
 			elem.group = bit32.bor(elem.group, 1)
-			elem:draw(true)
+			elem:draw()
 		end
 	end
 
@@ -83,15 +83,12 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 
 	-- TODO Fix clicking outside an element then moving cursor into element triggering a click for that element
 
-	local props = elem:getProps()
+	local props = elem.props
 	local state = elem.state
 
 	-- TODO Precalculate these values from the layout class
 
-	local extend = props.tex_extend
-	local tmp_pos = state.pos - extend.wx
-	local tmp_size = state.size + extend.wx + extend.yz
-	if not (tmp_pos <= rel_pos and rel_pos <= tmp_pos + tmp_size and elem.state.visible) then return end
+	if not (state.pos <= rel_pos and rel_pos <= state.pos + state.size and elem.state.visible) then return end
 
 	rel_pos = rel_pos - state.pos
 

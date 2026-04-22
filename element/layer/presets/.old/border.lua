@@ -17,13 +17,12 @@ local concat = table.concat
 
 ---Updates the current outline
 function obj:draw()
-	local props = self.elem:getProps()
 	local state = self.elem.state
 
-	local w_t, w_r, w_b, w_l = unpack4(props.border)
-	local e_t, e_r, e_b, e_l = unpack4(props.border_extend)
+	local w_t, w_r, w_b, w_l = unpack4(state.border)
+	local e_t, e_r, e_b, e_l = unpack4(state.border_extend)
 	
-	local w, h = unpack2(state.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+	local w, h = unpack2(state.size + state.tex_extend.yx + state.tex_extend.wz --[[@as Vector2]])
 
 	local mats = {
 		-- Top
@@ -45,11 +44,11 @@ function obj:draw()
 
 	for i = 1, 4 do
 		self.line[i]
-			:matrix(translate4(props.tex_extend.w, props.tex_extend.x) * mats[i])
-			:visible(props.border:length() > 0)
+			:matrix(translate4(state.tex_extend.w, state.tex_extend.x) * mats[i])
+			:visible(state.border:length() > 0)
 
 			-- TODO separate into run-on-call method
-			:color(props.border_color)
+			:color(state.border_color)
 	end
 end
 

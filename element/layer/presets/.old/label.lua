@@ -21,27 +21,26 @@ local function emoji_fix(str)
 end
 
 function obj:draw()
-	local props = self.elem:getProps()
 	local state = self.elem.state
 
-	local label_size = client.getTextDimensions(emoji_fix(props.label), state.size.x) * props.label_size
+	local label_size = client.getTextDimensions(emoji_fix(state.label), state.size.x) * state.label_size
 	local label_w, label_h = unpack2(label_size)
-	local x = -props.tex_extend[4]
-		+ math.lerp(0, state.size.x + props.label_margin[4] - props.label_margin[2] - label_w + props.tex_extend[2], 0.5)
-	local y = -props.tex_extend[1]
-		+ math.lerp(0, state.size.y + props.label_margin[1] - props.label_margin[3] - label_h + props.tex_extend[3], 0.5)
+	local x = -state.tex_extend[4]
+		+ math.lerp(0, state.size.x + state.label_margin[4] - state.label_margin[2] - label_w + state.tex_extend[2], 0.5)
+	local y = -state.tex_extend[1]
+		+ math.lerp(0, state.size.y + state.label_margin[1] - state.label_margin[3] - label_h + state.tex_extend[3], 0.5)
 
 	self.text
 		:pos(-x, -y, -0.5)
-		:scale(props.label_size)
+		:scale(state.label_size)
 		:width(state.size.x)
-		:visible(props.label ~= "")
+		:visible(state.label ~= "")
 
 	-- TODO separate into run-on-call method
-		:text(props.label)
-		:shadow(props.label_shadow)
-		:outline(props.label_outline)
-		:outlineColor(props.label_outline_color)
+		:text(state.label)
+		:shadow(state.label_shadow)
+		:outline(state.label_outline)
+		:outlineColor(state.label_outline_color)
 end
 
 ---Creates a label that can be stylized later
