@@ -154,8 +154,8 @@ function class:newElement(props)
 	return elem
 end
 
----@generic self: FOXStencil.Element
----@param self self
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param props FOXStencil.Element.Props
 ---@param group FOXStencil.Element.Props.Group?
 ---@return self
@@ -187,6 +187,8 @@ function class:getProps(group)
 end
 
 ---Removes this element from its parent
+---@generic self
+---@param self self|FOXStencil.Element
 ---@return self
 function class:remove()
 	self:queue()
@@ -199,6 +201,8 @@ function class:remove()
 end
 
 ---Makes this element a child of the given element
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param elem FOXStencil.Element
 ---@param pos integer?
 ---@return self
@@ -219,6 +223,8 @@ function class:moveTo(elem, pos)
 end
 
 ---Adds the given element as a child of this element
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param elem FOXStencil.Element
 ---@param pos integer?
 ---@return self
@@ -228,6 +234,8 @@ function class:addChild(elem, pos)
 end
 
 ---Moves this element through its siblings by a given interval
+---@generic self
+---@param self self|FOXStencil.Element
 ---@return self
 function class:drop(interval)
 	local sibl = self.sibl
@@ -238,6 +246,8 @@ function class:drop(interval)
 end
 
 ---Swaps an element with another element
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param elem FOXStencil.Element
 ---@return self
 function class:swap(elem)
@@ -248,8 +258,8 @@ function class:swap(elem)
 	return self
 end
 
----@generic self: FOXStencil.Element
----@param self self
+---@generic self
+---@param self self|FOXStencil.Element
 ---@return self
 function class:queue()
 	-- Queue late siblings up parent tree
@@ -268,8 +278,8 @@ function class:queue()
 	return self
 end
 
----@generic self: FOXStencil.Element
----@param self self
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)

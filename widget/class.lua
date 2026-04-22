@@ -23,8 +23,8 @@ for i = 1, #presets do
 	pcall(require(presets[i]), self, class, super)
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@return self
@@ -34,8 +34,8 @@ function class:setPos(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@return self
@@ -45,8 +45,8 @@ function class:setSize(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@param z number?
@@ -69,8 +69,8 @@ function class:setPadding(x, y, z, w)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@param z number?
@@ -93,8 +93,8 @@ function class:setMargin(x, y, z, w)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@return self
 function class:setGap(x)
@@ -102,8 +102,8 @@ function class:setGap(x)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@return self
@@ -113,8 +113,8 @@ function class:setAlign(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@return self
 function class:setJustify(x)
