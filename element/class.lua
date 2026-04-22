@@ -84,7 +84,7 @@ local function new(part, root, parn, sibl)
 				---Text size
 				label_size = 1,
 				---Text margin
-				label_margin = vec(0, 0, 0, 0)
+				label_margin = vec(0, 0, 0, 0),
 			},
 			hover = {},
 			click = {},
@@ -127,7 +127,6 @@ local function new(part, root, parn, sibl)
 		require("./layers/slice")(self),
 		require("./layers/border")(self),
 		require("./layers/label")(self),
-		require("./layers/debug")(self),
 	}
 
 	local props = self.props
@@ -145,8 +144,12 @@ end
 ---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
 function class:newElement(props)
-	local elem = new(self.part:newPart("elem"), self.root, self ~= self.root and self or nil, self.chld):setProps(props or
-		{})
+	local elem = new(
+		self.part:newPart("elem"),
+		self.root,
+		self ~= self.root and self or nil,
+		self.chld
+	):setProps(props or {})
 	self.chld:push(elem)
 	return elem
 end
