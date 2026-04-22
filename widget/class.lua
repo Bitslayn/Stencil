@@ -16,8 +16,8 @@ end
 local presets = listFiles(... .. "/presets", true)
 for i = 1, #presets do
 	local self = {}
-	function self:__index(k)
-		return class[k] or super[k]
+	function self.__index(_, k)
+		return self[k] or class[k] or super[k]
 	end
 
 	pcall(require(presets[i]), self, class, super)
