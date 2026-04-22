@@ -25,6 +25,7 @@ return function(class, super, elem)
 
 			label = "Text",
 			label_margin = vec(3, 2, 2, 3),
+			label_align = vec(0, 0.5),
 
 			tex = textures["assets.textures.ui"],
 			tex_pos = vec(2, 6),

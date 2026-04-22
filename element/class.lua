@@ -85,6 +85,8 @@ local function new(part, root, parn, sibl)
 				label_size = 1,
 				---Text margin
 				label_margin = vec(0, 0, 0, 0),
+				---Text alignment
+				label_align = vec(0.5, 0.5)
 			},
 			hover = {},
 			click = {},

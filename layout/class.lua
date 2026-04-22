@@ -39,7 +39,7 @@ function class:render(block)
 		local elem = self.chld[i]
 
 		local hovered
-		if block then
+		if type(block) == "BlockState" then
 			hovered = interact.skull_hover(elem, block)
 		elseif is_screen then
 			hovered = interact.screen_hover(elem)

@@ -48,15 +48,15 @@ return function(class, super, elem)
 
 					-- TODO After retained flex queue is fixed
 
-					-- -- Check double click
+					-- Check double click
 
-					-- if client.getSystemTime() - click_stamp < 500 then
-					-- 	visible = not visible
-					-- 	page.state.visible = visible
-					-- 	page:draw(true)
-					-- else
-					-- 	click_stamp = client.getSystemTime()
-					-- end
+					if client.getSystemTime() - click_stamp < 500 then
+						visible = not visible
+						page.state.visible = visible
+						page:queue()
+					else
+						click_stamp = client.getSystemTime()
+					end
 				end
 
 				drag = state
