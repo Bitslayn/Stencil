@@ -44,6 +44,7 @@ function lib.restore(elem)
 
 	if props.label ~= "" then
 		local width = client.getTextWidth(string.gsub(props.label, "%s", "\n"))
+			* props.label_size + props.label_margin.w + props.label_margin.y
 		state.size.x = math.max(state.size.x, width)
 		state.size_min.x = math.max(state.size_min.x, width)
 	end
