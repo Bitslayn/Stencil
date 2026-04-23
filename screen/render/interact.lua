@@ -1,7 +1,7 @@
 ---@class FOXStencil.Render.Interact
 local lib = {}
 
----@param root FOXStencil.Layout
+---@param root FOXStencil.Screen
 ---@param elem FOXStencil.Element?
 ---@param click boolean
 ---@param rel_pos Vector2
@@ -110,7 +110,7 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	return elem
 end
 
----@param root FOXStencil.Layout
+---@param root FOXStencil.Screen
 function lib.reset(root)
 	interact(root, nil, false, vec(0, 0), vec(0, 0))
 end

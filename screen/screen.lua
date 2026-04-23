@@ -1,7 +1,7 @@
 ---@type FOXStencil.Element
-local super = require("../element/class").class
+local super = require("../element/element").class
 
----@class FOXStencil.Layout: FOXStencil.Element
+---@class FOXStencil.Screen: FOXStencil.Element
 local class = {}
 ---@package
 function class:__index(k)
@@ -9,9 +9,9 @@ function class:__index(k)
 end
 
 ---@param part ModelPart
----@return FOXStencil.Layout
+---@return FOXStencil.Screen
 local function new(part)
-	---@class FOXStencil.Layout
+	---@class FOXStencil.Screen
 	---@field clicked FOXStencil.Element?
 	---@field hovered FOXStencil.Element?
 	local self = {

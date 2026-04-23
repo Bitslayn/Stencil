@@ -1,5 +1,5 @@
 ---@type FOXStencil.Element
-local super = require("../element/class").class
+local super = require("../element/element").class
 
 ---@class FOXStencil.Widgets.Generic.Props: FOXStencil.Element.Props
 ---@field click fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean)?

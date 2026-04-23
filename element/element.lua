@@ -6,7 +6,7 @@ class.__index = class
 ---@alias FOXStencil.Element.Props.Group "normal"|"hover"|"click"|"hover_click"
 
 ---@param part ModelPart
----@param root FOXStencil.Layout
+---@param root FOXStencil.Screen
 ---@param parn FOXStencil.Element?
 ---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
