@@ -12,9 +12,11 @@ end
 ---@return FOXStencil.Layout
 local function new(part)
 	---@class FOXStencil.Layout
+	---@field clicked FOXStencil.Element?
+	---@field hovered FOXStencil.Element?
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = require("../element/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]
+		chld = require("../element/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
 	}
 	self.root = self
 	return setmetatable(self, class)
@@ -23,11 +25,41 @@ end
 local layout = require("./render/layout")
 local interact = require("./render/interact")
 
+---@param block BlockState?
 ---@return self
-function class:render()
+function class:render(block)
 	local is_screen = self.part:partToWorldMatrix() == matrices.scale4(1 / 16)
 
-	for i = 1, #self.chld do
+	-- Do interaction
+
+	local hovering = false
+
+	local len = #self.chld
+	for i = len, 1, -1 do
+		local elem = self.chld[i]
+
+		local hovered
+		if type(block) == "BlockState" then
+			hovered = interact.skull_hover(elem, block)
+		elseif is_screen then
+			hovered = interact.screen_hover(elem)
+		else
+			hovered = interact.world_hover(elem)
+		end
+
+		if hovered then
+			hovering = true
+			break
+		end
+	end
+
+	if not hovering then
+		interact.reset(self)
+	end
+
+	-- Draw screen
+
+	for i = 1, len do
 		local elem = self.chld[i]
 		layout.restore(elem)
 
@@ -37,13 +69,7 @@ function class:render()
 		layout.grow(elem, 2)
 		layout.position(elem)
 
-		if is_screen then
-			interact.screen_hover(elem)
-		else
-			interact.world_hover(elem)
-		end
-
-		layout.draw(elem, 0, 1)
+		layout.draw(elem, (i - 1) * 4, 1 / len)
 	end
 
 	return self

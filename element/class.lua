@@ -14,12 +14,12 @@ local function new(part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
-		
+
 		group = 0,
 		props = {
 			---@class FOXStencil.Element.Props
-			---@field hover fun(self: FOXStencil.Element, pos: Vector2, state: boolean, changed: boolean)?
-			---@field click fun(self: FOXStencil.Element, pos: Vector2, state: boolean)?
+			---@field click fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+			---@field hover fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
 			normal = {
 				---This element's preferred offset position
 				pos = vec(0, 0),
@@ -31,6 +31,7 @@ local function new(part, root, parn, sibl)
 				---This element's maximum size
 				size_max = vec(0, 0),
 				---States define whether this element is allowed to dynamically scale within min and max bounds
+				---@type [boolean, boolean]
 				size_flex = { false, false },
 
 				---Child padding, or space around children
@@ -40,6 +41,7 @@ local function new(part, root, parn, sibl)
 				---Child gap, or space between children
 				gap = 0,
 				---Child layout direction, false is horizontal and true is vertical
+				---@type boolean
 				vertical = false,
 				---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
 				align = vec(0, 0),
@@ -47,12 +49,14 @@ local function new(part, root, parn, sibl)
 				justify = 0,
 
 				---Background texture
-				tex = textures["FOXStencil_blank"] --[[@as Texture]],
+				---@type Texture
+				tex = textures["FOXStencil_blank"],
 				---UV position on the texture
 				tex_pos = vec(0, 0),
 				---UV region on the texture
 				tex_size = vec(1, 1),
 				---Background tint
+				---@type Vector3|Vector4
 				tex_color = vec(1, 1, 1, 1),
 				---Amount of pixels to overlap in each direction
 				tex_extend = vec(0, 0, 0, 0),
@@ -62,6 +66,7 @@ local function new(part, root, parn, sibl)
 				---Border line weight at each edge
 				border = vec(0, 0, 0, 0),
 				---Border color
+				---@type Vector3|Vector4
 				border_color = vec(1, 1, 1, 1),
 				---Border offset at each edge
 				border_extend = vec(0, 0, 0, 0),
@@ -69,13 +74,19 @@ local function new(part, root, parn, sibl)
 				---Text string
 				label = "",
 				---Text shadow state
+				---@type boolean
 				label_shadow = false,
 				---Text outline state
+				---@type boolean
 				label_outline = false,
 				---Text outline color
 				label_outline_color = vec(1, 1, 1) / 8,
 				---Text size
 				label_size = 1,
+				---Text margin
+				label_margin = vec(0, 0, 0, 0),
+				---Text alignment
+				label_align = vec(0.5, 0.5)
 			},
 			hover = {},
 			click = {},
@@ -83,6 +94,9 @@ local function new(part, root, parn, sibl)
 		},
 		---@class FOXStencil.Element.State
 		state = {
+			---This element's visibility state
+			---@type boolean
+			visible = true,
 			---This element's calculated position relative to its parent
 			pos = vec(0, 0),
 			---Position on this element that was hovered
@@ -101,9 +115,15 @@ local function new(part, root, parn, sibl)
 		root = root,
 		parn = parn,
 		sibl = sibl,
-		chld = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]],
+		---@type FOXMap<integer, FOXStencil.Element>
+		chld = require("./map")(),
 
-		skip = { layout = false, redraw = false },
+		skip = {
+			---@type boolean
+			layout = false,
+			---@type boolean
+			redraw = false,
+		},
 	}, class)
 	self.layers = {
 		require("./layers/slice")(self),
@@ -117,22 +137,27 @@ local function new(part, root, parn, sibl)
 	setmetatable(props.hover_click, {
 		__index = function(_, k)
 			return rawget(props.hover, k) or rawget(props.click, k) or props.normal[k]
-		end
+		end,
 	})
 
 	return self
 end
 
+---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
 function class:newElement(props)
-	local elem = new(self.part:newPart("elem"), self.root, self ~= self.root and self or nil, self.chld):setProps(props or
-		{})
+	local elem = new(
+		self.part:newPart("elem"),
+		self.root,
+		self ~= self.root and self or nil,
+		self.chld
+	):setProps(props or {})
 	self.chld:push(elem)
 	return elem
 end
 
----@generic self: FOXStencil.Element
----@param self self
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param props FOXStencil.Element.Props
 ---@param group FOXStencil.Element.Props.Group?
 ---@return self
@@ -163,8 +188,80 @@ function class:getProps(group)
 	return self.props[group or group_id[self.group]]
 end
 
----@generic self: FOXStencil.Element
----@param self self
+---Removes this element from its parent
+---@generic self
+---@param self self|FOXStencil.Element
+---@return self
+function class:remove()
+	self:queue()
+	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
+	self.sibl = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
+	self.part:remove()
+	self.parn = nil
+	self.root = nil
+	return self
+end
+
+---Makes this element a child of the given element
+---@generic self
+---@param self self|FOXStencil.Element
+---@param elem FOXStencil.Element
+---@param pos integer?
+---@return self
+function class:moveTo(elem, pos)
+	self.sibl[1]:queue()
+	if pos then
+		elem.chld:insert(math.clamp(pos, 1, #elem.chld), self:remove())
+	else
+		elem.chld:push(self:remove())
+	end
+	self.parn = elem
+	self.root = elem.root
+	self.sibl = elem.chld
+	self.sibl[1]:queue()
+	self.part:moveTo(elem.part)
+	self.root:render()
+	return self
+end
+
+---Adds the given element as a child of this element
+---@generic self
+---@param self self|FOXStencil.Element
+---@param elem FOXStencil.Element
+---@param pos integer?
+---@return self
+function class:addChild(elem, pos)
+	elem:moveTo(self, pos)
+	return self
+end
+
+---Moves this element through its siblings by a given interval
+---@generic self
+---@param self self|FOXStencil.Element
+---@return self
+function class:drop(interval)
+	local sibl = self.sibl
+	local key = sibl:getKey(self) --[[@as integer]]
+	sibl:insert(math.clamp(key + interval, 1, #sibl), sibl:remove(key) --[[@as FOXStencil.Element]])
+	sibl[math.clamp(key - math.abs(interval), 1, #sibl)]:queue()
+	return self
+end
+
+---Swaps an element with another element
+---@generic self
+---@param self self|FOXStencil.Element
+---@param elem FOXStencil.Element
+---@return self
+function class:swap(elem)
+	local parn = self.parn --[[@as FOXStencil.Element]]
+	local key = self.sibl:getKey(self)
+	self:moveTo(elem.parn, elem.sibl:getKey(elem))
+	elem:moveTo(parn, key)
+	return self
+end
+
+---@generic self
+---@param self self|FOXStencil.Element
 ---@return self
 function class:queue()
 	-- Queue late siblings up parent tree
@@ -183,17 +280,17 @@ function class:queue()
 	return self
 end
 
----@generic self: FOXStencil.Element
----@param self self
+---@generic self
+---@param self self|FOXStencil.Element
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)
-	self.part:pos(-self.state.pos:augmented(self.props.layer))
+	self.part:pos(-self.state.pos:augmented(self.props.layer)):visible(self.state.visible)
 	if self.skip.redraw and not forced then return self end
 
-	self.layers[1]:draw()
-	self.layers[2]:draw()
-	self.layers[3]:draw()
+	for i = 1, #self.layers do
+		self.layers[i]:draw()
+	end
 
 	return self
 end

@@ -13,10 +13,10 @@ local tostring = tostring
 local concat = table.concat
 
 ---Fixes emojis on <0.1.6
----@param str string
+---@param str string|number
 ---@return string
 local function emoji_fix(str)
-	str = str:gsub(":[^:]+:", "  ")
+	str = string.gsub(str, ":[^:]+:", "  ")
 	return str
 end
 
@@ -26,8 +26,10 @@ function obj:draw()
 
 	local label_size = client.getTextDimensions(emoji_fix(props.label), state.size.x) * props.label_size
 	local label_w, label_h = unpack2(label_size)
-	local x = -props.tex_extend[4] + math.lerp(0, state.size.x - label_w, 0.5)
-	local y = -props.tex_extend[1] + math.lerp(0, state.size.y - label_h, 0.5)
+	local x = -props.tex_extend[4]
+		+ math.lerp(0, state.size.x + props.label_margin[4] - props.label_margin[2] - label_w + props.tex_extend[2], props.label_align.x)
+	local y = -props.tex_extend[1]
+		+ math.lerp(0, state.size.y + props.label_margin[1] - props.label_margin[3] - label_h + props.tex_extend[3], props.label_align.y)
 
 	self.text
 		:pos(-x, -y, -0.5)
@@ -35,7 +37,7 @@ function obj:draw()
 		:width(state.size.x)
 		:visible(props.label ~= "")
 
-		-- TODO separate into run-on-call method
+	-- TODO separate into run-on-call method
 		:text(props.label)
 		:shadow(props.label_shadow)
 		:outline(props.label_outline)

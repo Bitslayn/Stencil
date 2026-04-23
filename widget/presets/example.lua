@@ -1,0 +1,55 @@
+---@param class FOXStencil.Widgets.EXAMPLE
+---@param super FOXStencil.Widgets.Generic
+---@param elem FOXStencil.Element
+return function(class, super, elem)
+	---@class FOXStencil.Widgets.EXAMPLE.Props: FOXStencil.Widgets.Generic.Props
+	---@field click fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@class FOXStencil.Widgets.EXAMPLE: FOXStencil.Widgets.Generic
+	---@field setProps fun(self: self, props: FOXStencil.Widgets.EXAMPLE.Props, group: FOXStencil.Element.Props.Group?): self
+	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.EXAMPLE.Props
+	class = class
+
+	---@class FOXStencil.Element
+	elem = elem
+
+	---Test funciton
+	---@return self
+	function class:meow(func)
+		print("Meow")
+		return self
+	end
+
+	-- Create function registered to element superclass
+	-- Be sure to change this
+
+	---@param props FOXStencil.Widgets.EXAMPLE.Props?
+	---@return FOXStencil.Widgets.EXAMPLE
+	function elem:newExample(props)
+		local widg = self:newElement() --[[@as FOXStencil.Widgets.EXAMPLE]]
+
+		-- Set main props here
+
+		widg:setProps({
+			label = "Text",
+			tex_color = vec(0, 0, 0, 0),
+
+			-- Functions need to be defined if this element should be interactable, even if they are empty
+
+			hover = function(_, rel_pos, true_pos, state, changed) end,
+			click = function(_, rel_pos, true_pos, state) end,
+		}):setProps(props or {})
+
+		-- Set interact props
+		-- Refrain from setting position and size as the layout is not updated when these are applied
+
+		widg:setProps({ label = "Hovered" }, "hover")
+		widg:setProps({ label = "Clicked" }, "click")
+
+		-- Optional: Use in case of conflict in above props
+
+		widg:setProps({ label = "Hovered + Clicked" }, "hover_click")
+
+		return setmetatable(widg, class)
+	end
+end

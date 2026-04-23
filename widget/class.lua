@@ -2,40 +2,51 @@
 local super = require("../element/class").class
 
 ---@class FOXStencil.Widgets.Generic.Props: FOXStencil.Element.Props
----@field hover fun(self: FOXStencil.Widgets.Generic, pos: Vector2, state: boolean, changed: boolean)?
----@field click fun(self: FOXStencil.Widgets.Generic, pos: Vector2, state: boolean)?
+---@field click fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
+---@field hover fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
 ---@class FOXStencil.Widgets.Generic: FOXStencil.Element
 ---@field setProps fun(self: self, props: FOXStencil.Widgets.Generic.Props, group: FOXStencil.Element.Props.Group?): self
+---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Generic.Props
 local class = {}
 ---@package
 function class:__index(k)
 	return class[k] or super[k]
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+local presets = listFiles(... .. "/presets", true)
+for i = 1, #presets do
+	local self = {}
+	function self.__index(_, k)
+		return self[k] or class[k] or super[k]
+	end
+
+	pcall(require(presets[i]), self, class, super)
+end
+
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@return self
 function class:setPos(x, y)
 	y = y or x
-	self.props.normal.pos = vectors.vec2():set(x, y)
+	self.props.normal.pos = vec(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@return self
 function class:setSize(x, y)
 	y = y or x
-	self.props.normal.size = vectors.vec2():set(x, y)
+	self.props.normal.size = vec(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@param z number?
@@ -54,12 +65,12 @@ function class:setPadding(x, y, z, w)
 	y = y or x
 	z = z or x
 	w = w or y or x
-	self.props.normal.padding = vectors.vec4():set(x, y, z, w)
+	self.props.normal.padding = vec(x, y, z, w)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@param z number?
@@ -78,12 +89,12 @@ function class:setMargin(x, y, z, w)
 	y = y or x
 	z = z or x
 	w = w or y or x
-	self.props.normal.margin = vectors.vec4():set(x, y, z, w)
+	self.props.normal.margin = vec(x, y, z, w)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@return self
 function class:setGap(x)
@@ -91,19 +102,19 @@ function class:setGap(x)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@param y number?
 ---@return self
 function class:setAlign(x, y)
 	y = y or x
-	self.props.normal.align = vectors.vec2():set(x, y)
+	self.props.normal.align = vec(x, y)
 	return self
 end
 
----@generic self: FOXStencil.Widgets.Generic
----@param self self
+---@generic self
+---@param self self|FOXStencil.Widgets.Generic
 ---@param x number
 ---@return self
 function class:setJustify(x)
