@@ -1,9 +1,11 @@
 ---@class FOXStencil.Render.Layout
 local lib = {}
 
---[[ TODO
-Comment ALL math
-Add margins
+--[[ Final TODO
+Add locked element positioning mode
+Migrate to layer system
+Finish all widgets
+Comment and document everything
 ]]
 
 ---@param props FOXStencil.Element.Props
@@ -39,6 +41,12 @@ function lib.restore(elem)
 	state.size = props.size:copy()
 	state.size_min = props.size_min:copy()
 	state.size_max = props.size_max:copy()
+
+	if props.label ~= "" then
+		local width = client.getTextWidth(string.gsub(props.label, "%s", "\n"))
+		state.size.x = math.max(state.size.x, width)
+		state.size_min.x = math.max(state.size_min.x, width)
+	end
 end
 
 ---Recursively calculates size of all children
@@ -79,28 +87,15 @@ function lib.size(elem, axis)
 		state.size[axis] = state.size[axis] + props.gap * (#elem.chld - 1)
 	end
 
-	-- Fit label
-	-- TODO
-
-	if props.label ~= "" then
-		if axis == 1 then
-			local wrd_size = client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0)
-			-- local wrd_size = client.getTextDimensions(props.label, 0)
-				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
-			state.size.x = math.max(state.size.x, wrd_size.x)
-			state.size_min.x = math.max(state.size_min.x, wrd_size.x)
-			state.size_max.x = math.min(state.size_max.x, client.getTextWidth(props.label))
-		else
-			local wrd_size = client.getTextDimensions(props.label, state.size.x)
-				* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
-			state.size.y = math.max(state.size.y, wrd_size.y)
-			state.size_min.y = math.max(state.size_min.y, wrd_size.y)
-			state.size_max.y = math.min(state.size_max.y,
-			client.getTextDimensions(string.gsub(props.label, "%s", "\n"), 0).y)
-		end
-	end
-
 	state.size[axis] = state.size[axis] + p[axis][1] + p[axis][2]
+
+	-- Fit label
+
+	if props.label ~= "" and axis == 2 then
+		local wrd_size = client.getTextDimensions(props.label, state.size.x)
+			* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
+		state.size.y = math.max(state.size_min.y, wrd_size.y)
+	end
 end
 
 ---Recursively grows child elements
