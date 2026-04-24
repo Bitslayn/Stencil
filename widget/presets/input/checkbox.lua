@@ -27,8 +27,8 @@ return function(class, super, elem)
 			size = vec(10, 10),
 
 			tex = textures["assets.textures.ui"],
-			tex_pos = vec(4, 4),
-			tex_size = vec(5, 5),
+			tex_uv_pos = vec(4, 4),
+			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_extend = vec(0, 0, 0, 0),
 
@@ -44,12 +44,12 @@ return function(class, super, elem)
 				if toggled then
 					widg:setProps({
 						tex_color = vectors.hexToRGB("blue"),
-						tex_pos = vec(4, 0),
+						tex_uv_pos = vec(4, 0),
 					})
 				else
 					widg:setProps({
 						tex_color = vec(0.5, 0.5, 0.5),
-						tex_pos = vec(4, 4),
+						tex_uv_pos = vec(4, 4),
 					})
 				end
 			end,

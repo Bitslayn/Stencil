@@ -37,8 +37,8 @@ return function(class, super, elem)
 
 			tex = textures["assets.textures.ui"],
 			tex_color = vec(0.3, 0.3, 0.3, 1),
-			tex_pos = vec(4, 0),
-			tex_size = vec(5, 5),
+			tex_uv_pos = vec(4, 0),
+			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_extend = vec(0, 0, 1, 0),
 
@@ -75,8 +75,8 @@ return function(class, super, elem)
 
 			tex = textures["assets.textures.ui"],
 			tex_color = vec(0.3, 0.3, 0.3, 1),
-			tex_pos = vec(4, 4),
-			tex_size = vec(5, 5),
+			tex_uv_pos = vec(4, 4),
+			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 		}):setProps(props or {}) --[[@as FOXStencil.Widgets.Window]]
 

@@ -52,9 +52,9 @@ local function new(part, root, parn, sibl)
 				---@type Texture
 				tex = textures["FOXStencil_blank"],
 				---UV position on the texture
-				tex_pos = vec(0, 0),
+				tex_uv_pos = vec(0, 0),
 				---UV region on the texture
-				tex_size = vec(1, 1),
+				tex_uv_size = vec(1, 1),
 				---Background tint
 				---@type Vector3|Vector4
 				tex_color = vec(1, 1, 1, 1),
@@ -62,6 +62,12 @@ local function new(part, root, parn, sibl)
 				tex_extend = vec(0, 0, 0, 0),
 				---UV pixels starting at each edge to slice inwards
 				tex_slice = vec(0, 0, 0, 0),
+				---If set, virtually offsets the texture's position
+				---@type Vector2
+				tex_reg_pos = nil,
+				---If set, virtually sets the texture's size
+				---@type Vector2
+				tex_reg_size = nil,
 
 				---Border line weight at each edge
 				border = vec(0, 0, 0, 0),
@@ -86,7 +92,7 @@ local function new(part, root, parn, sibl)
 				---Text margin
 				label_margin = vec(0, 0, 0, 0),
 				---Text alignment
-				label_align = vec(0.5, 0.5)
+				label_align = vec(0.5, 0.5),
 			},
 			hover = {},
 			click = {},

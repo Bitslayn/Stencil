@@ -20,30 +20,43 @@ function obj:draw()
 	local state = self.elem.state
 	local dim = getDimensions(props.tex)
 
-	local t, r, b, l = unpack4(props.tex_slice)
-	local atlas_w, atlas_h = unpack2(props.tex_size)
+	local s_t, s_r, s_b, s_l = unpack4(props.tex_slice)
+	local atlas_w, atlas_h = unpack2(props.tex_uv_size)
 	local model_w, model_h = unpack2(state.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
 	local e_x = props.tex_extend.x
 	local e_w = props.tex_extend.w
 
-	l = math.min(l, model_w / 2)
-	r = math.min(r, model_w / 2)
-	t = math.min(t, model_h / 2)
-	b = math.min(b, model_h / 2)
+	s_l = math.min(s_l, model_w / 2)
+	s_r = math.min(s_r, model_w / 2)
+	s_t = math.min(s_t, model_h / 2)
+	s_b = math.min(s_b, model_h / 2)
 
 	-- Row slices
 
-	local e_atlas_x = { 0, l, atlas_w - r }
-	local e_atlas_w = { l, atlas_w - l - r, r }
-	local e_model_x = { 0, l, model_w - r }
-	local e_model_w = { l, model_w - l - r, r }
+	local e_atlas_x = { 0, s_l, atlas_w - s_r }
+	local e_atlas_w = { s_l, atlas_w - s_l - s_r, s_r }
+	local e_model_x = { 0, s_l, model_w - s_r }
+	local e_model_w = { s_l, model_w - s_l - s_r, s_r }
+
+	-- local e_atlas_x = { 0, s_l, atlas_w - s_r }
+	-- local e_atlas_w = { s_l - c_l, atlas_w - s_l - s_r, s_r - c_r }
+	-- local e_model_x = { -c_l, s_l - c_l, model_w - s_r - c_l }
+	-- local e_model_w = { s_l, model_w - s_l - s_r, s_r - c_r }
 
 	-- Column slices
 
-	local e_atlas_y = { 0, t, atlas_h - b }
-	local e_atlas_h = { t, atlas_h - t - b, b }
-	local e_model_y = { 0, t, model_h - b }
-	local e_model_h = { t, model_h - t - b, b }
+	local e_atlas_y = { 0, s_t, atlas_h - s_b }
+	local e_atlas_h = { s_t, atlas_h - s_t - s_b, s_b }
+	local e_model_y = { 0, s_t, model_h - s_b }
+	local e_model_h = { s_t, model_h - s_t - s_b, s_b }
+
+	-- Crop region
+
+	if props.tex_reg_size then
+		local region_w, region_h = unpack2(props.tex_reg_size)
+
+		-- e_atlas_w[3] = 0
+	end
 
 	-- Update slices
 
@@ -51,7 +64,7 @@ function obj:draw()
 		for x = 1, 3 do
 			self.cell[y][x]
 			-- TODO (maybe) separate uv and region into run-on-call methods
-				:uv((props.tex_pos + vec2(e_atlas_x[x], e_atlas_y[y])) / dim)
+				:uv((props.tex_uv_pos + vec2(e_atlas_x[x], e_atlas_y[y])) / dim)
 				:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
 				:pos(-e_model_x[x] + props.tex_extend.w, -e_model_y[y] + props.tex_extend.x)
 				:scale(e_model_w[x], e_model_h[y])

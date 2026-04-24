@@ -28,8 +28,8 @@ return function(class, super, elem)
 			label_align = vec(0, 0.5),
 
 			tex = textures["assets.textures.ui"],
-			tex_pos = vec(2, 6),
-			tex_size = vec(3, 3),
+			tex_uv_pos = vec(2, 6),
+			tex_uv_size = vec(3, 3),
 			tex_slice = vec(1, 1, 1, 1),
 			tex_extend = vec(0, 0, 0, 0),
 			tex_color = vec(0.1, 0.1, 0.1),

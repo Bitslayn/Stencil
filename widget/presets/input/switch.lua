@@ -32,8 +32,8 @@ return function(class, super, elem)
 			size_flex = { false, true },
 
 			tex = textures["assets.textures.ui"],
-			tex_pos = vec(0, 0),
-			tex_size = vec(5, 7),
+			tex_uv_pos = vec(0, 0),
+			tex_uv_size = vec(5, 7),
 			tex_slice = vec(2, 2, 4, 2),
 			tex_extend = vec(2, 0, 0, 0),
 
@@ -88,8 +88,8 @@ return function(class, super, elem)
 			size = vec(20, 10),
 
 			tex = textures["assets.textures.ui"],
-			tex_pos = vec(4, 4),
-			tex_size = vec(5, 5),
+			tex_uv_pos = vec(4, 4),
+			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
 
