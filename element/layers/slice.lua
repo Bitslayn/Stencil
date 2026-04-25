@@ -25,7 +25,7 @@ function obj:draw()
 	local atlas_w, atlas_h = unpack2(props.tex_uv_size)
 
 	local model_w, model_h = unpack2((props.tex_reg_size or state.size) + props.tex_extend.yx +
-	props.tex_extend.wz --[[@as Vector2]])
+		props.tex_extend.wz --[[@as Vector2]])
 	local e_x = props.tex_extend.x
 	local e_w = props.tex_extend.w
 
@@ -52,7 +52,9 @@ function obj:draw()
 
 	if props.tex_reg_size then
 		local region_w, region_h = unpack2(props.tex_reg_size)
-		local x, y = unpack2(state.size)
+		local pos = props.tex_reg_pos or vec(0, 0)
+		local x, y = unpack2(state.size + pos)
+		local p_x, p_y = unpack2(pos)
 
 		-- Crop along x
 
@@ -65,6 +67,17 @@ function obj:draw()
 				end
 				x = 0
 			end
+
+			local t = e_model_w[i]
+			if 0 < p_x then
+				e_model_x[i] = math.max(e_model_x[i] + p_x, 0)
+				e_model_w[i] = math.max(e_model_w[i] - p_x, 0)
+				if i ~= 2 then
+					e_atlas_x[i] = e_atlas_x[i] + p_x
+					e_atlas_w[i] = e_atlas_w[i] - p_x
+				end
+			end
+			p_x = p_x - t
 		end
 
 		-- Crop along y
@@ -78,6 +91,17 @@ function obj:draw()
 				end
 				y = 0
 			end
+
+			local t = e_model_h[i]
+			if 0 < p_y then
+				e_model_y[i] = math.max(e_model_y[i] + p_y, 0)
+				e_model_h[i] = math.max(e_model_h[i] - p_y, 0)
+				if i ~= 2 then
+					e_atlas_y[i] = e_atlas_y[i] + p_y
+					e_atlas_h[i] = e_atlas_h[i] - p_y
+				end
+			end
+			p_y = p_y - t
 		end
 	end
 
