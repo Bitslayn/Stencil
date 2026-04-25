@@ -21,8 +21,10 @@ function obj:draw()
 	local dim = getDimensions(props.tex)
 
 	local s_t, s_r, s_b, s_l = unpack4(props.tex_slice)
+
 	local atlas_w, atlas_h = unpack2(props.tex_uv_size)
-	local model_w, model_h = unpack2(state.size + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+
+	local model_w, model_h = unpack2((props.tex_reg_size or state.size) + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
 	local e_x = props.tex_extend.x
 	local e_w = props.tex_extend.w
 
@@ -38,11 +40,6 @@ function obj:draw()
 	local e_model_x = { 0, s_l, model_w - s_r }
 	local e_model_w = { s_l, model_w - s_l - s_r, s_r }
 
-	-- local e_atlas_x = { 0, s_l, atlas_w - s_r }
-	-- local e_atlas_w = { s_l - c_l, atlas_w - s_l - s_r, s_r - c_r }
-	-- local e_model_x = { -c_l, s_l - c_l, model_w - s_r - c_l }
-	-- local e_model_w = { s_l, model_w - s_l - s_r, s_r - c_r }
-
 	-- Column slices
 
 	local e_atlas_y = { 0, s_t, atlas_h - s_b }
@@ -54,8 +51,30 @@ function obj:draw()
 
 	if props.tex_reg_size then
 		local region_w, region_h = unpack2(props.tex_reg_size)
+		local x, y = unpack2(state.size)
 
-		-- e_atlas_w[3] = 0
+		-- Crop along x
+
+		for i = 1, 3 do
+			x = x - e_model_w[i]
+			if x < 0 then
+				e_model_w[i] = e_model_w[i] + x
+				if i ~= 2 then
+				e_atlas_w[i] = e_atlas_w[i] + x
+				end
+				x = 0
+			end
+		end
+		
+		-- Crop along y
+		
+		for i = 1, 3 do
+			y = y - e_model_h[i]
+			if y < 0 then
+				e_model_h[i] = e_model_h[i] + y
+				y = 0
+			end
+		end
 	end
 
 	-- Update slices
