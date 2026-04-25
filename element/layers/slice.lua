@@ -24,7 +24,8 @@ function obj:draw()
 
 	local atlas_w, atlas_h = unpack2(props.tex_uv_size)
 
-	local model_w, model_h = unpack2((props.tex_reg_size or state.size) + props.tex_extend.yx + props.tex_extend.wz --[[@as Vector2]])
+	local model_w, model_h = unpack2((props.tex_reg_size or state.size) + props.tex_extend.yx +
+	props.tex_extend.wz --[[@as Vector2]])
 	local e_x = props.tex_extend.x
 	local e_w = props.tex_extend.w
 
@@ -60,18 +61,21 @@ function obj:draw()
 			if x < 0 then
 				e_model_w[i] = e_model_w[i] + x
 				if i ~= 2 then
-				e_atlas_w[i] = e_atlas_w[i] + x
+					e_atlas_w[i] = e_atlas_w[i] + x
 				end
 				x = 0
 			end
 		end
-		
+
 		-- Crop along y
-		
+
 		for i = 1, 3 do
 			y = y - e_model_h[i]
 			if y < 0 then
 				e_model_h[i] = e_model_h[i] + y
+				if i ~= 2 then
+					e_atlas_h[i] = e_atlas_h[i] + y
+				end
 				y = 0
 			end
 		end
