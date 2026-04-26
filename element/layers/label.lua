@@ -32,7 +32,7 @@ function obj:draw()
 		+ math.lerp(props.label_margin[1], state.size.y - props.label_margin[3] - label_h + props.tex_extend[3], props.label_align.y)
 
 	self.text
-		:pos(-x, -y, -0.5)
+		:pos(-x, -y, 0)
 		:scale(props.label_size)
 		:width(state.size.x)
 		:visible(props.label ~= "")
@@ -49,7 +49,7 @@ end
 ---@return FOXStencil.Element.Label
 return function(elem)
 	local self = setmetatable({
-		text = elem.part:newText("label"):pos(0, 0, -1):light(15),
+		text = elem.part:newText("label"):light(15),
 		elem = elem,
 	}, obj)
 

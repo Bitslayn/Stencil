@@ -69,7 +69,7 @@ function class:render(block)
 		layout.grow(elem, 2)
 		layout.position(elem)
 
-		layout.draw(elem, (i - 1) * 4, 1 / len)
+		layout.draw(elem, (i - 1) * 2, 1 / len)
 	end
 
 	return self
