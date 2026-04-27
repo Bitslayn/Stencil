@@ -1,8 +1,18 @@
-☐ Add absolute element positioning
-☐ Fix sounds not working for screens attached to the GUI
-☐ Get rid of screen class entirely
-☐ Fix flex queue
-☐ Look into optimizing element redraw queues
-☐ Add GN's element generator from table
-☐ Finish all widgets
-☐ Comment and document everything
+Features:
+	☐ Add absolute element positioning
+	☐ Fix sounds not working for screens attached to the GUI
+	☐ Add GN's element generator from table
+	☐ Finish all widgets
+
+Layout:
+	☐ Fix flex queue
+	☐ Get windows to work inside elements, and use that element's size as drag bounds
+	☐ Get rid of screen class entirely
+
+Optimization:
+	☐ Bake bounding box position and scale inside element draw method
+	☐ Look into optimizing element redraw queues
+	☐ Final optimization and cleanup pass
+
+Finalization:
+	☐ Comment and document everything

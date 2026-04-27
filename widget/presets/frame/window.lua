@@ -43,24 +43,24 @@ return function(class, super, elem)
 			tex_extend = vec(0, 0, 1, 0),
 
 			click = function(_, rel_pos, true_pos, state)
-				if state then
-					window:drop(math.huge)
-
-					-- TODO After retained flex queue is fixed
-
-					-- Check double click
-
-					if client.getSystemTime() - click_stamp < 500 then
-						visible = not visible
-						page.state.visible = visible
-						page:queue()
-					else
-						click_stamp = client.getSystemTime()
-					end
-				end
-
 				drag = state
 				anchor = rel_pos
+
+				if not state then return end
+
+				window:drop(math.huge)
+
+				-- TODO After retained flex queue is fixed
+
+				-- Check double click
+
+				if client.getSystemTime() - click_stamp < 500 then
+					visible = not visible
+					page.state.visible = visible
+					page:queue()
+				else
+					click_stamp = client.getSystemTime()
+				end
 			end,
 			hover = function(_, rel_pos, true_pos, state, changed)
 				if not drag then return end
@@ -79,6 +79,17 @@ return function(class, super, elem)
 			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 		}):setProps(props or {}) --[[@as FOXStencil.Widgets.Window]]
+
+		window:setProps({
+			click = function(_, rel_pos, true_pos, state)
+				drag = state
+				anchor = rel_pos
+			end,
+			hover = function(_, rel_pos, true_pos, state, changed)
+				if not drag then return end
+				window:setProps({ pos = true_pos - anchor }):queue()
+			end,
+		})
 
 		return setmetatable(page, class)
 	end
