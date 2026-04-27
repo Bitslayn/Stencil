@@ -1,6 +1,9 @@
 ---@class FOXStencil.Render.Layout
 local lib = {}
 
+-- Referenced from Nic Barker's Clay algorithm
+-- https://www.youtube.com/watch?v=by9lQvpvMIc
+
 ---@param props FOXStencil.Element.Props
 ---@return integer, integer
 local function rotate(props)
