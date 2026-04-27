@@ -234,13 +234,6 @@ end
 function lib.draw(elem, lace, dist)
 	if elem.skip.layout then return end
 
-	-- Calculate bounding box
-
-	local state = elem.state
-	local extend = elem:getProps().tex_extend
-	state.bound_pos = state.pos - extend.wx --[[@as Vector2]]
-	state.bound_size = state.size + extend.wx + extend.yz --[[@as Vector2]]
-
 	-- Recurse
 
 	local len = #elem.chld

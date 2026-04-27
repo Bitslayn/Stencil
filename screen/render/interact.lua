@@ -36,7 +36,30 @@ local function interact(root, elem, click, rel_pos, true_pos)
 
 	-- Hover currently hovered element
 
-	if not root.clicked and props.click and click then
+	if props.hover then
+		local changed = root.hovered ~= elem
+		root.hovered = elem
+
+		props.hover(elem, rel_pos, true_pos, true, changed)
+		if changed then
+			elem.group = bit32.bor(elem.group, 1)
+			elem:draw(true)
+		end
+	end
+
+	elem.state.hover_pos = rel_pos
+
+	-- Click through to clickable element
+
+	if not root.clicked and click then
+		while elem.parn and not props.click do
+			rel_pos = rel_pos + elem.state.pos
+			elem = elem.parn --[[@as FOXStencil.Element]]
+			props = elem:getProps()
+		end
+
+		if not props.click then return end
+
 		root.clicked = elem
 
 		local time = world.getTime()
@@ -47,17 +70,6 @@ local function interact(root, elem, click, rel_pos, true_pos)
 		elem:draw(true)
 
 		root.click_time = time
-	end
-
-	if props.hover then
-		local changed = root.hovered ~= elem
-		root.hovered = elem
-
-		props.hover(elem, rel_pos, true_pos, true, changed)
-		if changed then
-			elem.group = bit32.bor(elem.group, 1)
-			elem:draw(true)
-		end
 	end
 
 	elem.state.hover_pos = rel_pos
@@ -84,7 +96,10 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	-- TODO Fix clicking outside an element then moving cursor into element triggering a click for that element
 
 	local state = elem.state
-	if not (state.bound_pos <= rel_pos and rel_pos <= state.bound_pos + state.bound_size and state.visible) then return end
+	local extend = elem:getProps().tex_extend
+	local bound_pos = state.pos - extend.wx
+	local bound_size = state.size + extend.wx + extend.yz
+	if not (bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and elem.state.visible) then return end
 
 	rel_pos = rel_pos - state.pos
 
@@ -92,10 +107,7 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 
 	for i = #elem.chld, 1, -1 do
 		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos)
-		if res then
-			elem.hover_index = i
-			return res
-		end
+		if res then return res end
 	end
 
 	interact(root, elem, click, rel_pos, true_pos)
