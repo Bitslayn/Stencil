@@ -9,8 +9,6 @@ local class = require("../element/element").class
 
 local draw = class.draw
 
-local texture = textures:newTexture("FOXStencil_debug", 1, 1)
-
 ---@param name string
 ---@param part ModelPart
 ---@param color Vector3
@@ -18,14 +16,14 @@ local texture = textures:newTexture("FOXStencil_debug", 1, 1)
 ---@param size Vector2
 local function outline(name, part, color, pos, size)
 	part:newSprite(name .. "-1")
-		:texture(texture, 1, 1)
+		:texture(textures["FOXStencil_blank"], 1, 1)
 		:pos(pos.xy_)
 		:scale(size.xy_)
 		:renderType("LINES")
 		:color(color)
 
 	part:newSprite(name .. "-2")
-		:texture(texture, 1, 1)
+		:texture(textures["FOXStencil_blank"], 1, 1)
 		:pos(pos.xy_)
 		:rot(0, 180, -90)
 		:scale(size.yx_ --[[@as Vector3]])
