@@ -116,6 +116,11 @@ local function new(part, root, parn, sibl)
 			size_min = vec(0, 0),
 			---This element's calculated maximum size
 			size_max = vec(0, 0),
+
+			---Bounding box position relative to its parent
+			bound_pos = vec(0, 0),
+			---Bounding box size
+			bound_size = vec(0, 0)
 		},
 
 		root = root,
