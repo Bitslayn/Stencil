@@ -125,15 +125,13 @@ function lib.reset(root)
 	interact(root, nil, false, vec(0, 0), vec(0, 0))
 end
 
+---@type boolean
 local mouse_press
 function events.mouse_press(button, state)
-	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
-	if 1 < button then return end
-	mouse_press = state ~= 0
-	-- mouse_press = state ~= 0 and button % 2
+	if button ~= 0 then return end
+	local mouse_visible = host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()
+	mouse_press = mouse_visible and state ~= 0 or false
 end
-
--- TODO Fix bug where holding down click and hiding mouse cursor will cause the click to still be held
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
