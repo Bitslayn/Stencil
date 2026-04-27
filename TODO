@@ -10,7 +10,7 @@ Layout:
 	☐ Get rid of screen class entirely
 
 Optimization:
-	☐ Bake bounding box position and scale inside element draw method
+	✔ Bake bounding box position and scale inside element draw method
 	☐ Look into optimizing element redraw queues
 	☐ Final optimization and cleanup pass
 

@@ -116,6 +116,11 @@ local function new(part, root, parn, sibl)
 			size_min = vec(0, 0),
 			---This element's calculated maximum size
 			size_max = vec(0, 0),
+
+			---This element's bounding box position
+			bound_pos = vec(0, 0),
+			---This element's bounding box size
+			bound_size = vec(0, 0),
 		},
 
 		root = root,
@@ -291,6 +296,11 @@ end
 ---@param forced boolean?
 ---@return self
 function class:draw(forced)
+	local state = self.state
+	local extend = self:getProps().tex_extend
+	state.bound_pos = state.pos - extend.wx --[[@as Vector2]]
+	state.bound_size = state.size + extend.wx + extend.yz --[[@as Vector2]]
+
 	self.part:pos(-self.state.pos:augmented(self.props.layer)):visible(self.state.visible)
 	if self.skip.redraw and not forced then return self end
 

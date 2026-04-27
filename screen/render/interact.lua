@@ -101,9 +101,8 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	-- TODO Fix clicking outside an element then moving cursor into element triggering a click for that element
 
 	local state = elem.state
-	local extend = elem:getProps().tex_extend
-	local bound_pos = state.pos - extend.wx
-	local bound_size = state.size + extend.wx + extend.yz
+	local bound_pos = state.bound_pos
+	local bound_size = state.bound_size
 	if not (bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and elem.state.visible) then return end
 
 	rel_pos = rel_pos - state.pos
