@@ -6,9 +6,4 @@ api.newScreen = require("./screen/screen").new
 
 pcall(require, ... .. "/widget/widget")
 
-local debug = listFiles(... .. "/debug")
-for i = 1, #debug do
-	require(debug[i])
-end
-
 return api

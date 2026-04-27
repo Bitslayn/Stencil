@@ -1,0 +1,8 @@
+☐ Add absolute element positioning
+☐ Fix sounds not working for screens attached to the GUI
+☐ Get rid of screen class entirely
+☐ Fix flex queue
+☐ Look into optimizing element redraw queues
+☐ Add GN's element generator from table
+☐ Finish all widgets
+☐ Comment and document everything
