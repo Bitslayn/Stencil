@@ -85,6 +85,7 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	if not rel_pos then return end
 	local root = elem.root
 
+	-- TODO Fix bug with this that causes hovering to not behave properly
 	-- Focus elements that have been clicked, up until they are no longer clicked
 
 	local clicked = elem.root.clicked
