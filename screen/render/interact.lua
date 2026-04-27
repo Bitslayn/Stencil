@@ -1,6 +1,8 @@
 ---@class FOXStencil.Render.Interact
 local lib = {}
 
+-- TODO Clean up this mess part 2
+
 ---@param root FOXStencil.Screen
 ---@param elem FOXStencil.Element?
 ---@param click boolean
@@ -12,7 +14,9 @@ local function interact(root, elem, click, rel_pos, true_pos)
 	if root.clicked and not click then
 		local props = root.clicked:getProps()
 
-		props.click(root.clicked, rel_pos, true_pos, false)
+		if props.click then
+			props.click(root.clicked, rel_pos, true_pos, false)
+		end
 		root.clicked.group = bit32.band(root.clicked.group, 1)
 		root.clicked:draw(true)
 
@@ -23,11 +27,11 @@ local function interact(root, elem, click, rel_pos, true_pos)
 		local props = root.hovered:getProps()
 		if props.hover then
 			props.hover(root.hovered, rel_pos, true_pos, false, true)
-			root.hovered.group = bit32.band(root.hovered.group, 2)
-			root.hovered:draw(true)
-
-			root.hovered = nil
 		end
+		root.hovered.group = bit32.band(root.hovered.group, 2)
+		root.hovered:draw(true)
+
+		root.hovered = nil
 	end
 
 	if not elem then return end
@@ -36,15 +40,15 @@ local function interact(root, elem, click, rel_pos, true_pos)
 
 	-- Hover currently hovered element
 
-	if props.hover then
-		local changed = root.hovered ~= elem
-		root.hovered = elem
+	local changed = root.hovered ~= elem
+	root.hovered = elem
 
+	if props.hover then
 		props.hover(elem, rel_pos, true_pos, true, changed)
-		if changed then
-			elem.group = bit32.bor(elem.group, 1)
-			elem:draw(true)
-		end
+	end
+	if changed then
+		elem.group = bit32.bor(elem.group, 1)
+		elem:draw(true)
 	end
 
 	elem.state.hover_pos = rel_pos
@@ -58,14 +62,14 @@ local function interact(root, elem, click, rel_pos, true_pos)
 			props = elem:getProps()
 		end
 
-		if not props.click then return end
-
+		if props.click then
+			props.click(elem, rel_pos, true_pos, true)
+		end
 		root.clicked = elem
 
 		local time = world.getTime()
 		if root.click_time == time then return end
 
-		props.click(elem, rel_pos, true_pos, true)
 		elem.group = bit32.bor(elem.group, 2)
 		elem:draw(true)
 

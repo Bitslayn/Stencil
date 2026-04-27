@@ -38,51 +38,8 @@ return function(class, super, elem)
 			tex_extend = vec(2, 0, 0, 0),
 
 			border_extend = vec(0, 0, -2, 0),
-
-			hover = function(_, pos, state, changed) end,
 		})
 		switch:setProps({ border = vec(1, 1, 1, 1) }, "hover")
-
-		---@param rel_pos Vector2
-		---@param state boolean
-		local function toggle(_, rel_pos, _, state)
-			if not state then return end
-			if a then return end
-			a = true
-			s = not s
-			d = -d
-
-			local function render(delta)
-				local l = math.lerp(t, t + d, delta)
-				if l < 0 or 1 < l then
-					a = false
-					l = math.clamp(l, 0, 1)
-					switch.props.normal.tex_color = s and vectors.hexToRGB("green") or vectors.hexToRGB("red")
-					widg.props.normal.tex_color = s and vectors.hexToRGB("green") * 0.5 or vectors.hexToRGB("red") * 0.5
-					events.world_render:remove(render)
-				end
-				widg.props.normal.align = vec(l, 0)
-				switch:queue()
-			end
-			events.world_render:register(render)
-
-			local function tick()
-				t = t + d
-				if t < 0 or 1 < t then
-					t = math.clamp(t, 0, 1)
-					events.world_tick:remove(tick)
-				end
-			end
-			events.world_tick:register(tick)
-
-			sounds:playSound(
-				"minecraft:block.lava.pop",
-				widg.part:partToWorldMatrix():apply(-rel_pos.xy_),
-				1,
-				s and 9 or 8
-			)
-		end
-		switch.props.normal.click = toggle
 
 		widg:setProps({
 			size = vec(20, 10),
@@ -93,7 +50,44 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
 
-			click = toggle,
+			click = function(_, rel_pos, _, state)
+				if not state then return end
+				if a then return end
+				a = true
+				s = not s
+				d = -d
+
+				local function render(delta)
+					local l = math.lerp(t, t + d, delta)
+					if l < 0 or 1 < l then
+						a = false
+						l = math.clamp(l, 0, 1)
+						switch.props.normal.tex_color = s and vectors.hexToRGB("green") or vectors.hexToRGB("red")
+						widg.props.normal.tex_color = s and vectors.hexToRGB("green") * 0.5 or
+						vectors.hexToRGB("red") * 0.5
+						events.world_render:remove(render)
+					end
+					widg.props.normal.align = vec(l, 0)
+					switch:queue()
+				end
+				events.world_render:register(render)
+
+				local function tick()
+					t = t + d
+					if t < 0 or 1 < t then
+						t = math.clamp(t, 0, 1)
+						events.world_tick:remove(tick)
+					end
+				end
+				events.world_tick:register(tick)
+
+				sounds:playSound(
+					"minecraft:block.lava.pop",
+					widg.part:partToWorldMatrix():apply(-rel_pos.xy_),
+					1,
+					s and 9 or 8
+				)
+			end,
 		}):setProps(props or {})
 
 		switch.props.normal.tex_color = vectors.hexToRGB("red")
