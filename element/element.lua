@@ -23,13 +23,15 @@ local function new(part, root, parn, sibl)
 			normal = {
 				---This element's preferred offset position
 				pos = vec(0, 0),
+				---State defines whether this element should be absolutely positioned and draw through its siblings
+				absolute_pos = false,
 
 				---This element's preferred size
 				size = vec(0, 0),
 				---This element's minimum size
 				size_min = vec(0, 0),
 				---This element's maximum size
-				size_max = vec(0, 0),
+				size_max = vec(math.huge, math.huge),
 				---States define whether this element is allowed to dynamically scale within min and max bounds
 				---@type [boolean, boolean]
 				size_flex = { false, false },
@@ -167,6 +169,8 @@ function class:newElement(props)
 	return elem
 end
 
+-- TODO Type assert
+
 ---@generic self
 ---@param self self|FOXStencil.Element
 ---@param props FOXStencil.Element.Props
@@ -275,13 +279,13 @@ end
 ---@param self self|FOXStencil.Element
 ---@return self
 function class:queue()
-	-- Queue late siblings up parent tree
+	-- Queue siblings up parent tree
 
 	-- TODO: Potential optimization here would be to check if the element changed size along or against layout and only queue elements on that axis
 
 	local tree = self
 	repeat
-		for i = tree.sibl:getKey(tree), #tree.sibl do
+		for i = 1, #tree.sibl do
 			tree.sibl[i].skip.layout = false
 		end
 		tree.skip.redraw = false

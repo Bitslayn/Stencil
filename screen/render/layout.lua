@@ -66,13 +66,15 @@ function lib.size(elem, axis)
 		if chld.state.visible then
 			lib.size(chld, axis)
 
-			if a == axis then
-				size = size + chld.state.size[a]
-				state.size_min[a] = state.size_min[a] + chld.state.size_min[a]
-			end
-			if b == axis then
-				state.size[b] = math.max(state.size[b], chld.state.size[b])
-				state.size_min[b] = math.max(state.size_min[b], chld.state.size_min[b])
+			if not chld:getProps().absolute_pos then
+				if a == axis then
+					size = size + chld.state.size[a]
+					state.size_min[a] = state.size_min[a] + chld.state.size_min[a]
+				end
+				if b == axis then
+					state.size[b] = math.max(state.size[b], chld.state.size[b])
+					state.size_min[b] = math.max(state.size_min[b], chld.state.size_min[b])
+				end
 			end
 		end
 	end
@@ -125,7 +127,10 @@ function lib.grow(elem, axis)
 
 	local rem = state.size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
-		rem = rem - elem.chld[i].state.size[a]
+		local chld = elem.chld[i]
+		if not chld:getProps().absolute_pos then
+			rem = rem - chld.state.size[a]
+		end
 	end
 	rem = rem - props.gap * (#elem.chld - 1)
 
@@ -158,6 +163,7 @@ function lib.grow(elem, axis)
 		add = math.min(add, rem / #flexible)
 
 		-- Grows or shrinks largest children evenly, and pops off children that cannot be sized further
+		-- Dev note: ipairs used here since indexes get removed from this table
 
 		for i, chld in ipairs(flexible) do
 			local size = chld.state.size[a]
@@ -199,10 +205,13 @@ function lib.position(elem)
 		if chld.state.visible and not chld.skip.layout then
 			lib.position(chld)
 
-			chld.state.pos[a] = chld.state.pos[a] + offset
-			chld.state.pos[b] = chld.state.pos[b] + p[b][1]
+			if not chld:getProps().absolute_pos then
+				chld.state.pos[a] = chld.state.pos[a] + offset
+				chld.state.pos[b] = chld.state.pos[b] + p[b][1]
+
+				offset = offset + chld.state.size[a] + props.gap
+			end
 		end
-		offset = offset + chld.state.size[a] + props.gap
 	end
 
 	-- Align & Justify
@@ -234,7 +243,8 @@ function lib.draw(elem, lace, dist)
 
 	local len = #elem.chld
 	for i = 1, len do
-		lib.draw(elem.chld[i], dist * i / len, 1 / len)
+		local chld = elem.chld[i]
+		lib.draw(chld, chld:getProps().absolute_pos and (i - 1) * 2 or dist * i / len, 1 / len)
 	end
 
 	-- Draw elements

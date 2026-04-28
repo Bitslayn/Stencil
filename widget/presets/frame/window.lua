@@ -18,7 +18,7 @@ return function(class, super, elem)
 	function elem:newWindow(props)
 		local window = self:newElement({
 			tex_color = vec(0, 0, 0, 0),
-			pos = vec(10, 10),
+			absolute_pos = true,
 			vertical = true,
 		})
 
@@ -26,6 +26,21 @@ return function(class, super, elem)
 		local drag = false
 		local anchor = vec(0, 0)
 		local click_stamp = 0
+
+		local function hover(_, rel_pos, true_pos, state, changed)
+			if not drag then return end
+			local pos = true_pos - anchor
+
+			local parn = window.parn
+			if parn then
+				pos = pos - parn.state.pos - parn.parn.state.pos
+
+				pos.x = math.clamp(pos.x, 0, parn.state.size.x - window.state.size.x)
+				pos.y = math.clamp(pos.y, 0, parn.state.size.y - window.state.size.y)
+			end
+
+			window:setProps({ pos = pos }):queue()
+		end
 
 		local page
 
@@ -62,10 +77,7 @@ return function(class, super, elem)
 					click_stamp = client.getSystemTime()
 				end
 			end,
-			hover = function(_, rel_pos, true_pos, state, changed)
-				if not drag then return end
-				window:setProps({ pos = true_pos - anchor }):queue()
-			end,
+			hover = hover,
 		})
 
 		page = window:newElement({
@@ -84,11 +96,12 @@ return function(class, super, elem)
 			click = function(_, rel_pos, true_pos, state)
 				drag = state
 				anchor = rel_pos
+
+				if not state then return end
+
+				window:drop(math.huge)
 			end,
-			hover = function(_, rel_pos, true_pos, state, changed)
-				if not drag then return end
-				window:setProps({ pos = true_pos - anchor }):queue()
-			end,
+			hover = hover,
 		})
 
 		return setmetatable(page, class)
