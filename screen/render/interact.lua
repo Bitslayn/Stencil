@@ -175,15 +175,15 @@ end
 function lib.world_hover(elem)
 	local mat = elem.root.part:partToWorldMatrix()
 
-	local hit = intersectPlane(
-		client.getCameraPos(),
-		client.getCameraDir(),
-		mat:apply(),
-		mat:applyDir(0, 0, -1)
-	)
+	local viewer = client.getViewer()
+	local ray_pos = viewer:getPos()
+		:add(0, viewer:getEyeHeight(), 0)
+		:add(viewer:getVariable("eyePos"))
+	local ray_dir = viewer:getLookDir()
+
+	local hit = intersectPlane(ray_pos, ray_dir, mat:apply(), mat:applyDir(0, 0, -1))
 	if not hit then return end
 
-	local viewer = client.getViewer()
 	local swing = viewer:getSwingTime()
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
@@ -212,15 +212,15 @@ function lib.skull_hover(elem, block)
 		* matrices.scale4(1 / 16)
 		* elem.root.part:getParent():getPositionMatrixRaw()
 
-	local hit = intersectPlane(
-		client.getCameraPos(),
-		client.getCameraDir(),
-		mat:apply(),
-		mat:applyDir(0, 0, -1)
-	)
+	local viewer = client.getViewer()
+	local ray_pos = viewer:getPos()
+		:add(0, viewer:getEyeHeight(), 0)
+		:add(viewer:getVariable("eyePos"))
+	local ray_dir = viewer:getLookDir()
+
+	local hit = intersectPlane(ray_pos, ray_dir, mat:apply(), mat:applyDir(0, 0, -1))
 	if not hit then return end
 
-	local viewer = client.getViewer()
 	local swing = viewer:getSwingTime()
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
