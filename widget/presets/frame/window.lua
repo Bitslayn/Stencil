@@ -33,8 +33,6 @@ return function(class, super, elem)
 
 			local parn = window.parn
 			if parn then
-				pos = pos - parn.state.pos - parn.parn.state.pos
-
 				pos.x = math.clamp(pos.x, 0, parn.state.size.x - window.state.size.x)
 				pos.y = math.clamp(pos.y, 0, parn.state.size.y - window.state.size.y)
 			end
@@ -59,7 +57,7 @@ return function(class, super, elem)
 
 			click = function(_, rel_pos, true_pos, state)
 				drag = state
-				anchor = rel_pos
+				anchor = true_pos - window.state.pos
 
 				if not state then return end
 
@@ -95,7 +93,7 @@ return function(class, super, elem)
 		window:setProps({
 			click = function(_, rel_pos, true_pos, state)
 				drag = state
-				anchor = rel_pos
+				anchor = true_pos - window.state.pos
 
 				if not state then return end
 
