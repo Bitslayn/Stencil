@@ -13,6 +13,8 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	-- TODO Windows should respect element padding
+
 	---@param props FOXStencil.Widgets.Window.Props?
 	---@return FOXStencil.Widgets.Window
 	function elem:newWindow(props)

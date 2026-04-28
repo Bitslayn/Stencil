@@ -1,3 +1,10 @@
+--[[
+Adds debug outlines to visualize element bounds
+
+	Blue: True bounds that register mouse clicks and hover events
+	Orange: Inner padding for child elements
+]]
+
 local enabled = false
 
 if not enabled then return end
@@ -8,6 +15,8 @@ if not enabled then return end
 local class = require("../element/element").class
 
 local draw = class.draw
+
+-- Draw outlines
 
 ---@param name string
 ---@param part ModelPart

@@ -7,12 +7,12 @@ Features:
 Layout:
 	✔ Get windows to work inside elements, and use that element's size as drag bounds
 	☐ Get rid of screen class entirely
-	
+
 Optimization:
 	✔ Bake bounding box position and scale inside element draw method
 	☐ Look into optimizing element redraw queues
 	☐ Final optimization and cleanup pass
-	
+
 Finalization:
 	☐ Fix and test accuracy of flex queue
 	☐ Comment and document everything
