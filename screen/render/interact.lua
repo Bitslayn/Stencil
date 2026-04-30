@@ -84,8 +84,9 @@ end
 ---@param click boolean
 ---@param rel_pos Vector2
 ---@param true_pos Vector2
+---@param ctx string
 ---@return FOXStencil.Element?
-function lib.relative_hover(elem, click, rel_pos, true_pos)
+function lib.relative_hover(elem, click, rel_pos, true_pos, ctx)
 	if not rel_pos then return end
 	local root = elem.root
 
@@ -110,7 +111,7 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	-- Find hovered child element
 
 	for i = #elem.chld, 1, -1 do
-		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos)
+		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos, ctx)
 		if res then return res end
 	end
 
@@ -138,7 +139,7 @@ end
 function lib.screen_hover(elem)
 	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
 	local true_pos = client.getMousePos() / client.getGuiScale()
-	return lib.relative_hover(elem, mouse_press, true_pos, true_pos)
+	return lib.relative_hover(elem, mouse_press, true_pos, true_pos, "GUI")
 end
 
 local EPSILON = 2.2204460492503131e-16
@@ -188,7 +189,7 @@ function lib.world_hover(elem)
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, click, true_pos, true_pos)
+	return lib.relative_hover(elem, click, true_pos, true_pos, "WORLD")
 end
 
 local face = {
@@ -225,7 +226,7 @@ function lib.skull_hover(elem, block)
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, click, true_pos, true_pos)
+	return lib.relative_hover(elem, click, true_pos, true_pos, "SKULL")
 end
 
 return lib

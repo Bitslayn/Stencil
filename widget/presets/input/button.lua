@@ -8,8 +8,6 @@ return function(class, super, elem)
 	---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Button.Props
-	---@field onClick fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
-	---@field onHover fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
 	class = class
 
 	---@class FOXStencil.Element
@@ -33,24 +31,19 @@ return function(class, super, elem)
 			border = vec(0, 0, 0, 0),
 			border_extend = vec(0, 0, -2, 0),
 
-			hover = function(_, pos, state, changed)
-				if not changed then return end
-
-				if widg.onHover then
-					widg.onHover(widg, pos, state)
-				end
-			end,
-			click = function(_, pos, state)
+			click = function(_, rel_pos, true_pos, state)
 				sounds:playSound(
 					"minecraft:block.lava.pop",
-					widg.part:partToWorldMatrix():apply(-pos.xy_),
+					widg.part:partToWorldMatrix():apply(-rel_pos.xy_),
 					1,
 					state and 8 or 9
 				)
-
-				if widg.onClick then
-					widg.onClick(widg, pos, state)
-				end
+				-- sounds:playSound(
+				-- 	"minecraft:block.lava.pop",
+				-- 	player:getPos(),
+				-- 	1,
+				-- 	state and 8 or 9
+				-- )
 			end,
 		}):setProps(props or {})
 
@@ -63,19 +56,5 @@ return function(class, super, elem)
 		}, "click")
 
 		return setmetatable(widg, class)
-	end
-
-	---@param func fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
-	---@return self
-	function class:setOnClick(func)
-		self.onClick = func
-		return self
-	end
-
-	---@param func fun(self: FOXStencil.Widgets.Button, pos: Vector2, state: boolean)?
-	---@return self
-	function class:setOnHover(func)
-		self.onHover = func
-		return self
 	end
 end

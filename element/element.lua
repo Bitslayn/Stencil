@@ -107,18 +107,30 @@ local function new(part, root, parn, sibl)
 			visible = true,
 			---This element's calculated position relative to its parent
 			pos = vec(0, 0),
-			---Position on this element that was hovered
-			hover_pos = vec(0, 0),
+			---This element's position being calculated
+			calc_pos = { 0, 0 },
+
 			---Interlaced layer used to prevent z fighting elements
 			layer = 0,
 
 			---This element's calculated size
 			size = vec(0, 0),
+			---This element's size being calculated
+			calc_size = { 0, 0 },
 			---This element's calculated minimum size
 			size_min = vec(0, 0),
+			---This element's minimum size being calculated
+			calc_size_min = { 0, 0 },
 			---This element's calculated maximum size
 			size_max = vec(0, 0),
+			---This element's minimum size being calculated
+			calc_size_max = { 0, 0 },
 
+			---Precalculated size of child elements with gap along direction
+			child_span = 0,
+
+			---Position on this element that was hovered
+			hover_pos = vec(0, 0),
 			---This element's bounding box position
 			bound_pos = vec(0, 0),
 			---This element's bounding box size

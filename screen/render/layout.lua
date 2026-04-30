@@ -33,16 +33,16 @@ function lib.restore(elem)
 
 	local props = elem:getProps()
 	local state = elem.state
-	state.pos = props.pos:copy()
-	state.size = props.size:copy()
-	state.size_min = props.size_min:copy()
-	state.size_max = props.size_max:copy()
+	state.calc_pos = { props.pos:unpack() }
+	state.calc_size = { props.size:unpack() }
+	state.calc_size_min = { props.size_min:unpack() }
+	state.calc_size_max = { props.size_max:unpack() }
 
 	if props.label ~= "" then
 		local width = client.getTextWidth(string.gsub(props.label, "%s", "\n"))
 			* props.label_size + props.label_margin.w + props.label_margin.y
-		state.size.x = math.max(state.size.x, width)
-		state.size_min.x = math.max(state.size_min.x, width)
+		state.calc_size[1] = math.max(state.calc_size[1], width)
+		state.calc_size_min[1] = math.max(state.calc_size_min[1], width)
 	end
 end
 
@@ -68,32 +68,34 @@ function lib.size(elem, axis)
 
 			if not chld:getProps().absolute_pos then
 				if a == axis then
-					size = size + chld.state.size[a]
-					state.size_min[a] = state.size_min[a] + chld.state.size_min[a]
+					size = size + chld.state.calc_size[a]
+					state.calc_size_min[a] = state.calc_size_min[a] + chld.state.calc_size_min[a]
 				end
 				if b == axis then
-					state.size[b] = math.max(state.size[b], chld.state.size[b])
-					state.size_min[b] = math.max(state.size_min[b], chld.state.size_min[b])
+					state.calc_size[b] = math.max(state.calc_size[b], chld.state.calc_size[b])
+					state.calc_size_min[b] = math.max(state.calc_size_min[b], chld.state.calc_size_min[b])
 				end
 			end
 		end
 	end
-	state.size[a] = math.max(state.size[a], size)
+	state.calc_size[a] = math.max(state.calc_size[a], size)
 
 	-- Gap & Padding
 
 	if a == axis then
-		state.size[axis] = state.size[axis] + props.gap * (#elem.chld - 1)
+		local inner = props.gap * (#elem.chld - 1)
+		state.child_span = size + inner
+		state.calc_size[axis] = state.calc_size[axis] + inner
 	end
 
-	state.size[axis] = state.size[axis] + p[axis][1] + p[axis][2]
+	state.calc_size[axis] = state.calc_size[axis] + p[axis][1] + p[axis][2]
 
 	-- Fit label
 
 	if props.label ~= "" and axis == 2 then
-		local wrd_size = client.getTextDimensions(props.label, state.size.x)
+		local wrd_size = client.getTextDimensions(props.label, state.calc_size[1])
 			* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
-		state.size.y = math.max(state.size_min.y, wrd_size.y)
+		state.calc_size[2] = math.max(state.calc_size[2], state.calc_size_min[2], wrd_size.y)
 	end
 end
 
@@ -119,17 +121,17 @@ function lib.grow(elem, axis)
 			table.insert(flexible, chld)
 		end
 		if b == axis and chld:getProps().size_flex[b] then
-			chld.state.size[axis] = state.size[axis] - p[axis][1] - p[axis][2]
+			chld.state.calc_size[axis] = state.calc_size[axis] - p[axis][1] - p[axis][2]
 		end
 	end
 
 	-- Calculate remaining size
 
-	local rem = state.size[a] - p[a][1] - p[a][2]
+	local rem = state.calc_size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if not chld:getProps().absolute_pos then
-			rem = rem - chld.state.size[a]
+			rem = rem - chld.state.calc_size[a]
 		end
 	end
 	rem = rem - props.gap * (#elem.chld - 1)
@@ -138,7 +140,7 @@ function lib.grow(elem, axis)
 
 	while rem - rem % .25 ~= 0 and flexible[1] do
 		local sign = math.sign(rem)
-		local size_l = flexible[1].state.size[a]
+		local size_l = flexible[1].state.calc_size[a]
 		local size_r = math.huge
 		local add = rem
 
@@ -146,7 +148,7 @@ function lib.grow(elem, axis)
 
 		for i = 1, #flexible do
 			local chld = flexible[i]
-			local size = chld.state.size[a]
+			local size = chld.state.calc_size[a]
 			if size ~= size_l then
 				if sign * size < sign * size_l then
 					size_r = size_l
@@ -166,16 +168,16 @@ function lib.grow(elem, axis)
 		-- Dev note: ipairs used here since indexes get removed from this table
 
 		for i, chld in ipairs(flexible) do
-			local size = chld.state.size[a]
+			local size = chld.state.calc_size[a]
 			local prev = size
 			if size == size_l then
 				size = size + add
-				if size <= chld.state.size_min[a] or size >= chld.state.size_max[a] then
-					size = math.clamp(size, chld.state.size_min[a], chld.state.size_max[a])
+				if size <= chld.state.calc_size_min[a] or size >= chld.state.calc_size_max[a] then
+					size = math.clamp(size, chld.state.calc_size_min[a], chld.state.calc_size_max[a])
 					table.remove(flexible, i)
 				end
 				rem = rem - (size - prev)
-				chld.state.size[a] = size
+				chld.state.calc_size[a] = size
 			end
 		end
 	end
@@ -197,37 +199,27 @@ function lib.position(elem)
 	local a, b = rotate(props)
 	local p = pad(props)
 
-	-- Distribute
+	local offset = math.lerp(
+		p[a][1],
+		elem.state.calc_size[a] - elem.state.child_span - p[a][2],
+		props.align[a]
+	)
 
-	local offset = p[a][1]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if chld.state.visible and not chld.skip.layout then
 			lib.position(chld)
 
 			if not chld:getProps().absolute_pos then
-				chld.state.pos[a] = chld.state.pos[a] + offset
-				chld.state.pos[b] = chld.state.pos[b] + p[b][1]
+				chld.state.calc_pos[a] = chld.state.calc_pos[a] + offset
+				chld.state.calc_pos[b] = math.lerp(
+					chld.state.calc_pos[b] + p[b][1],
+					elem.state.calc_size[b] - chld.state.calc_size[b] - p[b][2],
+					props.align[b]
+				)
 
-				offset = offset + chld.state.size[a] + props.gap
+				offset = offset + chld.state.calc_size[a] + props.gap
 			end
-		end
-	end
-
-	-- Align & Justify
-
-	local rem = math.max(elem.state.size[a] - offset + props.gap - p[a][2], 0)
-	local inner = rem * props.justify
-	local outer = rem * -(props.justify - 1)
-	local gap = #elem.chld > 1 and inner / (#elem.chld - 1) or 0
-
-	local y = math.max(elem.state.size[b] - p[b][1] - p[b][2], 0)
-
-	for i = 1, #elem.chld do
-		local chld = elem.chld[i]
-		if chld.state.visible and not chld.skip.layout then
-			chld.state.pos[a] = chld.state.pos[a] + gap * (i - 1) + (outer * props.align[a])
-			chld.state.pos[b] = chld.state.pos[b] + ((y - chld.state.size[b]) * props.align[b])
 		end
 	end
 end
@@ -238,6 +230,11 @@ end
 ---@param dist number
 function lib.draw(elem, lace, dist)
 	if elem.skip.layout then return end
+
+	elem.state.pos = vectors.vec2(table.unpack(elem.state.calc_pos))
+	elem.state.size = vectors.vec2(table.unpack(elem.state.calc_size))
+	elem.state.size_min = vectors.vec2(table.unpack(elem.state.calc_size_min))
+	elem.state.size_max = vectors.vec2(table.unpack(elem.state.calc_size_max))
 
 	-- Recurse
 

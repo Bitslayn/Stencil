@@ -61,15 +61,16 @@ function class:render(block)
 
 	for i = 1, len do
 		local elem = self.chld[i]
-		layout.restore(elem)
+		layout.restore(elem) -- 31.697 (Text wrapping)
 
-		layout.size(elem, 1)
-		layout.grow(elem, 1)
-		layout.size(elem, 2)
-		layout.grow(elem, 2)
-		layout.position(elem)
+		layout.size(elem, 1) -- 38.597μs
+		layout.grow(elem, 1) -- 38.597μs
+		layout.size(elem, 2) -- 62.197μs (Text wrapping)
+		layout.grow(elem, 2) -- 37.567μs
 
-		layout.draw(elem, (i - 1) * 2, 1 / len)
+		layout.position(elem) -- 32.497μs < 59.197μs Optimized+
+
+		layout.draw(elem, (i - 1) * 2, 1 / len) -- 31.897μs
 	end
 
 	return self

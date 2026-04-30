@@ -28,6 +28,7 @@ return function(class, super, elem)
 		local drag = false
 		local anchor = vec(0, 0)
 		local click_stamp = 0
+		local last_pos = vec(0, 0)
 
 		local function hover(_, rel_pos, true_pos, state, changed)
 			if not drag then return end
@@ -38,6 +39,9 @@ return function(class, super, elem)
 				pos.x = math.clamp(pos.x, 0, parn.state.size.x - window.state.size.x)
 				pos.y = math.clamp(pos.y, 0, parn.state.size.y - window.state.size.y)
 			end
+
+			if last_pos == pos then return end
+			last_pos = pos:copy()
 
 			window:setProps({ pos = pos }):queue()
 		end
