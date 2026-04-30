@@ -47,8 +47,6 @@ local function new(part, root, parn, sibl)
 				vertical = false,
 				---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
 				align = vec(0, 0),
-				---Percentage (0 to 1) of available space distributed between children rather than around children
-				justify = 0,
 
 				---Background texture
 				---@type Texture
@@ -128,6 +126,10 @@ local function new(part, root, parn, sibl)
 
 			---Precalculated size of child elements with gap along direction
 			child_span = 0,
+			---Precalculated element axis priority order
+			elem_axis = { 1, 2 },
+			---Precalculated element padding priority order
+			elem_pad = { { 0, 0 }, { 0, 0 } },
 
 			---Position on this element that was hovered
 			hover_pos = vec(0, 0),

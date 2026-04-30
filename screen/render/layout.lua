@@ -4,25 +4,6 @@ local lib = {}
 -- Referenced from Nic Barker's Clay algorithm
 -- https://www.youtube.com/watch?v=by9lQvpvMIc
 
----@param props FOXStencil.Element.Props
----@return integer, integer
-local function rotate(props)
-	local dir = props.vertical and 2 or 1
-	local a = dir
-	local b = dir % 2 + 1
-
-	return a, b
-end
-
----@param props FOXStencil.Element.Props
----@return [{[1]: number, [2]: number}, {[1]: number, [2]: number}]
-local function pad(props)
-	return {
-		{ props.padding[4], props.padding[2] }, -- x: left, right
-		{ props.padding[1], props.padding[3] }, -- y: top, bottom
-	}
-end
-
 ---@param elem FOXStencil.Element
 function lib.restore(elem)
 	if elem.skip.layout then return end
@@ -37,6 +18,14 @@ function lib.restore(elem)
 	state.calc_size = { props.size:unpack() }
 	state.calc_size_min = { props.size_min:unpack() }
 	state.calc_size_max = { props.size_max:unpack() }
+
+	local dir = props.vertical and 2 or 1
+
+	state.elem_axis = { dir, dir % 2 + 1 }
+	state.elem_pad = {
+		{ props.padding[4], props.padding[2] }, -- x: left, right
+		{ props.padding[1], props.padding[3] }, -- y: top, bottom
+	}
 
 	if props.label ~= "" then
 		local width = client.getTextWidth(string.gsub(props.label, "%s", "\n"))
@@ -54,9 +43,8 @@ function lib.size(elem, axis)
 	if not elem.state.visible then return end
 	local props = elem:getProps()
 	local state = elem.state
-
-	local a, b = rotate(props)
-	local p = pad(props)
+	local a, b = table.unpack(state.elem_axis)
+	local p = state.elem_pad
 
 	-- Fit children
 
@@ -67,11 +55,10 @@ function lib.size(elem, axis)
 			lib.size(chld, axis)
 
 			if not chld:getProps().absolute_pos then
-				if a == axis then
+				if axis == a then
 					size = size + chld.state.calc_size[a]
 					state.calc_size_min[a] = state.calc_size_min[a] + chld.state.calc_size_min[a]
-				end
-				if b == axis then
+				else
 					state.calc_size[b] = math.max(state.calc_size[b], chld.state.calc_size[b])
 					state.calc_size_min[b] = math.max(state.calc_size_min[b], chld.state.calc_size_min[b])
 				end
@@ -82,7 +69,7 @@ function lib.size(elem, axis)
 
 	-- Gap & Padding
 
-	if a == axis then
+	if axis == a then
 		local inner = props.gap * (#elem.chld - 1)
 		state.child_span = size + inner
 		state.calc_size[axis] = state.calc_size[axis] + inner
@@ -107,8 +94,8 @@ function lib.grow(elem, axis)
 	if not elem.state.visible then return end
 	local props = elem:getProps()
 	local state = elem.state
-	local a, b = rotate(props)
-	local p = pad(props)
+	local a, b = table.unpack(state.elem_axis)
+	local p = state.elem_pad
 
 	-- Find flexible
 
@@ -117,11 +104,12 @@ function lib.grow(elem, axis)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if a == axis and chld:getProps().size_flex[a] then
-			table.insert(flexible, chld)
-		end
-		if b == axis and chld:getProps().size_flex[b] then
-			chld.state.calc_size[axis] = state.calc_size[axis] - p[axis][1] - p[axis][2]
+		if chld:getProps().size_flex[axis] then
+			if axis == a then
+				flexible[#flexible + 1] = chld
+			else
+				chld.state.calc_size[axis] = state.calc_size[axis] - p[axis][1] - p[axis][2]
+			end
 		end
 	end
 
@@ -196,8 +184,9 @@ function lib.position(elem)
 	if elem.skip.layout then return end
 	if not elem.state.visible then return end
 	local props = elem:getProps()
-	local a, b = rotate(props)
-	local p = pad(props)
+	local state = elem.state
+	local a, b = table.unpack(state.elem_axis)
+	local p = state.elem_pad
 
 	local offset = math.lerp(
 		p[a][1],
