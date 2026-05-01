@@ -67,7 +67,6 @@ function class:render(block)
 		layout.grow(elem, 1) -- 38.597μs
 		layout.size(elem, 2) -- 62.197μs (Text wrapping)
 		layout.grow(elem, 2) -- 37.567μs
-
 		layout.position(elem) -- 32.497μs < 59.197μs Optimized+
 
 		layout.draw(elem, (i - 1) * 2, 1 / len) -- 31.897μs

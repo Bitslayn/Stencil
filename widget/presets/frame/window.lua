@@ -46,9 +46,8 @@ return function(class, super, elem)
 			window:setProps({ pos = pos }):queue()
 		end
 
-		local page
+		local tool, page
 
-		local tool
 		tool = window:newElement({
 			size_flex = { true, true },
 			label = "Window",
@@ -76,7 +75,7 @@ return function(class, super, elem)
 				if client.getSystemTime() - click_stamp < 500 then
 					visible = not visible
 					page.state.visible = visible
-					page:queue()
+					tool:queue()
 				else
 					click_stamp = client.getSystemTime()
 				end
