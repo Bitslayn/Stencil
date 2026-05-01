@@ -55,12 +55,22 @@ function lib.size(elem, axis)
 			lib.size(chld, axis)
 
 			if not chld:getProps().absolute_pos then
+				-- Normal
+
 				if axis == a then
 					size = size + chld.state.calc_size[a]
 					state.calc_size_min[a] = state.calc_size_min[a] + chld.state.calc_size_min[a]
 				else
 					state.calc_size[b] = math.max(state.calc_size[b], chld.state.calc_size[b])
 					state.calc_size_min[b] = math.max(state.calc_size_min[b], chld.state.calc_size_min[b])
+				end
+			else
+				-- Absolute
+
+				if axis == a then
+					size = math.max(size, chld.state.calc_size[a])
+				else
+					state.calc_size[b] = math.max(state.calc_size[b], chld.state.calc_size[b])
 				end
 			end
 		end
@@ -200,6 +210,8 @@ function lib.position(elem)
 			lib.position(chld)
 
 			if not chld:getProps().absolute_pos then
+				-- Normal
+
 				chld.state.calc_pos[a] = chld.state.calc_pos[a] + offset
 				chld.state.calc_pos[b] = math.lerp(
 					chld.state.calc_pos[b] + p[b][1],
@@ -208,6 +220,11 @@ function lib.position(elem)
 				)
 
 				offset = offset + chld.state.calc_size[a] + props.gap
+			else
+				-- Absolute
+
+				chld.state.calc_pos[a] = chld.state.calc_pos[a] + p[a][1]
+				chld.state.calc_pos[b] = chld.state.calc_pos[b] + p[b][1]
 			end
 		end
 	end

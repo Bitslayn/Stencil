@@ -13,8 +13,6 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
-	-- TODO Windows should respect element padding
-
 	---@param props FOXStencil.Widgets.Window.Props?
 	---@return FOXStencil.Widgets.Window
 	function elem:newWindow(props)
@@ -36,8 +34,10 @@ return function(class, super, elem)
 
 			local parn = window.parn
 			if parn then
-				pos.x = math.clamp(pos.x, 0, parn.state.size.x - window.state.size.x)
-				pos.y = math.clamp(pos.y, 0, parn.state.size.y - window.state.size.y)
+				local padding = parn:getProps().padding
+				pos = pos - padding.wz --[[@as Vector2]]
+				pos.x = math.clamp(pos.x, 0, parn.state.size.x - window.state.size.x - padding.y - padding.w)
+				pos.y = math.clamp(pos.y, 0, parn.state.size.y - window.state.size.y - padding.x - padding.z)
 			end
 
 			if last_pos == pos then return end
