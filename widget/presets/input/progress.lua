@@ -31,7 +31,9 @@ return function(class, super, elem)
 		})
 
 		widg:setProps({
-			size = vec(50, 10),
+			size = vec(0, 10),
+			size_min = vec(50, 0),
+			size_flex = { true, false },
 
 			tex = textures["assets.textures.ui"],
 			tex_uv_pos = vec(4, 4),

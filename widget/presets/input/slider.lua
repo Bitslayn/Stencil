@@ -38,7 +38,9 @@ return function(class, super, elem)
 		local anchor = vec(0, 0)
 
 		widg:setProps({
-			size = vec(50, 10),
+			size = vec(0, 10),
+			size_min = vec(50, 0),
+			size_flex = { true, false },
 
 			tex = textures["assets.textures.ui"],
 			tex_uv_pos = vec(4, 4),
@@ -53,7 +55,7 @@ return function(class, super, elem)
 			hover = function(_, rel_pos, true_pos, sound_pos, state, changed)
 				if not drag then return end
 				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2) /
-				(widg.state.size - switch.state.size)
+					(widg.state.size - switch.state.size)
 				-- slide_pos.x = math.round(slide_pos.x * 9) / 9
 				switch.state.pos.x = math.clamp(slide_pos.x, 0, 1) * (widg.state.size.x - switch.state.size.x)
 				switch:draw(true)
