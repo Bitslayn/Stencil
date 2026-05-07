@@ -48,6 +48,7 @@ return function(class, super, elem)
 	---@param n number
 	---@return FOXStencil.Widgets.Progress
 	function class:setProgress(n)
+		self.bar.state.reg_size = self.state.size
 		self.bar.state.size.x = math.clamp(n, 0, 1) * self.state.size.x
 		self.bar:draw(true)
 		return self
