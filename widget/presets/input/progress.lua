@@ -8,6 +8,7 @@ return function(class, super, elem)
 	---@class FOXStencil.Widgets.Progress: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Progress.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Progress.Props
+	---@field bar FOXStencil.Element
 	class = class
 
 	---@class FOXStencil.Element
@@ -18,8 +19,7 @@ return function(class, super, elem)
 	function elem:newProgress(props)
 		local widg = self:newElement() --[[@as FOXStencil.Widgets.Progress]]
 
-		local switch = widg:newElement({
-			size = vec(10, 0),
+		widg.bar = widg:newElement({
 			size_flex = { false, true },
 
 			tex = textures["assets.textures.ui"],
@@ -28,12 +28,7 @@ return function(class, super, elem)
 			tex_reg_size = vec(50, 10),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vectors.hexToRGB("blue"),
-
-			hover = function(_, rel_pos, true_pos, sound_pos, state, changed) end,
 		})
-
-		local drag
-		local anchor = vec(0, 0)
 
 		widg:setProps({
 			size = vec(50, 10),
@@ -43,20 +38,16 @@ return function(class, super, elem)
 			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
-
-			click = function(_, rel_pos, true_pos, sound_pos, state)
-				drag = state
-				anchor = true_pos
-			end,
-			hover = function(_, rel_pos, true_pos, sound_pos, state, changed)
-				if not drag then return end
-				local slide_pos = (true_pos - anchor + rel_pos) / widg.state.size
-				-- slide_pos.x = math.round(slide_pos.x * 9) / 9
-				switch.state.size.x = math.clamp(slide_pos.x, 0, 1) * widg.state.size.x
-				switch:draw(true)
-			end,
 		}):setProps(props or {})
 
 		return setmetatable(widg, class)
+	end
+
+	---@param n number
+	---@return FOXStencil.Widgets.Progress
+	function class:setProgress(n)
+		self.bar.state.size.x = math.clamp(n, 0, 1) * self.state.size.x
+		self.bar:draw(true)
+		return self
 	end
 end

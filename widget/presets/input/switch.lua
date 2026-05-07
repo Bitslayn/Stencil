@@ -8,6 +8,10 @@ return function(class, super, elem)
 	---@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
+	---@field toggle fun(self: FOXStencil.Widgets.Switch, state: boolean)?
+	---@field toggled boolean
+	---@field uuid string
+	---@field switch FOXStencil.Element
 	class = class
 
 	---@class FOXStencil.Element
@@ -21,13 +25,9 @@ return function(class, super, elem)
 	function elem:newSwitch(props)
 		local widg = self:newElement() --[[@as FOXStencil.Widgets.Switch]]
 
-		local a = false
-		local s = false
-
-		local t = 0
-		local d = -0.8
-
-		local switch = widg:newElement({
+		widg.toggled = false
+		widg.uuid = client.intUUIDToString(client.generateUUID())
+		widg.switch = widg:newElement({
 			size = vec(10, 0),
 			size_flex = { false, true },
 
@@ -38,8 +38,7 @@ return function(class, super, elem)
 			tex_extend = vec(2, 0, 0, 0),
 
 			border_extend = vec(0, 0, -2, 0),
-		})
-		switch:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+		}):setProps({ border = vec(1, 1, 1, 1) }, "hover")
 
 		widg:setProps({
 			size = vec(20, 10),
@@ -52,47 +51,72 @@ return function(class, super, elem)
 
 			click = function(_, rel_pos, _, sound_pos, state)
 				if not state then return end
-				if a then return end
-				a = true
-				s = not s
-				d = -d
-
-				local function render(delta)
-					local l = math.lerp(t, t + d, delta)
-					if l < 0 or 1 < l then
-						a = false
-						l = math.clamp(l, 0, 1)
-						switch.props.normal.tex_color = s and vectors.hexToRGB("green") or vectors.hexToRGB("red")
-						widg.props.normal.tex_color = s and vectors.hexToRGB("green") * 0.5 or
-						vectors.hexToRGB("red") * 0.5
-						events.world_render:remove(render)
-					end
-					widg.props.normal.align = vec(l, 0)
-					switch:queue()
-				end
-				events.world_render:register(render)
-
-				local function tick()
-					t = t + d
-					if t < 0 or 1 < t then
-						t = math.clamp(t, 0, 1)
-						events.world_tick:remove(tick)
-					end
-				end
-				events.world_tick:register(tick)
 
 				sounds:playSound(
 					"minecraft:block.lava.pop",
-					widg.part:partToWorldMatrix():apply(-rel_pos.xy_),
+					sound_pos,
 					1,
-					s and 9 or 8
+					widg.toggled and 8 or 9 -- Dev note: the toggled state is inverse to what's being applied
 				)
+
+				widg:setToggled(not widg.toggled)
 			end,
 		}):setProps(props or {})
 
-		switch.props.normal.tex_color = vectors.hexToRGB("red")
+		widg.switch.props.normal.tex_color = vectors.hexToRGB("red")
 		widg.props.normal.tex_color = vectors.hexToRGB("red") * 0.5
 
 		return setmetatable(widg, class)
+	end
+
+	---@param func fun(self: FOXStencil.Widgets.Switch, state: boolean)
+	---@return FOXStencil.Widgets.Switch
+	function class:onToggled(func)
+		self.toggle = func
+		return self
+	end
+
+	---@param state boolean
+	---@return FOXStencil.Widgets.Switch
+	function class:setToggled(state)
+		state = state == nil and false or state
+		if self.toggled == state then return self end
+		self.toggled = state
+
+		-- Call function
+
+		if self.toggle then
+			self.toggle(self, self.toggled)
+		end
+
+		-- Animate switch
+
+		local timer = state and 0 or 1
+		local velocity = state and 0.8 or -0.8
+
+		events.world_render:remove(self.uuid)
+		events.world_render:register(function(delta)
+			local l = math.lerp(timer, timer + velocity, delta)
+			if l < 0 or 1 < l then
+				l = math.clamp(l, 0, 1)
+				self.switch.props.normal.tex_color = state and vectors.hexToRGB("green") or vectors.hexToRGB("red")
+				self.props.normal.tex_color = state and vectors.hexToRGB("green") * 0.5 or
+					vectors.hexToRGB("red") * 0.5
+				events.world_render:remove(self.uuid)
+			end
+			self.props.normal.align = vec(l, 0)
+			self.switch:queue()
+		end, self.uuid)
+
+		events.world_tick:remove(self.uuid)
+		events.world_tick:register(function()
+			timer = timer + velocity
+			if timer < 0 or 1 < timer then
+				timer = math.clamp(timer, 0, 1)
+				events.world_tick:remove(self.uuid)
+			end
+		end, self.uuid)
+
+		return self
 	end
 end

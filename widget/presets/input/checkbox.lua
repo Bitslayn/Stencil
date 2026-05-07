@@ -25,6 +25,8 @@ return function(class, super, elem)
 	function elem:newCheckbox(props, id)
 		local widg = self:newElement() --[[@as FOXStencil.Widgets.Checkbox]]
 
+		widg.toggled = false
+
 		if type(id) == "string" then
 			if not groups[id] then
 				groups[id] = {}
@@ -44,9 +46,6 @@ return function(class, super, elem)
 
 			tex_color = vec(0.5, 0.5, 0.5),
 
-			-- Functions need to be defined if this element should be interactable, even if they are empty
-
-			hover = function(_, rel_pos, true_pos, sound_pos, state, changed) end,
 			click = function(_, rel_pos, true_pos, sound_pos, state)
 				if not state then return end
 
@@ -66,7 +65,7 @@ return function(class, super, elem)
 		return setmetatable(widg, class)
 	end
 
-	---@param func fun(self: FOXStencil.Widgets.Checkbox)
+	---@param func fun(self: FOXStencil.Widgets.Checkbox, state: boolean)
 	---@return FOXStencil.Widgets.Checkbox
 	function class:onToggled(func)
 		self.toggle = func
