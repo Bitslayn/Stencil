@@ -59,6 +59,7 @@ function class:render(block)
 
 	-- Draw screen
 
+	-- local t = client.getSystemTime()
 	for i = 1, len do
 		local elem = self.chld[i]
 		layout.restore(elem) -- 31.697 (Text wrapping)
@@ -69,8 +70,9 @@ function class:render(block)
 		layout.grow(elem, 2) -- 37.567μs
 		layout.position(elem) -- 32.497μs < 59.197μs Optimized+
 
-		layout.draw(elem, (i - 1) * 2, 1 / len) -- 31.897μs
+		layout.draw(elem, (i - 1) * 2, 1 / len) -- 655.897μs
 	end
+	-- host:actionbar(tostring(client.getSystemTime() - t))
 
 	return self
 end

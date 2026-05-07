@@ -6,7 +6,7 @@ Features:
 
 Layout:
 	✔ Get windows to work inside elements, and use that element's size as drag bounds
-	☐ Get rid of screen class entirely
+	✘ Get rid of screen class entirely
 
 Optimization:
 	✔ Bake bounding box position and scale inside element draw method

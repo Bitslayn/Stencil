@@ -301,8 +301,8 @@ function class:queue()
 	repeat
 		for i = 1, #tree.sibl do
 			tree.sibl[i].skip.layout = false
+			tree.sibl[i].skip.redraw = false
 		end
-		tree.skip.redraw = false
 		tree = tree.parn
 	until not tree
 
