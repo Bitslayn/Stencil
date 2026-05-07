@@ -3,8 +3,8 @@
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
 	---@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
@@ -50,7 +50,7 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
 
-			click = function(_, rel_pos, _, state)
+			click = function(_, rel_pos, _, sound_pos, state)
 				if not state then return end
 				if a then return end
 				a = true

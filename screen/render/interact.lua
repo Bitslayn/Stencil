@@ -8,14 +8,15 @@ local lib = {}
 ---@param click boolean
 ---@param rel_pos Vector2
 ---@param true_pos Vector2
-local function interact(root, elem, click, rel_pos, true_pos)
+---@param sound_pos Vector3
+local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	-- Unhover last hovered element
 
 	if root.clicked and not click then
 		local props = root.clicked:getProps()
 
 		if props.click then
-			props.click(root.clicked, rel_pos, true_pos, false)
+			props.click(root.clicked, rel_pos, true_pos, sound_pos, false)
 		end
 		root.clicked.group = bit32.band(root.clicked.group, 1)
 		root.clicked:draw(true)
@@ -26,7 +27,7 @@ local function interact(root, elem, click, rel_pos, true_pos)
 	if root.hovered and root.hovered ~= elem then
 		local props = root.hovered:getProps()
 		if props.hover then
-			props.hover(root.hovered, rel_pos, true_pos, false, true)
+			props.hover(root.hovered, rel_pos, true_pos, sound_pos, false, true)
 		end
 		root.hovered.group = bit32.band(root.hovered.group, 2)
 		root.hovered:draw(true)
@@ -44,7 +45,7 @@ local function interact(root, elem, click, rel_pos, true_pos)
 	root.hovered = elem
 
 	if props.hover then
-		props.hover(elem, rel_pos, true_pos, true, changed)
+		props.hover(elem, rel_pos, true_pos, sound_pos, true, changed)
 	end
 	if changed then
 		elem.group = bit32.bor(elem.group, 1)
@@ -63,7 +64,7 @@ local function interact(root, elem, click, rel_pos, true_pos)
 		end
 
 		if props.click then
-			props.click(elem, rel_pos, true_pos, true)
+			props.click(elem, rel_pos, true_pos, sound_pos, true)
 		end
 		root.clicked = elem
 
@@ -84,8 +85,9 @@ end
 ---@param click boolean
 ---@param rel_pos Vector2
 ---@param true_pos Vector2
+---@param sound_pos Vector3
 ---@return FOXStencil.Element?
-function lib.relative_hover(elem, click, rel_pos, true_pos)
+function lib.relative_hover(elem, click, rel_pos, true_pos, sound_pos)
 	if not rel_pos then return end
 	local root = elem.root
 
@@ -94,7 +96,7 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 
 	local clicked = elem.root.clicked
 	if clicked then
-		interact(root, clicked, click, clicked.state.hover_pos, true_pos)
+		interact(root, clicked, click, clicked.state.hover_pos, true_pos, sound_pos)
 		return clicked
 	end
 
@@ -110,18 +112,18 @@ function lib.relative_hover(elem, click, rel_pos, true_pos)
 	-- Find hovered child element
 
 	for i = #elem.chld, 1, -1 do
-		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos)
+		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos, sound_pos)
 		if res then return res end
 	end
 
-	interact(root, elem, click, rel_pos, true_pos)
+	interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 	return elem
 end
 
 ---@param root FOXStencil.Screen
 function lib.reset(root)
-	interact(root, nil, false, vec(0, 0), vec(0, 0))
+	interact(root, nil, false, vec(0, 0), vec(0, 0), vec(0, 0, 0))
 end
 
 ---@type boolean
@@ -138,7 +140,7 @@ end
 function lib.screen_hover(elem)
 	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
 	local true_pos = client.getMousePos() / client.getGuiScale()
-	return lib.relative_hover(elem, mouse_press, true_pos, true_pos)
+	return lib.relative_hover(elem, mouse_press, true_pos, true_pos, client.getCameraPos())
 end
 
 local EPSILON = 2.2204460492503131e-16
@@ -188,7 +190,7 @@ function lib.world_hover(elem)
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, click, true_pos, true_pos)
+	return lib.relative_hover(elem, click, true_pos, true_pos, hit)
 end
 
 local face = {
@@ -225,7 +227,7 @@ function lib.skull_hover(elem, block)
 	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
 
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, click, true_pos, true_pos)
+	return lib.relative_hover(elem, click, true_pos, true_pos, hit)
 end
 
 return lib

@@ -3,8 +3,8 @@
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
 	---@class FOXStencil.Widgets.EXAMPLE.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@field click fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.EXAMPLE, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.EXAMPLE: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.EXAMPLE.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.EXAMPLE.Props

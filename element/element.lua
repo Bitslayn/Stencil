@@ -18,8 +18,8 @@ local function new(part, root, parn, sibl)
 		group = 0,
 		props = {
 			---@class FOXStencil.Element.Props
-			---@field click fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
-			---@field hover fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+			---@field click fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
+			---@field hover fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 			normal = {
 				---This element's preferred offset position
 				pos = vec(0, 0),

@@ -3,8 +3,8 @@
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
 	---@class FOXStencil.Widgets.Checkbox.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Checkbox, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Checkbox, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@field click fun(self: FOXStencil.Widgets.Checkbox, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.Checkbox, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Checkbox: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Checkbox.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Checkbox.Props
@@ -36,8 +36,8 @@ return function(class, super, elem)
 
 			-- Functions need to be defined if this element should be interactable, even if they are empty
 
-			hover = function(_, rel_pos, true_pos, state, changed) end,
-			click = function(_, rel_pos, true_pos, state)
+			hover = function(_, rel_pos, true_pos, sound_pos, state, changed) end,
+			click = function(_, rel_pos, true_pos, sound_pos, state)
 				if not state then return end
 				toggled = not toggled
 

@@ -3,8 +3,8 @@
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
 	---@class FOXStencil.Widgets.Progress.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Progress, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Progress, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
+	---@field click fun(self: FOXStencil.Widgets.Progress, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
+	---@field hover fun(self: FOXStencil.Widgets.Progress, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Progress: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Progress.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Progress.Props
@@ -29,7 +29,7 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vectors.hexToRGB("blue"),
 
-			hover = function(_, rel_pos, true_pos, state, changed) end,
+			hover = function(_, rel_pos, true_pos, sound_pos, state, changed) end,
 		})
 
 		local drag
@@ -44,11 +44,11 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
 
-			click = function(_, rel_pos, true_pos, state)
+			click = function(_, rel_pos, true_pos, sound_pos, state)
 				drag = state
 				anchor = true_pos
 			end,
-			hover = function(_, rel_pos, true_pos, state, changed)
+			hover = function(_, rel_pos, true_pos, sound_pos, state, changed)
 				if not drag then return end
 				local slide_pos = (true_pos - anchor + rel_pos) / widg.state.size
 				-- slide_pos.x = math.round(slide_pos.x * 9) / 9
