@@ -8,6 +8,8 @@ return function(class, super, elem)
 	---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
 	---@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props, group: FOXStencil.Element.Props.Group?): self
 	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Button.Props
+	---@field press fun(self: FOXStencil.Widgets.Button)?
+	---@field release fun(self: FOXStencil.Widgets.Button)?
 	class = class
 
 	---@class FOXStencil.Element
@@ -38,6 +40,18 @@ return function(class, super, elem)
 					1,
 					state and 8 or 9
 				)
+
+				-- Call functions
+
+				if state then
+					if type(widg.press) == "function" then
+						widg.press(widg)
+					end
+				else
+					if type(widg.release) == "function" then
+						widg.release(widg)
+					end
+				end
 			end,
 		}):setProps(props or {})
 
@@ -50,5 +64,19 @@ return function(class, super, elem)
 		}, "click")
 
 		return setmetatable(widg, class)
+	end
+
+	---@param func fun(self: FOXStencil.Widgets.Button)
+	---@return FOXStencil.Widgets.Button
+	function class:onPress(func)
+		self.press = func
+		return self
+	end
+
+	---@param func fun(self: FOXStencil.Widgets.Button)
+	---@return FOXStencil.Widgets.Button
+	function class:onRelease(func)
+		self.release = func
+		return self
 	end
 end
