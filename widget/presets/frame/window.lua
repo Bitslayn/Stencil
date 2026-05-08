@@ -13,10 +13,11 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Window.Props?
 	---@return FOXStencil.Widgets.Window
-	function elem:newWindow(props)
-		local window = self:newElement({
+	function elem:newWindow(name, props)
+		local window = self:newElement(name, {
 			tex_color = vec(0, 0, 0, 0),
 			absolute_pos = true,
 			vertical = true,
@@ -48,7 +49,7 @@ return function(class, super, elem)
 
 		local tool, page
 
-		tool = window:newElement({
+		tool = window:newElement("toolbar", {
 			size_flex = { true, true },
 			label = "Window",
 			label_margin = vec(3, 2, 2, 3),
@@ -83,7 +84,7 @@ return function(class, super, elem)
 			hover = hover,
 		})
 
-		page = window:newElement({
+		page = window:newElement("page", {
 			padding = vec(3, 3, 3, 3),
 
 			size_flex = { true, true },

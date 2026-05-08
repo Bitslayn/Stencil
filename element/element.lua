@@ -10,7 +10,7 @@ class.__index = class
 ---@param parn FOXStencil.Element?
 ---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
-local function new(part, root, parn, sibl)
+local function new(name, part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
@@ -170,10 +170,12 @@ local function new(part, root, parn, sibl)
 	return self
 end
 
+---@param name string
 ---@param props FOXStencil.Element.Props?
 ---@return FOXStencil.Element
-function class:newElement(props)
+function class:newElement(name, props)
 	local elem = new(
+		name,
 		self.part:newPart("elem"),
 		self.root,
 		self ~= self.root and self or nil,

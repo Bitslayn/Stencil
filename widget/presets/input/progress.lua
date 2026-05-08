@@ -14,12 +14,13 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Progress.Props?
 	---@return FOXStencil.Widgets.Progress
-	function elem:newProgress(props)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.Progress]]
+	function elem:newProgress(name, props)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Progress]]
 
-		widg.bar = widg:newElement({
+		widg.bar = widg:newElement(name, {
 			size_flex = { false, true },
 
 			tex = textures["assets.textures.ui"],

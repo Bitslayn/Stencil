@@ -13,10 +13,11 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Field.Props?
 	---@return FOXStencil.Widgets.Field
-	function elem:newField(props)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.Field]]
+	function elem:newField(name, props)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Field]]
 
 		-- Set main props here
 

@@ -13,12 +13,13 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Slider.Props?
 	---@return FOXStencil.Widgets.Slider
-	function elem:newSlider(props)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.Slider]]
+	function elem:newSlider(name, props)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Slider]]
 
-		local switch = widg:newElement({
+		local switch = widg:newElement("switch", {
 			size = vec(10, 0),
 			size_flex = { false, true },
 

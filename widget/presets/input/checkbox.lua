@@ -16,14 +16,16 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	---TODO Remove id and groups, moving this functionality to siblings
 	---@type table<string, FOXStencil.Widgets.Checkbox[]>
 	local groups = {}
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Checkbox.Props?
 	---@param id string?
 	---@return FOXStencil.Widgets.Checkbox
-	function elem:newCheckbox(props, id)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.Checkbox]]
+	function elem:newCheckbox(name, props, id)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Checkbox]]
 
 		widg.toggled = false
 

@@ -13,10 +13,11 @@ return function(class, super, elem)
 	---@class FOXStencil.Element
 	elem = elem
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Label.Props?
 	---@return FOXStencil.Widgets.Label
-	function elem:newLabel(props)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.Label]]
+	function elem:newLabel(name, props)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Label]]
 
 		widg:setProps({
 			label = "Text",

@@ -23,10 +23,11 @@ return function(class, super, elem)
 	-- Create function registered to element superclass
 	-- Be sure to change this
 
+	---@param name string
 	---@param props FOXStencil.Widgets.EXAMPLE.Props?
 	---@return FOXStencil.Widgets.EXAMPLE
-	function elem:newExample(props)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.EXAMPLE]]
+	function elem:newExample(name, props)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.EXAMPLE]]
 
 		-- Set main props here
 

@@ -20,14 +20,15 @@ return function(class, super, elem)
 	-- Create function registered to element superclass
 	-- Be sure to change this
 
+	---@param name string
 	---@param props FOXStencil.Widgets.Switch.Props?
 	---@return FOXStencil.Widgets.Switch
-	function elem:newSwitch(props)
-		local widg = self:newElement() --[[@as FOXStencil.Widgets.Switch]]
+	function elem:newSwitch(name, props)
+		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Switch]]
 
 		widg.toggled = false
 		widg.uuid = client.intUUIDToString(client.generateUUID())
-		widg.switch = widg:newElement({
+		widg.switch = widg:newElement("switch", {
 			size = vec(10, 0),
 			size_flex = { false, true },
 
