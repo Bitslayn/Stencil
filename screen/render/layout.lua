@@ -19,6 +19,9 @@ function lib.restore(elem)
 	state.calc_size_min = { props.size_min:unpack() }
 	state.calc_size_max = { props.size_max:unpack() }
 
+	state.calc_size[1] = math.clamp(state.calc_size[1], state.calc_size_min[1], state.calc_size_max[1])
+	state.calc_size[2] = math.clamp(state.calc_size[2], state.calc_size_min[2], state.calc_size_max[2])
+
 	local dir = props.vertical and 2 or 1
 
 	state.elem_axis = { dir, dir % 2 + 1 }
@@ -28,7 +31,7 @@ function lib.restore(elem)
 	}
 
 	if props.label ~= "" then
-		local width = client.getTextWidth(string.gsub(props.label, "%s", "\n"))
+		local width = client.getTextWidth(props.label_wrap and string.gsub(props.label, "%s", "\n") or props.label)
 			* props.label_size + props.label_margin.w + props.label_margin.y
 		state.calc_size[1] = math.max(state.calc_size[1], width)
 		state.calc_size_min[1] = math.max(state.calc_size_min[1], width)

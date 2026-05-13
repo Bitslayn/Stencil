@@ -24,7 +24,7 @@ function obj:draw()
 	local props = self.elem:getProps()
 	local state = self.elem.state
 
-	local label_size = client.getTextDimensions(emoji_fix(props.label), state.size.x) * props.label_size
+	local label_size = client.getTextDimensions(props.label, state.size.x) * props.label_size
 	local label_w, label_h = unpack2(label_size)
 	local x = -props.tex_extend[4]
 		+ math.lerp(props.label_margin[4], state.size.x - props.label_margin[2] - label_w + props.tex_extend[2], props.label_align.x)
