@@ -21,10 +21,15 @@ return function(class, super, elem)
 
 		widg:setProps({
 			label = "Text",
-			size_flex = { false, false }, -- TODO or something
 			tex_color = vec(0, 0, 0, 0),
 		}):setProps(props or {})
 
 		return setmetatable(widg, class)
+	end
+
+	---@param str string
+	---@return FOXStencil.Widgets.Label
+	function class:setText(str)
+		return self:setProps({ label = str })
 	end
 end

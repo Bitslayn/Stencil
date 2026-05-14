@@ -20,7 +20,7 @@ return function(class, super, elem)
 	function elem:newProgress(name, props)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Progress]]
 
-		widg.bar = widg:newElement(name, {
+		widg.bar = widg:newElement("bar", {
 			size_flex = { false, true },
 
 			tex = textures["assets.textures.ui"],
@@ -51,7 +51,6 @@ return function(class, super, elem)
 	function class:setProgress(n)
 		self.bar:setProps({ tex_reg_size = self.state.size })
 		self.bar.state.size.x = math.clamp(n, 0, 1) * self.state.size.x
-		self.bar:draw(true)
 		return self
 	end
 end

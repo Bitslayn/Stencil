@@ -1,18 +1,15 @@
+Flex queue:
+	☐ Bake element property groups
+	☐ Element redraw shapes to queue immediate, siblings, or children whenever properties change
+	☐ Validate accuracy and performance of flex queue
+	☐ Create separate diff for layer styles
+
 Features:
 	✔ Add absolute element positioning
 	✔ Fix sounds not working for screens attached to the GUI
 	☐ Add GN's element generator from table
 	☐ Finish all widgets
 
-Layout:
-	✔ Get windows to work inside elements, and use that element's size as drag bounds
-	✘ Get rid of screen class entirely
-
-Optimization:
-	✔ Bake bounding box position and scale inside element draw method
-	☐ Look into optimizing element redraw queues
-	☐ Final optimization and cleanup pass
-
 Finalization:
-	☐ Fix and test accuracy of flex queue
 	☐ Comment and document everything
+	☐ Final cleanup pass
