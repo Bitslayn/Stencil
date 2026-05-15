@@ -21,7 +21,7 @@ local function emoji_fix(str)
 end
 
 function obj:draw()
-	local props = self.elem:getProps()
+	local props = self.elem.props
 	local state = self.elem.state
 
 	local label_size = client.getTextDimensions(props.label, state.size.x) * props.label_size

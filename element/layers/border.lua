@@ -17,7 +17,7 @@ local concat = table.concat
 
 ---Updates the current outline
 function obj:draw()
-	local props = self.elem:getProps()
+	local props = self.elem.props
 	local state = self.elem.state
 
 	local w_t, w_r, w_b, w_l = unpack4(props.border)

@@ -13,23 +13,23 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	-- Unhover last hovered element
 
 	if root.clicked and not click then
-		local props = root.clicked:getProps()
+		local props = root.clicked.props
 
 		if props.click then
 			props.click(root.clicked, rel_pos, true_pos, sound_pos, false)
 		end
-		root.clicked.group = bit32.band(root.clicked.group, 1)
+		root.clicked.props_toggle.click = false
 		root.clicked:draw(true)
 
 		root.clicked = nil
 	end
 
 	if root.hovered and root.hovered ~= elem then
-		local props = root.hovered:getProps()
+		local props = root.hovered.props
 		if props.hover then
 			props.hover(root.hovered, rel_pos, true_pos, sound_pos, false, true)
 		end
-		root.hovered.group = bit32.band(root.hovered.group, 2)
+		root.clicked.props_toggle.hover = false
 		root.hovered:draw(true)
 
 		root.hovered = nil
@@ -37,7 +37,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 	if not elem then return end
 
-	local props = elem:getProps()
+	local props = elem.props
 
 	-- Hover currently hovered element
 
@@ -48,7 +48,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		props.hover(elem, rel_pos, true_pos, sound_pos, true, changed)
 	end
 	if changed then
-		elem.group = bit32.bor(elem.group, 1)
+		root.clicked.props_toggle.hover = true
 		elem:draw(true)
 	end
 
@@ -60,9 +60,9 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		while elem.parn and not props.click do
 			rel_pos = rel_pos + elem.state.pos
 			elem = elem.parn --[[@as FOXStencil.Element]]
-			props = elem:getProps()
 		end
-
+		
+		props = elem.props
 		if props.click then
 			props.click(elem, rel_pos, true_pos, sound_pos, true)
 		end
@@ -71,7 +71,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		local time = world.getTime()
 		if root.click_time == time then return end
 
-		elem.group = bit32.bor(elem.group, 2)
+		root.clicked.props_toggle.click = true
 		elem:draw(true)
 
 		root.click_time = time

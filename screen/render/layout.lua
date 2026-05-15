@@ -12,7 +12,7 @@ function lib.restore(elem)
 		lib.restore(elem.chld[i])
 	end
 
-	local props = elem:getProps()
+	local props = elem.props
 	local state = elem.state
 	state.calc_pos = { props.pos:unpack() }
 	state.calc_size = { props.size:unpack() }
@@ -44,7 +44,7 @@ end
 function lib.size(elem, axis)
 	if elem.skip.layout then return end
 	if not elem.state.visible then return end
-	local props = elem:getProps()
+	local props = elem.props
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
 	local p = state.elem_pad
@@ -57,7 +57,7 @@ function lib.size(elem, axis)
 		if chld.state.visible then
 			lib.size(chld, axis)
 
-			if not chld:getProps().absolute_pos then
+			if not chld.props.absolute_pos then
 				-- Normal
 
 				if axis == a then
@@ -105,7 +105,7 @@ end
 function lib.grow(elem, axis)
 	if elem.skip.layout then return end
 	if not elem.state.visible then return end
-	local props = elem:getProps()
+	local props = elem.props
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
 	local p = state.elem_pad
@@ -117,7 +117,7 @@ function lib.grow(elem, axis)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if chld:getProps().size_flex[axis] then
+		if chld.props.size_flex[axis] then
 			if axis == a then
 				flexible[#flexible + 1] = chld
 			else
@@ -131,7 +131,7 @@ function lib.grow(elem, axis)
 	local rem = state.calc_size[a] - p[a][1] - p[a][2]
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if not chld:getProps().absolute_pos then
+		if not chld.props.absolute_pos then
 			rem = rem - chld.state.calc_size[a]
 		end
 	end
@@ -196,7 +196,7 @@ end
 function lib.position(elem)
 	if elem.skip.layout then return end
 	if not elem.state.visible then return end
-	local props = elem:getProps()
+	local props = elem.props
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
 	local p = state.elem_pad
@@ -212,7 +212,7 @@ function lib.position(elem)
 		if chld.state.visible and not chld.skip.layout then
 			lib.position(chld)
 
-			if not chld:getProps().absolute_pos then
+			if not chld.props.absolute_pos then
 				-- Normal
 
 				chld.state.calc_pos[a] = chld.state.calc_pos[a] + offset
@@ -250,7 +250,7 @@ function lib.draw(elem, lace, dist)
 	local len = #elem.chld
 	for i = 1, len do
 		local chld = elem.chld[i]
-		lib.draw(chld, chld:getProps().absolute_pos and (i - 1) * 2 or dist * i / len, 1 / len)
+		lib.draw(chld, chld.props.absolute_pos and (i - 1) * 2 or dist * i / len, 1 / len)
 	end
 
 	-- Draw elements

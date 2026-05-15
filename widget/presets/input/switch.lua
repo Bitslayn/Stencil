@@ -64,8 +64,8 @@ return function(class, super, elem)
 			end,
 		}):setProps(props or {})
 
-		widg.switch.props.normal.tex_color = vectors.hexToRGB("red")
-		widg.props.normal.tex_color = vectors.hexToRGB("red") * 0.5
+		widg.switch:setProps({ tex_color = vectors.hexToRGB("red") })
+		widg:setProps({ tex_color = vectors.hexToRGB("red") * 0.5 })
 
 		return setmetatable(widg, class)
 	end
@@ -100,12 +100,11 @@ return function(class, super, elem)
 			local l = math.lerp(timer, timer + velocity, delta)
 			if l < 0 or 1 < l then
 				l = math.clamp(l, 0, 1)
-				self.switch.props.normal.tex_color = state and vectors.hexToRGB("green") or vectors.hexToRGB("red")
-				self.props.normal.tex_color = state and vectors.hexToRGB("green") * 0.5 or
-					vectors.hexToRGB("red") * 0.5
+				self.switch:setProps({ tex_color = state and vectors.hexToRGB("green") or vectors.hexToRGB("red") })
+				self:setProps({ tex_color = state and vectors.hexToRGB("green") * 0.5 or vectors.hexToRGB("red") * 0.5 })
 				events.world_render:remove(self.uuid)
 			end
-			self.props.normal.align = vec(l, 0)
+			self:setProps({ align = vec(l, 0) })
 			self.switch:queue()
 		end, self.uuid)
 

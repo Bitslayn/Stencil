@@ -15,12 +15,126 @@ local function new(name, part, root, parn, sibl)
 	local self = setmetatable({
 		part = part,
 
-		group = 0,
+		---@class FOXStencil.Element.Props
 		props = {
+			---This element's preferred offset position
+			---@queue Immediate
+			pos = vec(0, 0),
+			---State defines whether this element should be absolutely positioned and draw through its siblings
+			---@queue Siblings
+			absolute_pos = false,
+
+			---This element's preferred size
+			---@queue Siblings
+			size = vec(0, 0),
+			---This element's minimum size
+			---@queue Siblings
+			size_min = vec(0, 0),
+			---This element's maximum size
+			---@queue Siblings
+			size_max = vec(math.huge, math.huge),
+			---States define whether this element is allowed to dynamically scale within min and max bounds
+			---@queue Siblings
+			---@type [boolean, boolean]
+			size_flex = { false, false },
+
+			---Child padding, or space around children
+			---@queue Siblings
+			padding = vec(0, 0, 0, 0),
+			---Element margin, or space around element
+			---@queue Siblings
+			margin = vec(0, 0, 0, 0),
+			---Child gap, or space between children
+			---@queue Siblings
+			gap = 0,
+			---Child layout direction, false is horizontal and true is vertical
+			---@queue Siblings
+			---@type boolean
+			vertical = false,
+			---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
+			---@queue Children
+			align = vec(0, 0),
+
+			---Background texture
+			---@queue Immediate
+			---@type Texture
+			tex = textures["FOXStencil_blank"],
+			---UV position on the texture
+			---@queue Immediate
+			tex_uv_pos = vec(0, 0),
+			---UV region on the texture
+			---@queue Immediate
+			tex_uv_size = vec(1, 1),
+			---Background tint
+			---@queue Immediate
+			---@type Vector3|Vector4
+			tex_color = vec(1, 1, 1, 1),
+			---Amount of pixels to overlap in each direction
+			---@queue Immediate
+			tex_extend = vec(0, 0, 0, 0),
+			---UV pixels starting at each edge to slice inwards
+			---@queue Immediate
+			tex_slice = vec(0, 0, 0, 0),
+			---If set, virtually offsets the texture's position
+			---@queue Immediate
+			---@type Vector2
+			tex_reg_pos = nil,
+			---If set, virtually sets the texture's size
+			---@queue Immediate
+			---@type Vector2
+			tex_reg_size = nil,
+
+			---Border line weight at each edge
+			---@queue Immediate
+			border = vec(0, 0, 0, 0),
+			---Border color
+			---@queue Immediate
+			---@type Vector3|Vector4
+			border_color = vec(1, 1, 1, 1),
+			---Border offset at each edge
+			---@queue Immediate
+			border_extend = vec(0, 0, 0, 0),
+
+			---Text string
+			---@queue Siblings
+			label = "",
+			---Text shadow state
+			---@queue Immediate
+			---@type boolean
+			label_shadow = false,
+			---Text outline state
+			---@queue Immediate
+			---@type boolean
+			label_outline = false,
+			---Text outline color
+			---@queue Immediate
+			label_outline_color = vec(1, 1, 1) / 8,
+			---Text size
+			---@queue Siblings
+			label_size = 1,
+			---Text margin
+			---@queue Siblings
+			label_margin = vec(0, 0, 0, 0),
+			---Text alignment
+			---@queue Immediate
+			label_align = vec(0.5, 0.5),
+			---Text wrap
+			---@queue Siblings
+			---@type boolean
+			label_wrap = true,
+		},
+		props_queued = true,
+		props_toggle = {
+			default = true,
+			normal = true,
+			hover = false,
+			click = false,
+		},
+		props_groups = {
 			---@class FOXStencil.Element.Props
 			---@field click fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
 			---@field hover fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
-			normal = {
+			default = { -- TODO set `props` field to this table on element creation
 				---This element's preferred offset position
 				---@queue Immediate
 				pos = vec(0, 0),
@@ -125,12 +239,13 @@ local function new(name, part, root, parn, sibl)
 				---Text wrap
 				---@queue Siblings
 				---@type boolean
-				label_wrap = true
+				label_wrap = true,
 			},
+			normal = {},
 			hover = {},
 			click = {},
-			hover_click = {},
 		},
+
 		---@class FOXStencil.Element.State
 		state = {
 			---This element's visibility state
@@ -191,15 +306,6 @@ local function new(name, part, root, parn, sibl)
 		require("./layers/label")(self),
 	}
 
-	local props = self.props
-	setmetatable(props.hover, { __index = props.normal })
-	setmetatable(props.click, { __index = props.normal })
-	setmetatable(props.hover_click, {
-		__index = function(_, k)
-			return rawget(props.hover, k) or rawget(props.click, k) or props.normal[k]
-		end,
-	})
-
 	return self
 end
 
@@ -227,29 +333,16 @@ end
 ---@return self
 function class:setProps(props, group)
 	group = group or "normal"
-	for k, v in pairs(props) do
+	for k, v in next, props do
 		local t = type(v)
 		if t == "table" then
 			v = { table.unpack(v) }
 		elseif t:find("^Vector") then
 			v = v:copy()
 		end
-		self.props[group][k] = v
+		self.props_groups[group][k] = v
 	end
 	return self
-end
-
-local group_id = {
-	[0] = "normal",
-	"hover",
-	"click",
-	"hover_click",
-}
-
----@param group FOXStencil.Element.Props.Group?
----@return FOXStencil.Element.Props
-function class:getProps(group)
-	return self.props[group or group_id[self.group]]
 end
 
 ---Removes this element from its parent
@@ -324,6 +417,29 @@ function class:swap(elem)
 	return self
 end
 
+---@param elem FOXStencil.Element
+local function bake_props(elem)
+	if not elem.props_queued then return end
+
+	elem.props = {}
+
+	for group, queued in next, elem.props_queued do
+		if queued then
+			for k, v in next, elem.props_groups[group] do
+				local t = type(v)
+				if t == "table" then
+					v = { table.unpack(v) }
+				elseif t:find("^Vector") then
+					v = v:copy()
+				end
+				elem.props[k] = v
+			end
+		end
+	end
+
+	elem.props_queued = false
+end
+
 ---@generic self
 ---@param self self|FOXStencil.Element
 ---@return self
@@ -331,6 +447,8 @@ function class:queue()
 	-- Queue siblings up parent tree
 
 	-- TODO: Potential optimization here would be to check if the element changed size along or against layout and only queue elements on that axis
+
+	bake_props(self)
 
 	local tree = self
 	repeat
@@ -350,11 +468,11 @@ end
 ---@return self
 function class:draw(forced)
 	local state = self.state
-	local extend = self:getProps().tex_extend
+	local extend = self.props.tex_extend
 	state.bound_pos = state.pos - extend.wx --[[@as Vector2]]
 	state.bound_size = state.size + extend.wx + extend.yz --[[@as Vector2]]
 
-	self.part:pos(-self.state.pos:augmented(self.props.layer)):visible(self.state.visible)
+	self.part:pos(-self.state.pos:augmented(self.state.layer)):visible(self.state.visible)
 	if self.skip.redraw and not forced then return self end
 
 	for i = 1, #self.layers do

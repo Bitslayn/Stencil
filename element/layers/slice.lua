@@ -16,7 +16,7 @@ local concat = table.concat
 
 ---Updates the current slice
 function obj:draw()
-	local props = self.elem:getProps()
+	local props = self.elem.props
 	local state = self.elem.state
 	local dim = getDimensions(props.tex)
 
