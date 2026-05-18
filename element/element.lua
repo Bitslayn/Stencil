@@ -366,16 +366,14 @@ end
 
 ---@generic self
 ---@param self self|FOXStencil.Element
----@param forced boolean?
 ---@return self
-function class:draw(forced)
+function class:draw()
 	local state = self.state
 	local extend = self.props.tex_extend
 	state.bound_pos = state.pos - extend.wx --[[@as Vector2]]
 	state.bound_size = state.size + extend.wx + extend.yz --[[@as Vector2]]
 
 	self.part:pos(-self.state.pos:augmented(self.state.layer)):visible(self.state.visible)
-	if self.skip.redraw and not forced then return self end
 
 	for i = 1, #self.layers do
 		self.layers[i]:draw()
