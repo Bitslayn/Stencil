@@ -6,8 +6,6 @@ return function(class, super, elem)
 	---@field click fun(self: FOXStencil.Widgets.Button, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
 	---@field hover fun(self: FOXStencil.Widgets.Button, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
-	---@field setProps fun(self: self, props: FOXStencil.Widgets.Button.Props, group: FOXStencil.Element.Props.Group?): self
-	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Button.Props
 	---@field press fun(self: FOXStencil.Widgets.Button)?
 	---@field release fun(self: FOXStencil.Widgets.Button)?
 	class = class
@@ -56,13 +54,13 @@ return function(class, super, elem)
 			end,
 		}):setProps(props or {})
 
-		widg:setProps({ border = vec(1, 1, 1, 1) }, "hover")
-		widg:setProps({
-			tex_uv_pos = vec(4, 0),
-			tex_uv_size = vec(5, 5),
-			tex_slice = vec(2, 2, 2, 2),
-			tex_extend = vec(0, 0, 0, 0),
-		}, "click")
+		-- widg:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+		-- widg:setProps({
+		-- 	tex_uv_pos = vec(4, 0),
+		-- 	tex_uv_size = vec(5, 5),
+		-- 	tex_slice = vec(2, 2, 2, 2),
+		-- 	tex_extend = vec(0, 0, 0, 0),
+		-- }, "click")
 
 		return setmetatable(widg, class)
 	end

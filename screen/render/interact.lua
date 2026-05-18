@@ -18,8 +18,6 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		if props.click then
 			props.click(root.clicked, rel_pos, true_pos, sound_pos, false)
 		end
-		root.clicked.props_toggle.click = false
-		root.clicked:draw(true)
 
 		root.clicked = nil
 	end
@@ -29,7 +27,6 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		if props.hover then
 			props.hover(root.hovered, rel_pos, true_pos, sound_pos, false, true)
 		end
-		root.clicked.props_toggle.hover = false
 		root.hovered:draw(true)
 
 		root.hovered = nil
@@ -47,10 +44,6 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	if props.hover then
 		props.hover(elem, rel_pos, true_pos, sound_pos, true, changed)
 	end
-	if changed then
-		root.clicked.props_toggle.hover = true
-		elem:draw(true)
-	end
 
 	elem.state.hover_pos = rel_pos
 
@@ -61,7 +54,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 			rel_pos = rel_pos + elem.state.pos
 			elem = elem.parn --[[@as FOXStencil.Element]]
 		end
-		
+
 		props = elem.props
 		if props.click then
 			props.click(elem, rel_pos, true_pos, sound_pos, true)
@@ -70,9 +63,6 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 		local time = world.getTime()
 		if root.click_time == time then return end
-
-		root.clicked.props_toggle.click = true
-		elem:draw(true)
 
 		root.click_time = time
 	end
