@@ -6,6 +6,8 @@ local lib = {}
 
 ---@param elem FOXStencil.Element
 function lib.restore(elem)
+	-- TODO: Deprecation
+
 	if elem.skip.layout then return end
 	if not elem.state.visible then return end
 	for i = 1, #elem.chld do
@@ -14,13 +16,6 @@ function lib.restore(elem)
 
 	local props = elem.props
 	local state = elem.state
-	state.calc_pos = { props.pos:unpack() }
-	state.calc_size = { props.size:unpack() }
-	state.calc_size_min = { props.size_min:unpack() }
-	state.calc_size_max = { props.size_max:unpack() }
-
-	state.calc_size[1] = math.clamp(state.calc_size[1], state.calc_size_min[1], state.calc_size_max[1])
-	state.calc_size[2] = math.clamp(state.calc_size[2], state.calc_size_min[2], state.calc_size_max[2])
 
 	local dir = props.vertical and 2 or 1
 
@@ -29,13 +24,6 @@ function lib.restore(elem)
 		{ props.padding[4], props.padding[2] }, -- x: left, right
 		{ props.padding[1], props.padding[3] }, -- y: top, bottom
 	}
-
-	if props.label ~= "" then
-		local width = client.getTextWidth(props.label_wrap and string.gsub(props.label, "%s", "\n") or props.label)
-			* props.label_size + props.label_margin.w + props.label_margin.y
-		state.calc_size[1] = math.max(state.calc_size[1], width)
-		state.calc_size_min[1] = math.max(state.calc_size_min[1], width)
-	end
 end
 
 ---Recursively calculates size of all children
@@ -48,6 +36,24 @@ function lib.size(elem, axis)
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
 	local p = state.elem_pad
+
+	-- Restore
+
+	if axis == 1 then
+		state.calc_size = { props.size:unpack() }
+		state.calc_size_min = { props.size_min:unpack() }
+		state.calc_size_max = { props.size_max:unpack() }
+
+		state.calc_size[1] = math.clamp(state.calc_size[1], state.calc_size_min[1], state.calc_size_max[1])
+		state.calc_size[2] = math.clamp(state.calc_size[2], state.calc_size_min[2], state.calc_size_max[2])
+	end
+
+	if props.label ~= "" and axis == 1 then
+		local width = client.getTextWidth(props.label_wrap and string.gsub(props.label, "%s", "\n") or props.label)
+			* props.label_size + props.label_margin.w + props.label_margin.y
+		state.calc_size[1] = math.max(state.calc_size[1], width)
+		state.calc_size_min[1] = math.max(state.calc_size_min[1], width)
+	end
 
 	-- Fit children
 
@@ -121,14 +127,14 @@ function lib.grow(elem, axis)
 			if axis == a then
 				flexible[#flexible + 1] = chld
 			else
-				chld.state.calc_size[axis] = state.calc_size[axis] - p[axis][1] - p[axis][2]
+				chld.state.calc_size[axis] = state.calc_size[axis] - (p[axis][1] + p[axis][2])
 			end
 		end
 	end
 
 	-- Calculate remaining size
 
-	local rem = state.calc_size[a] - p[a][1] - p[a][2]
+	local rem = state.calc_size[a] - (p[a][1] + p[a][2])
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if not chld.props.absolute_pos then
@@ -200,6 +206,10 @@ function lib.position(elem)
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
 	local p = state.elem_pad
+
+	-- Restore
+
+	state.calc_pos = { props.pos:unpack() }
 
 	local offset = math.lerp(
 		p[a][1],

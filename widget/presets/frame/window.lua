@@ -70,8 +70,7 @@ return function(class, super, elem)
 
 				if client.getSystemTime() - click_stamp < 500 then
 					visible = not visible
-					page.state.visible = visible -- TODO Add visibility method
-					tool:queue()
+					page:visible(visible)
 				else
 					click_stamp = client.getSystemTime()
 				end

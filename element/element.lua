@@ -384,4 +384,14 @@ function class:draw(forced)
 	return self
 end
 
+---@generic self
+---@param self self|FOXStencil.Element
+---@param state boolean?
+---@return self
+function class:visible(state)
+	state = state == nil and true or state --[[@as boolean]]
+	self.state.visible = state
+	return self
+end
+
 return { new = new, class = class }

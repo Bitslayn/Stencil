@@ -62,9 +62,9 @@ function class:render(block)
 	-- local t = client.getSystemTime()
 	for i = 1, len do
 		local elem = self.chld[i]
-		layout.restore(elem) -- 31.697 (Text wrapping)
+		layout.restore(elem) -- 31.697
 
-		layout.size(elem, 1) -- 38.597μs
+		layout.size(elem, 1) -- 38.597μs (Text wrapping)
 		layout.grow(elem, 1) -- 38.597μs
 		layout.size(elem, 2) -- 62.197μs (Text wrapping)
 		layout.grow(elem, 2) -- 37.567μs

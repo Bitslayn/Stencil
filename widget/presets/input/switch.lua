@@ -100,7 +100,6 @@ return function(class, super, elem)
 				events.world_render:remove(self.uuid)
 			end
 			self:setProps({ align = vec(l, 0) })
-			self.switch:queue()
 		end, self.uuid)
 
 		events.world_tick:remove(self.uuid)
