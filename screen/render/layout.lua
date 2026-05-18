@@ -255,7 +255,7 @@ function lib.draw(elem, lace, dist)
 
 	-- Draw elements
 
-	elem.props.layer = lace
+	elem.state.layer = lace
 	elem:draw()
 	elem.skip.layout = true
 	elem.skip.redraw = true

@@ -43,7 +43,7 @@ end
 function class.draw(elem, ...)
 	local part = elem.part
 
-	local props = elem:getProps()
+	local props = elem.props
 	local state = elem.state
 
 	local pos = props.tex_extend.wx --[[@as Vector2]]
