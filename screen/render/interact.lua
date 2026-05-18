@@ -16,7 +16,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		local props = root.clicked.props
 
 		if props.click then
-			props.click(root.clicked, rel_pos, true_pos, sound_pos, false)
+			props.click(rel_pos, true_pos, sound_pos, false)
 		end
 
 		root.clicked = nil
@@ -25,7 +25,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	if root.hovered and root.hovered ~= elem then
 		local props = root.hovered.props
 		if props.hover then
-			props.hover(root.hovered, rel_pos, true_pos, sound_pos, false, true)
+			props.hover(rel_pos, true_pos, sound_pos, false, true)
 		end
 		root.hovered:draw(true)
 
@@ -42,7 +42,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	root.hovered = elem
 
 	if props.hover then
-		props.hover(elem, rel_pos, true_pos, sound_pos, true, changed)
+		props.hover(rel_pos, true_pos, sound_pos, true, changed)
 	end
 
 	elem.state.hover_pos = rel_pos
@@ -57,7 +57,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 		props = elem.props
 		if props.click then
-			props.click(elem, rel_pos, true_pos, sound_pos, true)
+			props.click(rel_pos, true_pos, sound_pos, true)
 		end
 		root.clicked = elem
 

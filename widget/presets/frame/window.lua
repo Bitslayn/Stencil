@@ -2,19 +2,14 @@
 ---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
-	---@class FOXStencil.Widgets.Window.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Window, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Window, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Window: FOXStencil.Widgets.Generic
-	---@field setProps fun(self: self, props: FOXStencil.Widgets.Window.Props, group: FOXStencil.Element.Props.Group?): self
-	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Window.Props
 	class = class
 
 	---@class FOXStencil.Element
 	elem = elem
 
 	---@param name string
-	---@param props FOXStencil.Widgets.Window.Props?
+	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Window
 	function elem:newWindow(name, props)
 		local window = self:newElement(name, {
@@ -29,13 +24,13 @@ return function(class, super, elem)
 		local click_stamp = 0
 		local last_pos = vec(0, 0)
 
-		local function hover(_, rel_pos, true_pos, sound_pos, state, changed)
+		local function hover(rel_pos, true_pos, sound_pos, state, changed)
 			if not drag then return end
 			local pos = true_pos - anchor
 
 			local parn = window.parn
 			if parn then
-				local padding = parn:getProps().padding
+				local padding = parn.props.padding
 				pos = pos - padding.wz --[[@as Vector2]]
 				pos.x = math.clamp(pos.x, 0, parn.state.size.x - window.state.size.x - padding.y - padding.w)
 				pos.y = math.clamp(pos.y, 0, parn.state.size.y - window.state.size.y - padding.x - padding.z)
@@ -44,7 +39,7 @@ return function(class, super, elem)
 			if last_pos == pos then return end
 			last_pos = pos:copy()
 
-			window:setProps({ pos = pos }):queue()
+			window:setProps({ pos = pos })
 		end
 
 		local tool, page
@@ -61,7 +56,7 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_extend = vec(0, 0, 1, 0),
 
-			click = function(_, rel_pos, true_pos, sound_pos, state)
+			click = function(rel_pos, true_pos, sound_pos, state)
 				drag = state
 				anchor = true_pos - window.state.pos
 
@@ -75,7 +70,7 @@ return function(class, super, elem)
 
 				if client.getSystemTime() - click_stamp < 500 then
 					visible = not visible
-					page.state.visible = visible
+					page.state.visible = visible -- TODO Add visibility method
 					tool:queue()
 				else
 					click_stamp = client.getSystemTime()
@@ -97,7 +92,7 @@ return function(class, super, elem)
 		}):setProps(props or {}) --[[@as FOXStencil.Widgets.Window]]
 
 		window:setProps({
-			click = function(_, rel_pos, true_pos, sound_pos, state)
+			click = function(rel_pos, true_pos, sound_pos, state)
 				drag = state
 				anchor = true_pos - window.state.pos
 

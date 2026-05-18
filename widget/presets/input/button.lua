@@ -2,9 +2,6 @@
 ---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
-	---@class FOXStencil.Widgets.Button.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Button, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Button, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Button: FOXStencil.Widgets.Generic
 	---@field press fun(self: FOXStencil.Widgets.Button)?
 	---@field release fun(self: FOXStencil.Widgets.Button)?
@@ -14,7 +11,7 @@ return function(class, super, elem)
 	elem = elem
 
 	---@param name string
-	---@param props FOXStencil.Widgets.Button.Props?
+	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Button
 	function elem:newButton(name, props)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Button]]
@@ -32,7 +29,7 @@ return function(class, super, elem)
 			border = vec(0, 0, 0, 0),
 			border_extend = vec(0, 0, -2, 0),
 
-			click = function(_, rel_pos, true_pos, sound_pos, state)
+			click = function(rel_pos, true_pos, sound_pos, state)
 				sounds:playSound(
 					"minecraft:block.lava.pop",
 					sound_pos,

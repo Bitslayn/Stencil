@@ -1,9 +1,6 @@
 ---@type FOXStencil.Element
 local super = require("../element/element").class
 
----@class FOXStencil.Widgets.Generic.Props: FOXStencil.Element.Props
----@field click fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean)?
----@field hover fun(self: FOXStencil.Widgets.Generic, rel_pos: Vector2, true_pos: Vector2, state: boolean, changed: boolean)?
 ---@class FOXStencil.Widgets.Generic: FOXStencil.Element
 local class = {}
 ---@package

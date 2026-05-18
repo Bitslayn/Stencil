@@ -3,11 +3,9 @@ local class = {}
 ---@package
 class.__index = class
 
----@alias FOXStencil.Element.Props.Group "normal"|"hover"|"click"|"hover_click"
-
----@class FOXStencil.Element.Props
----@field click fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
----@field hover fun(self: FOXStencil.Element, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
+---@class FOXStencil.Props
+---@field click fun(rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
+---@field hover fun(rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 local props_default = {
 	---This element's preferred offset position
 	---@queue Immediate
@@ -128,8 +126,7 @@ local function new(name, part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
-
-		---@class FOXStencil.Element.Props
+		
 		props = setmetatable({}, props_default),
 
 		---@class FOXStencil.Element.State
@@ -197,7 +194,7 @@ local function new(name, part, root, parn, sibl)
 end
 
 ---@param name string
----@param props FOXStencil.Element.Props?
+---@param props FOXStencil.Props?
 ---@return FOXStencil.Element
 function class:newElement(name, props)
 	local elem = new(
@@ -215,7 +212,7 @@ end
 
 ---@generic self
 ---@param self self|FOXStencil.Element
----@param props FOXStencil.Element.Props
+---@param props FOXStencil.Props
 ---@return self
 function class:setProps(props)
 	for k, v in next, props do
@@ -310,6 +307,8 @@ end
 ---@return self
 function class:queue()
 	-- Queue siblings up parent tree
+
+	-- TODO Flag queue reason and break if elements should already be queued by that reason
 
 	local tree = self
 	repeat
