@@ -2,12 +2,7 @@
 ---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
-	---@class FOXStencil.Widgets.Checkbox.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Checkbox, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Checkbox, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Checkbox: FOXStencil.Widgets.Generic
-	---@field setProps fun(self: self, props: FOXStencil.Widgets.Checkbox.Props, group: FOXStencil.Element.Props.Group?): self
-	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Checkbox.Props
 	---@field toggle fun(self: FOXStencil.Widgets.Checkbox, state: boolean)?
 	---@field toggled boolean
 	---@field id string
@@ -21,7 +16,7 @@ return function(class, super, elem)
 	local groups = {}
 
 	---@param name string
-	---@param props FOXStencil.Widgets.Checkbox.Props?
+	---@param props FOXStencil.Props?
 	---@param id string?
 	---@return FOXStencil.Widgets.Checkbox
 	function elem:newCheckbox(name, props, id)
@@ -48,7 +43,7 @@ return function(class, super, elem)
 
 			tex_color = vec(0.5, 0.5, 0.5),
 
-			click = function(_, rel_pos, true_pos, sound_pos, state)
+			click = function(rel_pos, true_pos, sound_pos, state)
 				if not state then return end
 
 				sounds:playSound(

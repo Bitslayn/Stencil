@@ -19,9 +19,8 @@ return function(class, super, elem)
 	-- Be sure to change this
 
 	---@param name string
-	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.EXAMPLE
-	function elem:newExample(name, props)
+	function elem:newExample(name)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.EXAMPLE]]
 
 		-- Set main props here
@@ -29,10 +28,7 @@ return function(class, super, elem)
 		widg:setProps({
 			label = "Text",
 			tex_color = vec(0, 0, 0, 0),
-
-			hover = function(rel_pos, true_pos, state, changed) end,
-			click = function(rel_pos, true_pos, state) end,
-		}):setProps(props or {})
+		})
 
 		return setmetatable(widg, class)
 	end

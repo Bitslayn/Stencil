@@ -2,19 +2,14 @@
 ---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
-	---@class FOXStencil.Widgets.Slider.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Slider, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Slider, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Slider: FOXStencil.Widgets.Generic
-	---@field setProps fun(self: self, props: FOXStencil.Widgets.Slider.Props, group: FOXStencil.Element.Props.Group?): self
-	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Slider.Props
 	class = class
 
 	---@class FOXStencil.Element
 	elem = elem
 
 	---@param name string
-	---@param props FOXStencil.Widgets.Slider.Props?
+	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Slider
 	function elem:newSlider(name, props)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Slider]]
@@ -30,8 +25,6 @@ return function(class, super, elem)
 			tex_extend = vec(2, 0, 0, 0),
 
 			border_extend = vec(0, 0, -2, 0),
-
-			hover = function(_, rel_pos, true_pos, sound_pos, state, changed) end,
 		})
 		switch:setProps({ border = vec(1, 1, 1, 1) }, "hover")
 
@@ -49,11 +42,11 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
 
-			click = function(_, rel_pos, true_pos, sound_pos, state)
+			click = function(rel_pos, true_pos, sound_pos, state)
 				drag = state
 				anchor = true_pos
 			end,
-			hover = function(_, rel_pos, true_pos, sound_pos, state, changed)
+			hover = function(rel_pos, true_pos, sound_pos, state, changed)
 				if not drag then return end
 				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2) /
 					(widg.state.size - switch.state.size)

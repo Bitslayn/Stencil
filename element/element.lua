@@ -123,11 +123,32 @@ props_default.__index = props_default
 ---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
 local function new(name, part, root, parn, sibl)
+	local basic = setmetatable({}, props_default)
+	local hover = setmetatable({}, { __index = basic })
+	local click = setmetatable({}, { __index = basic })
+	local mixed = setmetatable({}, {
+		__index = function(_, k)
+			return rawget(click, k) or hover[k]
+		end,
+	}) --[[@as FOXStencil.Props]]
+
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
-		
-		props = setmetatable({}, props_default),
+
+		props = basic,
+		props_groups = {
+			basic, -- None
+			hover, -- ID: 1
+			click, -- ID: 2
+			mixed, -- Both 1 and 2
+		},
+		props_groups_named = {
+			basic = basic,
+			hover = hover,
+			click = click,
+			mixed = mixed,
+		},
 
 		---@class FOXStencil.Element.State
 		state = {
@@ -168,6 +189,8 @@ local function new(name, part, root, parn, sibl)
 			bound_pos = vec(0, 0),
 			---This element's bounding box size
 			bound_size = vec(0, 0),
+
+			mouse_mode = 1,
 		},
 
 		root = root,
@@ -213,8 +236,10 @@ end
 ---@generic self
 ---@param self self|FOXStencil.Element
 ---@param props FOXStencil.Props
+---@param group string?
 ---@return self
-function class:setProps(props)
+function class:setProps(props, group)
+	group = group or "basic"
 	for k, v in next, props do
 		local t = type(v)
 		if t == "table" then
@@ -222,12 +247,28 @@ function class:setProps(props)
 		elseif t:find("^Vector") then
 			v = v:copy()
 		end
-		self.props[k] = v
+		self.props_groups_named[group][k] = v
 	end
 
 	self:queue()
 
 	return self
+end
+
+---@generic self
+---@param self self|FOXStencil.Element
+---@param id integer
+---@param state boolean
+---@return self
+function class:togglePropsGroup(id, state)
+	if state then
+		self.state.mouse_mode = bit32.bor(self.state.mouse_mode - 1, id) + 1
+	else
+		local _id = bit32.bxor(id, #self.props_groups - 1)
+		self.state.mouse_mode = bit32.band(self.state.mouse_mode - 1, _id) + 1
+	end
+	self.props = self.props_groups[self.state.mouse_mode]
+	return self:queue()
 end
 
 ---Removes this element from its parent
@@ -309,6 +350,7 @@ function class:queue()
 	-- Queue siblings up parent tree
 
 	-- TODO Flag queue reason and break if elements should already be queued by that reason
+	-- TODO No but then what if queue was called twice? Would the flag stack?
 
 	local tree = self
 	repeat

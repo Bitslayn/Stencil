@@ -1,5 +1,5 @@
 Flex queue:
-	☐ Bake element property groups
+	✘ Bake element property groups
 	☐ Element redraw shapes to queue immediate, siblings, or children whenever properties change
 	☐ Validate accuracy and performance of flex queue
 	☐ Create separate diff for layer styles
@@ -7,6 +7,7 @@ Flex queue:
 Features:
 	✔ Add absolute element positioning
 	✔ Fix sounds not working for screens attached to the GUI
+	☐ Add overlay to elements that are being redrawn
 	☐ Add GN's element generator from table
 	☐ Finish all widgets
 

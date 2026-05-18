@@ -11,9 +11,8 @@ return function(class, super, elem)
 	elem = elem
 
 	---@param name string
-	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Button
-	function elem:newButton(name, props)
+	function elem:newButton(name)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Button]]
 
 		widg:setProps({
@@ -49,15 +48,15 @@ return function(class, super, elem)
 					end
 				end
 			end,
-		}):setProps(props or {})
+		})
 
-		-- widg:setProps({ border = vec(1, 1, 1, 1) }, "hover")
-		-- widg:setProps({
-		-- 	tex_uv_pos = vec(4, 0),
-		-- 	tex_uv_size = vec(5, 5),
-		-- 	tex_slice = vec(2, 2, 2, 2),
-		-- 	tex_extend = vec(0, 0, 0, 0),
-		-- }, "click")
+		widg:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+		widg:setProps({
+			tex_uv_pos = vec(4, 0),
+			tex_uv_size = vec(5, 5),
+			tex_slice = vec(2, 2, 2, 2),
+			tex_extend = vec(0, 0, 0, 0),
+		}, "click")
 
 		return setmetatable(widg, class)
 	end

@@ -2,19 +2,14 @@
 ---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
-	---@class FOXStencil.Widgets.Label.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Label, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Label, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Label: FOXStencil.Widgets.Generic
-	---@field setProps fun(self: self, props: FOXStencil.Widgets.Label.Props, group: FOXStencil.Element.Props.Group?): self
-	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Label.Props
 	class = class
 
 	---@class FOXStencil.Element
 	elem = elem
 
 	---@param name string
-	---@param props FOXStencil.Widgets.Label.Props?
+	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Label
 	function elem:newLabel(name, props)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Label]]

@@ -2,12 +2,7 @@
 ---@param super FOXStencil.Widgets.Generic
 ---@param elem FOXStencil.Element
 return function(class, super, elem)
-	---@class FOXStencil.Widgets.Switch.Props: FOXStencil.Widgets.Generic.Props
-	---@field click fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
-	---@field hover fun(self: FOXStencil.Widgets.Switch, rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 	---@class FOXStencil.Widgets.Switch: FOXStencil.Widgets.Generic
-	---@field setProps fun(self: self, props: FOXStencil.Widgets.Switch.Props, group: FOXStencil.Element.Props.Group?): self
-	---@field getProps fun(self: self, group: FOXStencil.Element.Props.Group?): FOXStencil.Widgets.Switch.Props
 	---@field toggle fun(self: FOXStencil.Widgets.Switch, state: boolean)?
 	---@field toggled boolean
 	---@field uuid string
@@ -21,7 +16,7 @@ return function(class, super, elem)
 	-- Be sure to change this
 
 	---@param name string
-	---@param props FOXStencil.Widgets.Switch.Props?
+	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Switch
 	function elem:newSwitch(name, props)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Switch]]
@@ -50,7 +45,7 @@ return function(class, super, elem)
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
 
-			click = function(_, rel_pos, _, sound_pos, state)
+			click = function(rel_pos, _, sound_pos, state)
 				if not state then return end
 
 				sounds:playSound(
