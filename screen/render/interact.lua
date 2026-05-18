@@ -58,9 +58,9 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		while elem.parn and not props.click do
 			rel_pos = rel_pos + elem.state.pos
 			elem = elem.parn --[[@as FOXStencil.Element]]
+			props = elem.props
 		end
 
-		props = elem.props
 		elem:togglePropsGroup(2, true)
 		if props.click then
 			props.click(rel_pos, true_pos, sound_pos, true)
