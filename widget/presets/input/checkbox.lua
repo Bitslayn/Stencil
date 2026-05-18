@@ -105,8 +105,6 @@ return function(class, super, elem)
 			})
 		end
 
-		self:draw(true)
-
 		return self
 	end
 end

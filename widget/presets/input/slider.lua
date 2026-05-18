@@ -48,11 +48,15 @@ return function(class, super, elem)
 			end,
 			hover = function(rel_pos, true_pos, sound_pos, state, changed)
 				if not drag then return end
-				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2) /
-					(widg.state.size - switch.state.size)
+				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2)
+					/ (widg.state.size - switch.state.size)
 				-- slide_pos.x = math.round(slide_pos.x * 9) / 9
-				switch.state.pos.x = math.clamp(slide_pos.x, 0, 1) * (widg.state.size.x - switch.state.size.x)
-				switch:draw(true)
+				switch:setProps({
+					pos = vec(
+						math.clamp(slide_pos.x, 0, 1) * (widg.state.size.x - switch.state.size.x),
+						switch.state.pos.y
+					),
+				})
 			end,
 		}):setProps(props or {})
 
