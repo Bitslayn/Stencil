@@ -87,13 +87,15 @@ props_default.__index = props_default
 
 -- immediate, parents, siblings, children
 
+---@alias FOXStencil.QueueShape {immediate: boolean, parents: boolean, siblings: boolean, children: boolean}
+
 local IMMEDIATE = { immediate = true }
 local PARENTS = { parents = true }
 local SIBLINGS = { parents = true, siblings = true }
 local CHILDREN = { parents = true, children = true }
 local ALL = { parents = true, siblings = true, children = true }
 
----@type table<string, table<string, boolean>>
+---@type table<string, table<string, boolean>|fun(old: any, new: any, elem: FOXStencil.Element): FOXStencil.QueueShape>
 local queue_shape = {
 	pos = SIBLINGS,
 	absolute_pos = SIBLINGS,
@@ -121,7 +123,13 @@ local queue_shape = {
 	border_color = IMMEDIATE,
 	border_extend = IMMEDIATE,
 
-	label = SIBLINGS,
+	label = function(old, new, elem)
+		if not elem.props.label_wrap and client.getTextWidth(old) == client.getTextWidth(new) then
+			return IMMEDIATE
+		else
+			return SIBLINGS
+		end
+	end,
 	label_shadow = IMMEDIATE,
 	label_outline = IMMEDIATE,
 	label_outline_color = IMMEDIATE,
@@ -211,7 +219,10 @@ local function new(name, part, root, parn, sibl)
 			---This element's bounding box size
 			bound_size = vec(0, 0),
 
+			---Props group index set by hovering or clicking the element
 			mouse_mode = 1,
+			---Automatically queues this element when its properties are changed
+			auto_queue = true,
 		},
 
 		root = root,
@@ -282,14 +293,19 @@ function class:setProps(props, group)
 		end
 
 		diff = diff or p[k] ~= v
-		p[k] = v
 
-		if diff and queue_shape[k] then
-			merge(shape, queue_shape[k])
+		if diff then
+			if type(queue_shape[k]) == "function" then
+				merge(shape, queue_shape[k](p[k], v, self))
+			elseif queue_shape[k] then
+				merge(shape, queue_shape[k])
+			end
 		end
+
+		p[k] = v
 	end
 
-	if p ~= self.props then return self end
+	if not self.state.auto_queue or p ~= self.props then return self end
 
 	if shape.immediate then
 		self:draw()
@@ -391,7 +407,7 @@ end
 
 ---@generic self
 ---@param self self|FOXStencil.Element
----@param shape {immediate: boolean, parents: boolean, siblings: boolean, children: boolean}
+---@param shape FOXStencil.QueueShape
 ---@return self
 function class:queue(shape)
 	-- Queue children

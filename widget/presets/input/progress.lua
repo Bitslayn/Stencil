@@ -22,6 +22,8 @@ return function(class, super, elem)
 			tex_color = vectors.hexToRGB("blue"),
 		})
 
+		widg.bar.state.auto_queue = false
+
 		widg:setProps({
 			size = vec(0, 10),
 			size_flex = { true, false },
@@ -39,13 +41,13 @@ return function(class, super, elem)
 	---@param n number
 	---@return FOXStencil.Widgets.Progress
 	function class:setProgress(n)
-		self.bar:setProps({
-			size = vec(
-				math.clamp(n, 0, 1) * self.state.size.x,
-				self.props.size.y
-			),
-			tex_reg_size = self.state.size,
-		})
+		self.bar:setProps({ tex_reg_size = self.state.size })
+		self.bar.state.size = vec(
+			math.clamp(n, 0, 1) * self.state.size.x,
+			self.state.size.y
+		)
+
+		self.bar:draw()
 
 		return self
 	end

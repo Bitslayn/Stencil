@@ -40,7 +40,7 @@ local function pulse(part, pos, size)
 	events.tick:register(tick)
 end
 
-function class.draw(elem, ...)
+function class.draw(elem)
 	local part = elem.part
 
 	local props = elem.props
@@ -50,5 +50,5 @@ function class.draw(elem, ...)
 	local size = state.size.xy + props.tex_extend.wx + props.tex_extend.yz --[[@as Vector2]]
 
 	pulse(part, pos, size)
-	draw(elem, ...)
+	draw(elem)
 end
