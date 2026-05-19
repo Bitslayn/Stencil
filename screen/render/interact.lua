@@ -15,7 +15,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	if root.clicked and not click then
 		local props = root.clicked.props
 
-		root.clicked:togglePropsGroup(2, false)
+		root.clicked:setPropsGroup(2, false)
 		if props.click then
 			props.click(rel_pos, true_pos, sound_pos, false)
 		end
@@ -26,7 +26,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	if root.hovered and root.hovered ~= elem then
 		local props = root.hovered.props
 
-		root.hovered:togglePropsGroup(1, false)
+		root.hovered:setPropsGroup(1, false)
 		if props.hover then
 			props.hover(rel_pos, true_pos, sound_pos, false, true)
 		end
@@ -44,7 +44,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	root.hovered = elem
 
 	if changed then
-		elem:togglePropsGroup(1, true)
+		elem:setPropsGroup(1, true)
 	end
 	if props.hover then
 		props.hover(rel_pos, true_pos, sound_pos, true, changed)
@@ -61,7 +61,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 			props = elem.props
 		end
 
-		elem:togglePropsGroup(2, true)
+		elem:setPropsGroup(2, true)
 		if props.click then
 			props.click(rel_pos, true_pos, sound_pos, true)
 		end

@@ -256,7 +256,7 @@ end
 ---@param id integer
 ---@param state boolean
 ---@return self
-function class:togglePropsGroup(id, state)
+function class:setPropsGroup(id, state)
 	if state then
 		self.state.mouse_mode = bit32.bor(self.state.mouse_mode - 1, id) + 1
 	else
