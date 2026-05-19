@@ -47,8 +47,6 @@ return function(class, super, elem)
 			tex_reg_size = self.state.size,
 		})
 
-		host:actionbar(tostring(self.bar.props.size))
-
 		return self
 	end
 end
