@@ -10,25 +10,20 @@ return function(class, super, elem)
 	elem = elem
 
 	---@param name string
-	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Progress
-	function elem:newProgress(name, props)
+	function elem:newProgress(name)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Progress]]
 
 		widg.bar = widg:newElement("bar", {
-			size_flex = { false, true },
-
 			tex = textures["assets.textures.ui"],
 			tex_uv_pos = vec(4, 4),
 			tex_uv_size = vec(5, 5),
-			tex_reg_size = vec(50, 10),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vectors.hexToRGB("blue"),
 		})
 
 		widg:setProps({
 			size = vec(0, 10),
-			size_min = vec(50, 0),
 			size_flex = { true, false },
 
 			tex = textures["assets.textures.ui"],
@@ -36,7 +31,7 @@ return function(class, super, elem)
 			tex_uv_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),
 			tex_color = vec(0.5, 0.5, 0.5, 1),
-		}):setProps(props or {})
+		})
 
 		return setmetatable(widg, class)
 	end
@@ -44,8 +39,16 @@ return function(class, super, elem)
 	---@param n number
 	---@return FOXStencil.Widgets.Progress
 	function class:setProgress(n)
-		self.bar:setProps({ tex_reg_size = self.state.size })
-		self.bar.state.size.x = math.clamp(n, 0, 1) * self.state.size.x
+		self.bar:setProps({
+			size = vec(
+				math.clamp(n, 0, 1) * self.state.size.x,
+				self.props.size.y
+			),
+			tex_reg_size = self.state.size,
+		})
+
+		host:actionbar(tostring(self.bar.props.size))
+
 		return self
 	end
 end

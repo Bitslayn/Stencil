@@ -31,9 +31,6 @@ local props_default = {
 	---Child padding, or space around children
 	---@queue Siblings
 	padding = vec(0, 0, 0, 0),
-	---Element margin, or space around element
-	---@queue Siblings
-	margin = vec(0, 0, 0, 0),
 	---Child gap, or space between children
 	---@queue Siblings
 	gap = 0,
@@ -135,6 +132,7 @@ local function new(name, part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
+		name = name,
 
 		props = basic,
 		props_groups = {
@@ -392,4 +390,4 @@ function class:visible(state)
 	return self
 end
 
-return { new = new, class = class }
+return class
