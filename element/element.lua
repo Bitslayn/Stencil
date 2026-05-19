@@ -248,9 +248,7 @@ function class:setProps(props, group)
 		self.props_groups_named[group][k] = v
 	end
 
-	self:queue()
-
-	return self
+	return self:queue()
 end
 
 ---@generic self
@@ -265,8 +263,10 @@ function class:togglePropsGroup(id, state)
 		local _id = bit32.bxor(id, #self.props_groups - 1)
 		self.state.mouse_mode = bit32.band(self.state.mouse_mode - 1, _id) + 1
 	end
+
 	self.props = self.props_groups[self.state.mouse_mode]
-	return self:queue()
+
+	return self:draw()
 end
 
 ---Removes this element from its parent

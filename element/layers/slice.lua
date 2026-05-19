@@ -4,30 +4,19 @@
 local obj = {}
 obj.__index = obj
 
-local getDimensions = textures["FOXStencil_blank"].getDimensions
-
-local vec2 = vectors.vec2
-local vec3 = vectors.vec3
-local vec4 = vectors.vec4
-local unpack2 = vec2().unpack
-local unpack4 = vec4().unpack
-local tostring = tostring
-local concat = table.concat
-
 ---Updates the current slice
 function obj:draw()
 	local props = self.elem.props
 	local state = self.elem.state
-	local dim = getDimensions(props.tex)
+	local dim = props.tex:getDimensions()
 
-	local s_t, s_r, s_b, s_l = unpack4(props.tex_slice)
+	local s_t, s_r, s_b, s_l = props.tex_slice:unpack()
 
-	local atlas_w, atlas_h = unpack2(props.tex_uv_size)
+	local atlas_w, atlas_h = props.tex_uv_size:unpack()
 
-	local model_w, model_h = unpack2((props.tex_reg_size or state.size) + props.tex_extend.yx +
-		props.tex_extend.wz --[[@as Vector2]])
-	local e_x = props.tex_extend.x
-	local e_w = props.tex_extend.w
+	local model_w, model_h = ((props.tex_reg_size or state.size)
+		+ props.tex_extend.yx
+		+ props.tex_extend.wz --[[@as Vector2]]):unpack()
 
 	s_l = math.min(s_l, model_w / 2)
 	s_r = math.min(s_r, model_w / 2)
@@ -51,10 +40,9 @@ function obj:draw()
 	-- Crop region
 
 	if props.tex_reg_size then
-		local region_w, region_h = unpack2(props.tex_reg_size)
 		local pos = props.tex_reg_pos or vec(0, 0)
-		local x, y = unpack2(state.size + pos)
-		local p_x, p_y = unpack2(pos)
+		local x, y = (state.size + pos):unpack()
+		local p_x, p_y = pos:unpack()
 
 		-- Crop along x
 
@@ -111,7 +99,7 @@ function obj:draw()
 		for x = 1, 3 do
 			self.cell[y][x]
 			-- TODO (maybe) separate uv and region into run-on-call methods
-				:uv((props.tex_uv_pos + vec2(e_atlas_x[x], e_atlas_y[y])) / dim)
+				:uv((props.tex_uv_pos + vec(e_atlas_x[x], e_atlas_y[y])) / dim)
 				:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
 				:pos(-e_model_x[x] + props.tex_extend.w, -e_model_y[y] + props.tex_extend.x)
 				:scale(e_model_w[x], e_model_h[y])
