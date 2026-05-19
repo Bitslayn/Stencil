@@ -8,7 +8,7 @@ local lib = {}
 function lib.restore(elem)
 	-- TODO: Deprecation
 
-	if elem.skip.layout then return end
+	if not elem.queued then return end
 	if not elem.state.visible then return end
 	for i = 1, #elem.chld do
 		lib.restore(elem.chld[i])
@@ -30,7 +30,7 @@ end
 ---@param elem FOXStencil.Element
 ---@param axis integer
 function lib.size(elem, axis)
-	if elem.skip.layout then return end
+	if not elem.queued then return end
 	if not elem.state.visible then return end
 	local props = elem.props
 	local state = elem.state
@@ -109,7 +109,7 @@ end
 ---@param elem FOXStencil.Element
 ---@param axis integer
 function lib.grow(elem, axis)
-	if elem.skip.layout then return end
+	if not elem.queued then return end
 	if not elem.state.visible then return end
 	local props = elem.props
 	local state = elem.state
@@ -200,7 +200,7 @@ end
 ---Recursively calculates position of all children
 ---@param elem FOXStencil.Element
 function lib.position(elem)
-	if elem.skip.layout then return end
+	if not elem.queued then return end
 	if not elem.state.visible then return end
 	local props = elem.props
 	local state = elem.state
@@ -219,7 +219,7 @@ function lib.position(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if chld.state.visible and not chld.skip.layout then
+		if chld.state.visible and chld.queued then
 			lib.position(chld)
 
 			if not chld.props.absolute_pos then
@@ -248,7 +248,7 @@ end
 ---@param lace number
 ---@param dist number
 function lib.draw(elem, lace, dist)
-	if elem.skip.layout then return end
+	if not elem.queued then return end
 
 	elem.state.pos = vectors.vec2(table.unpack(elem.state.calc_pos))
 	elem.state.size = vectors.vec2(table.unpack(elem.state.calc_size))
@@ -266,12 +266,8 @@ function lib.draw(elem, lace, dist)
 	-- Draw elements
 
 	elem.state.layer = lace
-	elem.skip.layout = true
-
-	if not elem.skip.redraw then
-		elem:draw()
-		elem.skip.redraw = true
-	end
+	elem.queued = false
+	elem:draw()
 end
 
 return lib

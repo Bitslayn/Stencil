@@ -1,5 +1,5 @@
 --[[
-Flashes an element red when it is being redrawn
+Flashes an element white when it is being redrawn
 ]]
 
 local enabled = false
@@ -25,14 +25,14 @@ local function pulse(part, pos, size)
 		:texture(textures["FOXStencil_blank"], 1, 1)
 		:pos(pos.xy_)
 		:scale(size.xy_)
-		:color(1, 0, 0, 0.25)
-		:renderType("SOLID")
+		:color(1, 1, 1, 0.25)
+		:renderType("TRANSLUCENT")
 
 	if old_sprite then return end
 
 	local function tick()
 		local a = math.max(sprite:getColor().a - 0.05, 0)
-		sprite:color(1, 0, 0, a)
+		sprite:color(1, 1, 1, a)
 		if a ~= 0 then return end
 		sprite:remove()
 		events.tick:remove(tick)

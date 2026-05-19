@@ -88,7 +88,7 @@ return function(class, super, elem)
 		-- Animate switch
 
 		local timer = state and 0 or 1
-		local velocity = state and 0.8 or -0.8
+		local velocity = state and 0.75 or -0.75
 
 		events.world_render:remove(self.uuid)
 		events.world_render:register(function(delta)

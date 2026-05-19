@@ -8,111 +8,128 @@ class.__index = class
 ---@field hover fun(rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
 local props_default = {
 	---This element's preferred offset position
-	---@queue Immediate
 	pos = vec(0, 0),
 	---State defines whether this element should be absolutely positioned and draw through its siblings
-	---@queue Siblings
 	absolute_pos = false,
 
 	---This element's preferred size
-	---@queue Siblings
 	size = vec(0, 0),
 	---This element's minimum size
-	---@queue Siblings
 	size_min = vec(0, 0),
 	---This element's maximum size
-	---@queue Siblings
 	size_max = vec(math.huge, math.huge),
 	---States define whether this element is allowed to dynamically scale within min and max bounds
-	---@queue Siblings
 	---@type [boolean, boolean]
 	size_flex = { false, false },
 
 	---Child padding, or space around children
-	---@queue Siblings
 	padding = vec(0, 0, 0, 0),
 	---Child gap, or space between children
-	---@queue Siblings
 	gap = 0,
 	---Child layout direction, false is horizontal and true is vertical
-	---@queue Siblings
 	---@type boolean
 	vertical = false,
 	---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
-	---@queue Children
 	align = vec(0, 0),
 
 	---Background texture
-	---@queue Immediate
 	---@type Texture
 	tex = textures["FOXStencil_blank"],
 	---UV position on the texture
-	---@queue Immediate
 	tex_uv_pos = vec(0, 0),
 	---UV region on the texture
-	---@queue Immediate
 	tex_uv_size = vec(1, 1),
 	---Background tint
-	---@queue Immediate
 	---@type Vector3|Vector4
 	tex_color = vec(1, 1, 1, 1),
 	---Amount of pixels to overlap in each direction
-	---@queue Immediate
 	tex_extend = vec(0, 0, 0, 0),
 	---UV pixels starting at each edge to slice inwards
-	---@queue Immediate
 	tex_slice = vec(0, 0, 0, 0),
 	---If set, virtually offsets the texture's position
-	---@queue Immediate
 	---@type Vector2
 	tex_reg_pos = nil,
 	---If set, virtually sets the texture's size
-	---@queue Immediate
 	---@type Vector2
 	tex_reg_size = nil,
 
 	---Border line weight at each edge
-	---@queue Immediate
 	border = vec(0, 0, 0, 0),
 	---Border color
-	---@queue Immediate
 	---@type Vector3|Vector4
 	border_color = vec(1, 1, 1, 1),
 	---Border offset at each edge
-	---@queue Immediate
 	border_extend = vec(0, 0, 0, 0),
 
 	---Text string
-	---@queue Siblings
 	label = "",
 	---Text shadow state
-	---@queue Immediate
 	---@type boolean
 	label_shadow = false,
 	---Text outline state
-	---@queue Immediate
 	---@type boolean
 	label_outline = false,
 	---Text outline color
-	---@queue Immediate
 	label_outline_color = vec(1, 1, 1) / 8,
 	---Text size
-	---@queue Siblings
 	label_size = 1,
 	---Text margin
-	---@queue Siblings
 	label_margin = vec(0, 0, 0, 0),
 	---Text alignment
-	---@queue Immediate
 	label_align = vec(0.5, 0.5),
 	---Text wrap
-	---@queue Siblings
 	---@type boolean
 	label_wrap = true,
 }
 
 ---@package
 props_default.__index = props_default
+
+-- immediate, parents, siblings, children
+
+local IMMEDIATE = { immediate = true }
+local PARENTS = { parents = true }
+local SIBLINGS = { parents = true, siblings = true }
+local CHILDREN = { parents = true, children = true }
+local ALL = { parents = true, siblings = true, children = true }
+
+---@type table<string, table<string, boolean>>
+local queue_shape = {
+	pos = SIBLINGS,
+	absolute_pos = SIBLINGS,
+
+	size = SIBLINGS,
+	size_min = SIBLINGS,
+	size_max = SIBLINGS,
+	size_flex = SIBLINGS,
+
+	padding = ALL,
+	gap = ALL,
+	vertical = ALL,
+	align = ALL,
+
+	tex = IMMEDIATE,
+	tex_uv_pos = IMMEDIATE,
+	tex_uv_size = IMMEDIATE,
+	tex_color = IMMEDIATE,
+	tex_extend = IMMEDIATE,
+	tex_slice = IMMEDIATE,
+	tex_reg_pos = IMMEDIATE,
+	tex_reg_size = IMMEDIATE,
+
+	border = IMMEDIATE,
+	border_color = IMMEDIATE,
+	border_extend = IMMEDIATE,
+
+	label = SIBLINGS,
+	label_shadow = IMMEDIATE,
+	label_outline = IMMEDIATE,
+	label_outline_color = IMMEDIATE,
+	label_size = SIBLINGS,
+	label_margin = SIBLINGS,
+	label_align = IMMEDIATE,
+	label_wrap = SIBLINGS,
+}
 
 ---@param part ModelPart
 ---@param root FOXStencil.Screen
@@ -140,6 +157,12 @@ local function new(name, part, root, parn, sibl)
 			hover, -- ID: 1
 			click, -- ID: 2
 			mixed, -- Both 1 and 2
+		},
+		props_groups_shape = {
+			basic = {},
+			hover = {},
+			click = {},
+			mixed = {},
 		},
 		props_groups_named = {
 			basic = basic,
@@ -197,12 +220,7 @@ local function new(name, part, root, parn, sibl)
 		---@type FOXMap<integer, FOXStencil.Element>
 		chld = require("./map")(),
 
-		skip = {
-			---@type boolean
-			layout = false,
-			---@type boolean
-			redraw = false,
-		},
+		queued = true,
 	}, class)
 
 	self.layers = {
@@ -229,7 +247,14 @@ function class:newElement(name, props)
 	return elem
 end
 
--- TODO Type assert
+---@generic t
+---@param a `t`
+---@param b t
+local function merge(a, b)
+	for k, v in next, b do
+		a[k] = v
+	end
+end
 
 ---@generic self
 ---@param self self|FOXStencil.Element
@@ -237,18 +262,41 @@ end
 ---@param group string?
 ---@return self
 function class:setProps(props, group)
+	-- Check group before queuing!
+
+	---@type table<string, boolean>
+	local shape = {}
+
 	group = group or "basic"
-	for k, v in next, props do
+	local p = self.props_groups_named[group]
+
+	for k, v in next, props --[[@as table<string, unknown>]] do
+		local diff = false
+
 		local t = type(v)
 		if t == "table" then
-			v = { table.unpack(v) }
+			v = { v[1], v[2] }
+			diff = p[k][1] ~= v[1] or p[k][2] ~= v[2]
 		elseif t:find("^Vector") then
 			v = v:copy()
 		end
-		self.props_groups_named[group][k] = v
+
+		diff = diff or p[k] ~= v
+		p[k] = v
+
+		if diff and queue_shape[k] then
+			merge(shape, queue_shape[k])
+		end
 	end
 
-	return self:queue()
+	if p ~= self.props then return self end
+
+	if shape.immediate then
+		self:draw()
+	end
+	self:queue(shape)
+
+	return self
 end
 
 ---@generic self
@@ -274,7 +322,7 @@ end
 ---@param self self|FOXStencil.Element
 ---@return self
 function class:remove()
-	self:queue()
+	self:queue(SIBLINGS)
 	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
 	self.sibl = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
 	self.part:remove()
@@ -290,7 +338,7 @@ end
 ---@param pos integer?
 ---@return self
 function class:moveTo(elem, pos)
-	self.sibl[1]:queue()
+	self.sibl[1]:queue(SIBLINGS)
 	if pos then
 		elem.chld:insert(math.clamp(pos, 1, #elem.chld), self:remove())
 	else
@@ -299,7 +347,7 @@ function class:moveTo(elem, pos)
 	self.parn = elem
 	self.root = elem.root
 	self.sibl = elem.chld
-	self.sibl[1]:queue()
+	self.sibl[1]:queue(SIBLINGS)
 	self.part:moveTo(elem.part)
 	self.root:render()
 	return self
@@ -324,7 +372,7 @@ function class:drop(interval)
 	local sibl = self.sibl
 	local key = sibl:getKey(self) --[[@as integer]]
 	sibl:insert(math.clamp(key + interval, 1, #sibl), sibl:remove(key) --[[@as FOXStencil.Element]])
-	sibl[math.clamp(key - math.abs(interval), 1, #sibl)]:queue()
+	sibl[math.clamp(key - math.abs(interval), 1, #sibl)]:queue(SIBLINGS)
 	return self
 end
 
@@ -343,21 +391,34 @@ end
 
 ---@generic self
 ---@param self self|FOXStencil.Element
+---@param shape {immediate: boolean, parents: boolean, siblings: boolean, children: boolean}
 ---@return self
-function class:queue()
+function class:queue(shape)
+	-- Queue children
+
+	if shape.children then
+		for i = 1, #self.sibl do
+			self.sibl[i].queued = true
+		end
+	end
+
 	-- Queue siblings up parent tree
 
-	-- TODO Flag queue reason and break if elements should already be queued by that reason
-	-- TODO No but then what if queue was called twice? Would the flag stack?
-
 	local tree = self
-	repeat
-		for i = 1, #tree.sibl do
-			tree.sibl[i].skip.layout = false
-			tree.sibl[i].skip.redraw = false
-		end
-		tree = tree.parn
-	until not tree
+	if shape.parents then
+		repeat
+			if shape.siblings then
+				for i = 1, #tree.sibl do
+					tree.sibl[i].queued = true
+				end
+			else
+				tree.queued = true
+			end
+			tree = tree.parn
+		until not tree
+	elseif not shape.immediate then
+		tree.queued = true
+	end
 
 	return self
 end
@@ -387,7 +448,7 @@ end
 function class:visible(state)
 	state = state == nil and true or state --[[@as boolean]]
 	self.state.visible = state
-	return self
+	return self:queue(ALL)
 end
 
 return class
