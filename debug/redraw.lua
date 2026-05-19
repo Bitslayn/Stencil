@@ -9,7 +9,7 @@ if not enabled then return end
 -- Inject into element draw call
 
 ---@type FOXStencil.Element
-local class = require("../element/element").class
+local class = require("../element/element")
 
 local draw = class.draw
 

@@ -1,5 +1,5 @@
 ---@type FOXStencil.Element
-local super = require("../element/element").class
+local super = require("../element/element")
 
 ---@class FOXStencil.Screen: FOXStencil.Element
 local class = {}
