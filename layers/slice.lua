@@ -5,41 +5,35 @@ obj.__index = obj
 
 ---@class FOXStencil.Slice.Styles
 local default = {
+	---@type Texture
+	texture = textures["assets.textures.ui"],
+	---@type Vector4
+	color = vec(1, 1, 1, 1),
+
 	---@type Vector2
 	pos = vec(0, 0),
 	---@type Vector2
 	size = vec(0, 0),
-
-	---@type Vector2?
-	reg_pos = nil,
-	---@type Vector2?
-	reg_size = nil,
+	---@type Vector4
+	slice = vec(0, 0, 0, 0),
 
 	---@type Vector2
 	uv_pos = vec(0, 0),
 	---@type Vector2
 	uv_size = vec(1, 1),
 
-	---@type Texture
-	texture = textures["assets.textures.ui"],
-	---@type Vector4
-	color = vec(1, 1, 1, 1),
-	---@type Vector4
-	slice = vec(0, 0, 0, 0),
+	---@type Vector2?
+	reg_pos = nil,
+	---@type Vector2?
+	reg_size = nil,
 }
 
----Redraws the given slice
+---Redraws this slice
 ---@param self FOXStencil.Slice
 local function draw(self)
 	local styles = self.styles
 
-	-- Unpack vars
-
-	local dim = styles.texture:getDimensions()
-
-	local model_x, model_y = styles.pos:unpack()
 	local model_w, model_h = styles.size:unpack()
-
 	local atlas_w, atlas_h = styles.uv_size:unpack()
 
 	local slice_t, slice_r, slice_b, slice_l = styles.slice:unpack()
@@ -123,22 +117,38 @@ local function draw(self)
 
 	-- Update slices
 
+	local pos_x, pos_y = styles.pos:unpack()
+	local dim = styles.texture:getDimensions()
+
 	for y = 1, 3 do
 		for x = 1, 3 do
-			self.tasks[y][x]
-				:uv(styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y]) / dim)
-				:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
-				:pos(-e_model_x[x] - model_x, -e_model_y[y] - model_y)
-				:scale(e_model_w[x], e_model_h[y])
-				:visible(0 < e_atlas_w[x] and 0 < e_atlas_h[y])
+			local visible = 0 < e_atlas_w[x] and 0 < e_atlas_h[y]
 
-				:texture(styles.texture)
-				:dimensions(dim * 1000)
+			if visible then
+				self.tasks[y][x]
+					:uv(styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y]) / dim)
+					:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
+					
+					:pos(-e_model_x[x] - pos_x, -e_model_y[y] - pos_y)
+					:scale(e_model_w[x], e_model_h[y])
+					
+					:dimensions(dim * 1000)
+					:texture(styles.texture)
+					:color(styles.color)
+			end
 
-				:color(styles.color)
+			self.tasks[y][x]:visible(visible)
 		end
 	end
 end
+
+---@generic v
+---@type table<type, fun(v: v): v>
+local copy = {
+	Vector2 = function(v) return v:copy() end,
+	Vector4 = function(v) return v:copy() end,
+	Texture = function(v) return v end,
+}
 
 ---Sets the given styles
 ---@param styles FOXStencil.Slice.Styles
@@ -146,14 +156,9 @@ end
 function obj:setStyles(styles)
 	local diff = false
 
-	for key, value in next, styles do
-		if self.styles[key] ~= value then
-			if type(value):find("^Vector") then
-				self.styles[key] = value --[[@as Vector.any]]:copy()
-			else
-				self.styles[key] = value
-			end
-
+	for k, v in next, styles do
+		if self.styles[k] ~= v then
+			self.styles[k] = copy[type(v)](v)
 			diff = true
 		end
 	end
@@ -171,8 +176,6 @@ end
 ---@param part ModelPart
 ---@return FOXStencil.Slice
 return function(part)
-	local uuid = client.intUUIDToString(client.generateUUID())
-
 	---@type SpriteTask[][]
 	local tasks = {}
 	---@class FOXStencil.Slice
@@ -184,7 +187,7 @@ return function(part)
 	for y = 1, 3 do
 		tasks[y] = {}
 		for x = 1, 3 do
-			tasks[y][x] = part:newSprite(table.concat({ "slice", uuid, x, y }, "-"))
+			tasks[y][x] = part:newSprite("slice-" .. math.random())
 				:size(1, 1)
 				:renderType("EMISSIVE_SOLID")
 		end
