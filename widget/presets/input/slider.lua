@@ -27,6 +27,8 @@ return function(class, super, elem)
 			border_extend = vec(0, 0, -2, 0),
 		})
 		switch:setProps({ border = vec(1, 1, 1, 1) }, "hover")
+		
+		switch.state.auto_queue = false
 
 		local drag
 		local anchor = vec(0, 0)
@@ -51,12 +53,12 @@ return function(class, super, elem)
 				local slide_pos = (true_pos - anchor + rel_pos - switch.state.size / 2)
 					/ (widg.state.size - switch.state.size)
 				-- slide_pos.x = math.round(slide_pos.x * 9) / 9
-				switch:setProps({
-					pos = vec(
-						math.clamp(slide_pos.x, 0, 1) * (widg.state.size.x - switch.state.size.x),
-						switch.state.pos.y
-					),
-				})
+
+				switch.state.pos = vec(
+					math.clamp(slide_pos.x, 0, 1) * (widg.state.size.x - switch.state.size.x),
+					switch.state.pos.y
+				)
+				switch:draw()
 			end,
 		}):setProps(props or {})
 
