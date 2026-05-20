@@ -16,13 +16,11 @@ return function(class, super, elem)
 	-- Be sure to change this
 
 	---@param name string
-	---@param props FOXStencil.Props?
 	---@return FOXStencil.Widgets.Switch
-	function elem:newSwitch(name, props)
+	function elem:newSwitch(name)
 		local widg = self:newElement(name) --[[@as FOXStencil.Widgets.Switch]]
 
 		widg.toggled = false
-		widg.uuid = client.intUUIDToString(client.generateUUID())
 		widg.switch = widg:newElement("switch", {
 			size = vec(10, 0),
 			size_flex = { false, true },
@@ -57,10 +55,12 @@ return function(class, super, elem)
 
 				widg:setToggled(not widg.toggled)
 			end,
-		}):setProps(props or {})
+		})
 
 		widg.switch:setProps({ tex_color = vectors.hexToRGB("red") })
 		widg:setProps({ tex_color = vectors.hexToRGB("red") * 0.5 })
+
+		widg.switch.state.auto_queue = false
 
 		return setmetatable(widg, class)
 	end
@@ -79,37 +79,19 @@ return function(class, super, elem)
 		if self.toggled == state then return self end
 		self.toggled = state
 
-		-- Call function
-
 		if self.toggle then
 			self.toggle(self, self.toggled)
 		end
 
-		-- Animate switch
+		local range = self.state.size.x - self.switch.state.size.x
+		local color = vectors.hexToRGB(state and "green" or "red")
 
-		local timer = state and 0 or 1
-		local velocity = state and 0.75 or -0.75
+		self.switch:setProps({ tex_color = color })
+		self:setProps({ tex_color = color * 0.5 })
 
-		events.world_render:remove(self.uuid)
-		events.world_render:register(function(delta)
-			local l = math.lerp(timer, timer + velocity, delta)
-			if l < 0 or 1 < l then
-				l = math.clamp(l, 0, 1)
-				self.switch:setProps({ tex_color = state and vectors.hexToRGB("green") or vectors.hexToRGB("red") })
-				self:setProps({ tex_color = state and vectors.hexToRGB("green") * 0.5 or vectors.hexToRGB("red") * 0.5 })
-				events.world_render:remove(self.uuid)
-			end
-			self:setProps({ align = vec(l, 0) })
-		end, self.uuid)
-
-		events.world_tick:remove(self.uuid)
-		events.world_tick:register(function()
-			timer = timer + velocity
-			if timer < 0 or 1 < timer then
-				timer = math.clamp(timer, 0, 1)
-				events.world_tick:remove(self.uuid)
-			end
-		end, self.uuid)
+		self.switch.state.pos.x = math.lerp(0, range, state and 1 or 0)
+		self:draw()
+		self.switch:draw()
 
 		return self
 	end
