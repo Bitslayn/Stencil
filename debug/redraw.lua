@@ -2,7 +2,7 @@
 Flashes an element white when it is being redrawn
 ]]
 
-local enabled = false
+local enabled = true
 
 if not enabled then return end
 
@@ -26,7 +26,7 @@ local function pulse(part, pos, size)
 		:pos(pos.xy_)
 		:scale(size.xy_)
 		:color(1, 1, 1, 0.25)
-		:renderType("TRANSLUCENT")
+		-- :renderType("SOLID")
 
 	if old_sprite then return end
 

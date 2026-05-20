@@ -1,3 +1,9 @@
+3rd Rewrite:
+	☐ Rewrite layers and add sprite layer
+	☐ Decouple layer rendering from elements
+	☐ Rewrite elements
+	☐ Rewrite widgets
+
 Flex queue:
 	✘ Bake element property groups
 	✔ Element redraw shapes to queue immediate, siblings, or children whenever properties change

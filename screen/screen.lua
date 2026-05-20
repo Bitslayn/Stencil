@@ -25,6 +25,9 @@ end
 local layout = require("./render/layout")
 local interact = require("./render/interact")
 
+local min = math.huge
+local max = 0
+
 ---@param block BlockState?
 ---@return self
 function class:render(block)
@@ -59,20 +62,27 @@ function class:render(block)
 
 	-- Draw screen
 
-	-- local t = client.getSystemTime()
+	local cur = client.getSystemTime()
+
 	for i = 1, len do
 		local elem = self.chld[i]
-		layout.restore(elem) -- 31.697
+		layout.restore(elem)              -- 31.697
 
-		layout.size(elem, 1) -- 38.597μs (Text wrapping)
-		layout.grow(elem, 1) -- 38.597μs
-		layout.size(elem, 2) -- 62.197μs (Text wrapping)
-		layout.grow(elem, 2) -- 37.567μs
-		layout.position(elem) -- 32.497μs < 59.197μs Optimized+
+		layout.size(elem, 1)              -- 38.597μs (Text wrapping)
+		layout.grow(elem, 1)              -- 38.597μs
+		layout.size(elem, 2)              -- 62.197μs (Text wrapping)
+		layout.grow(elem, 2)              -- 37.567μs
+		layout.position(elem)             -- 32.497μs < 59.197μs Optimized+
 
 		layout.draw(elem, (i - 1) * 2, 1 / len) -- 655.897μs
 	end
-	-- host:actionbar(tostring(client.getSystemTime() - t))
+
+	cur = client.getSystemTime() - cur
+
+	min = math.min(min, cur)
+	max = math.max(max, cur)
+
+	-- host:actionbar(cur .. "ms (min: " .. min .. "ms, max: " .. max .. "ms)")
 
 	return self
 end
