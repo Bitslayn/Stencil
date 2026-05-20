@@ -1,0 +1,194 @@
+---@class FOXStencil.Slice
+local obj = {}
+---@package
+obj.__index = obj
+
+---@class FOXStencil.Slice.Styles
+local default = {
+	---@type Vector2
+	pos = vec(0, 0),
+	---@type Vector2
+	size = vec(0, 0),
+
+	---@type Vector2?
+	reg_pos = nil,
+	---@type Vector2?
+	reg_size = nil,
+
+	---@type Vector2
+	uv_pos = vec(0, 0),
+	---@type Vector2
+	uv_size = vec(1, 1),
+
+	---@type Texture
+	texture = textures["assets.textures.ui"],
+	---@type Vector4
+	color = vec(1, 1, 1, 1),
+	---@type Vector4
+	slice = vec(0, 0, 0, 0),
+}
+
+---Redraws the given slice
+---@param self FOXStencil.Slice
+local function draw(self)
+	local styles = self.styles
+
+	-- Unpack vars
+
+	local dim = styles.texture:getDimensions()
+
+	local model_x, model_y = styles.pos:unpack()
+	local model_w, model_h = styles.size:unpack()
+
+	local atlas_w, atlas_h = styles.uv_size:unpack()
+
+	local slice_t, slice_r, slice_b, slice_l = styles.slice:unpack()
+
+	-- Row slices
+
+	local e_atlas_x = { 0, slice_l, atlas_w - slice_r }
+	local e_atlas_w = { slice_l, atlas_w - slice_l - slice_r, slice_r }
+	local e_model_x = { 0, slice_l, model_w - slice_r }
+	local e_model_w = { slice_l, model_w - slice_l - slice_r, slice_r }
+
+	-- Column slices
+
+	local e_atlas_y = { 0, slice_t, atlas_h - slice_b }
+	local e_atlas_h = { slice_t, atlas_h - slice_t - slice_b, slice_b }
+	local e_model_y = { 0, slice_t, model_h - slice_b }
+	local e_model_h = { slice_t, model_h - slice_t - slice_b, slice_b }
+
+	-- Crop region
+
+	local reg_pos = styles.reg_pos or vec(0, 0)
+	local reg_size = styles.reg_size or styles.size
+	local reg_x, reg_y = (reg_size + reg_pos):unpack()
+	local marker_x, marker_y = reg_pos:unpack()
+
+	-- Crop along x
+
+	for i = 1, 3 do
+		-- Clip after (right)
+
+		reg_x = reg_x - e_model_w[i]
+		if reg_x < 0 then
+			e_model_w[i] = e_model_w[i] + reg_x
+			if i ~= 2 then
+				e_atlas_w[i] = e_atlas_w[i] + reg_x
+			end
+			reg_x = 0
+		end
+
+		-- Clip before (left)
+
+		local t = e_model_w[i]
+		if 0 < marker_x then
+			e_model_x[i] = math.max(e_model_x[i] + marker_x, 0)
+			e_model_w[i] = math.max(e_model_w[i] - marker_x, 0)
+			if i ~= 2 then
+				e_atlas_x[i] = e_atlas_x[i] + marker_x
+				e_atlas_w[i] = e_atlas_w[i] - marker_x
+			end
+		end
+		marker_x = marker_x - t
+	end
+
+	-- Crop along y
+
+	for i = 1, 3 do
+		-- Clip after (below)
+
+		reg_y = reg_y - e_model_h[i]
+		if reg_y < 0 then
+			e_model_h[i] = e_model_h[i] + reg_y
+			if i ~= 2 then
+				e_atlas_h[i] = e_atlas_h[i] + reg_y
+			end
+			reg_y = 0
+		end
+
+		-- Clip before (above)
+
+		local t = e_model_h[i]
+		if 0 < marker_y then
+			e_model_y[i] = math.max(e_model_y[i] + marker_y, 0)
+			e_model_h[i] = math.max(e_model_h[i] - marker_y, 0)
+			if i ~= 2 then
+				e_atlas_y[i] = e_atlas_y[i] + marker_y
+				e_atlas_h[i] = e_atlas_h[i] - marker_y
+			end
+		end
+		marker_y = marker_y - t
+	end
+
+	-- Update slices
+
+	for y = 1, 3 do
+		for x = 1, 3 do
+			self.tasks[y][x]
+				:uv(styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y]) / dim)
+				:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
+				:pos(-e_model_x[x] - model_x, -e_model_y[y] - model_y)
+				:scale(e_model_w[x], e_model_h[y])
+				:visible(0 < e_atlas_w[x] and 0 < e_atlas_h[y])
+
+				:texture(styles.texture)
+				:dimensions(dim * 1000)
+
+				:color(styles.color)
+		end
+	end
+end
+
+---Sets the given styles
+---@param styles FOXStencil.Slice.Styles
+---@return self
+function obj:setStyles(styles)
+	local diff = false
+
+	for key, value in next, styles do
+		if self.styles[key] ~= value then
+			if type(value):find("^Vector") then
+				self.styles[key] = value --[[@as Vector.any]]:copy()
+			else
+				self.styles[key] = value
+			end
+
+			diff = true
+		end
+	end
+
+	if diff then
+		draw(self)
+	end
+
+	return self
+end
+
+---Generates a slice layer
+---
+---Call :setStyles() with a table to change the styles
+---@param part ModelPart
+---@return FOXStencil.Slice
+return function(part)
+	local uuid = client.intUUIDToString(client.generateUUID())
+
+	---@type SpriteTask[][]
+	local tasks = {}
+	---@class FOXStencil.Slice
+	local self = {
+		tasks = tasks,
+		styles = setmetatable({}, { __index = default }),
+	}
+
+	for y = 1, 3 do
+		tasks[y] = {}
+		for x = 1, 3 do
+			tasks[y][x] = part:newSprite(table.concat({ "slice", uuid, x, y }, "-"))
+				:size(1, 1)
+				:renderType("EMISSIVE_SOLID")
+		end
+	end
+
+	return setmetatable(self, obj)
+end
