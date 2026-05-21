@@ -49,30 +49,14 @@ local function draw(self)
 	self.task:visible(visible)
 end
 
----@generic v
----@type table<type, fun(v: v): v>
-local copy = {
-	Vector2 = function(v) return v:copy() end,
-	Vector3 = function(v) return v:copy() end,
-	Vector4 = function(v) return v:copy() end,
-	Texture = function(v) return v end,
-	boolean = function(v) return v end,
-}
+---@type fun(from: table, to: table): diff: boolean
+local copy = require(... .. "/../common/copy")
 
 ---Sets the given styles
 ---@param styles FOXStencil.Sprite.Styles
 ---@return self
 function obj:setStyles(styles)
-	local diff = false
-
-	for k, v in next, styles do
-		if self.styles[k] ~= v then
-			self.styles[k] = copy[type(v)](v)
-			diff = true
-		end
-	end
-
-	if diff then
+	if copy(styles, self.styles) then
 		draw(self)
 	end
 
