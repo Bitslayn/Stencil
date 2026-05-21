@@ -15,8 +15,6 @@ local default = {
 	---@type number
 	weight = 1,
 }
----@package
-default.__index = default
 
 ---Redraws this label
 ---@param self FOXStencil.Border
@@ -89,7 +87,7 @@ function obj:setStyles(styles)
 	return self
 end
 
----Generates a label layer
+---Generates a border layer
 ---
 ---Call :setStyles() with a table to change the styles
 ---@param part ModelPart

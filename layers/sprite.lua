@@ -1,53 +1,49 @@
----@class FOXStencil.Label
+---@class FOXStencil.Sprite
 local obj = {}
 ---@package
 obj.__index = obj
 
----@class FOXStencil.Label.Styles
+---@class FOXStencil.Sprite.Styles
 local default = {
-	---@type string
-	text = "",
+	---@type Texture
+	texture = textures["FOXStencil_blank"],
 	---@type Vector3|Vector4
 	color = vec(1, 1, 1, 1),
+	---@type boolean?
+	grid = false,
 
 	---@type Vector2
 	pos = vec(0, 0),
-	---@type number
-	size = 9,
-	---@type number
-	width = 0,
-	---@type boolean
-	wrap = true,
-	---@type "CENTER"|"LEFT"|"RIGHT"
-	alignment = "LEFT",
+	---@type Vector2
+	size = vec(0, 0),
 
-	---@type Vector3|Vector4
-	outline = vec(0, 0, 0, 0),
-	---@type boolean
-	shadow = false,
+	---@type Vector2
+	uv_pos = vec(0, 0),
+	---@type Vector2
+	uv_size = vec(1, 1),
 }
 
 ---Redraws this label
----@param self FOXStencil.Label
+---@param self FOXStencil.Sprite
 local function draw(self)
 	local styles = self.styles
+	
+	local dim = styles.texture:getDimensions()
 
-	local size = styles.size / 9
-
-	local visible = styles.text ~= ""
+	local visible = 0 < styles.size:length()
+	local size = styles.grid and styles.size or styles.uv_size
 
 	if visible then
 		self.task
-			:text(styles.text)
-			:width(styles.width / size)
-			:alignment(styles.alignment)
+			:uv(styles.uv_pos / dim)
+			:region(size * 1000)
 
-			:pos(-styles.pos:augmented(1 / 16))
-			:scale(size)
+			:pos(-styles.pos:augmented(0))
+			:scale(styles.size:augmented())
 
-			:setOutline(styles.outline.a ~= 0)
-			:outlineColor(styles.outline.xyz)
-			:shadow(styles.shadow)
+			:dimensions(dim * 1000)
+			:texture(styles.texture)
+			:color(styles.color)
 	end
 
 	self.task:visible(visible)
@@ -59,13 +55,12 @@ local copy = {
 	Vector2 = function(v) return v:copy() end,
 	Vector3 = function(v) return v:copy() end,
 	Vector4 = function(v) return v:copy() end,
-	string = function(v) return v end,
-	number = function(v) return v end,
+	Texture = function(v) return v end,
 	boolean = function(v) return v end,
 }
 
 ---Sets the given styles
----@param styles FOXStencil.Label.Styles
+---@param styles FOXStencil.Sprite.Styles
 ---@return self
 function obj:setStyles(styles)
 	local diff = false
@@ -84,16 +79,17 @@ function obj:setStyles(styles)
 	return self
 end
 
----Generates a label layer
+---Generates a sprite layer
 ---
 ---Call :setStyles() with a table to change the styles
 ---@param part ModelPart
----@return FOXStencil.Label
+---@return FOXStencil.Sprite
 return function(part)
-	---@class FOXStencil.Label
+	---@class FOXStencil.Sprite
 	local self = {
-		task = part:newText("label-" .. math.random())
-			:light(15),
+		task = part:newSprite("sprite-" .. math.random())
+			:size(1, 1)
+			:renderType("CUTOUT_EMISSIVE_SOLID"),
 		styles = setmetatable({}, { __index = default }),
 	}
 

@@ -23,9 +23,9 @@ local default = {
 	uv_size = vec(1, 1),
 
 	---@type Vector2?
-	reg_pos = nil,
+	clip_pos = nil,
 	---@type Vector2?
-	reg_size = nil,
+	clip_size = nil,
 }
 
 ---Redraws this slice
@@ -54,8 +54,8 @@ local function draw(self)
 
 	-- Crop region
 
-	local reg_pos = styles.reg_pos or vec(0, 0)
-	local reg_size = styles.reg_size or styles.size
+	local reg_pos = styles.clip_pos or vec(0, 0)
+	local reg_size = styles.clip_size or styles.size
 	local reg_x, reg_y = (reg_size + reg_pos):unpack()
 	local marker_x, marker_y = reg_pos:unpack()
 
