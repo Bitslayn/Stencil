@@ -6,8 +6,8 @@ obj.__index = obj
 ---@class FOXStencil.Slice.Styles
 local default = {
 	---@type Texture
-	texture = textures["assets.textures.ui"],
-	---@type Vector4
+	texture = textures["FOXStencil_blank"],
+	---@type Vector3|Vector4
 	color = vec(1, 1, 1, 1),
 
 	---@type Vector2
@@ -128,10 +128,10 @@ local function draw(self)
 				self.tasks[y][x]
 					:uv(styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y]) / dim)
 					:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
-					
+
 					:pos(-e_model_x[x] - pos_x, -e_model_y[y] - pos_y)
 					:scale(e_model_w[x], e_model_h[y])
-					
+
 					:dimensions(dim * 1000)
 					:texture(styles.texture)
 					:color(styles.color)
@@ -146,6 +146,7 @@ end
 ---@type table<type, fun(v: v): v>
 local copy = {
 	Vector2 = function(v) return v:copy() end,
+	Vector3 = function(v) return v:copy() end,
 	Vector4 = function(v) return v:copy() end,
 	Texture = function(v) return v end,
 }
@@ -189,7 +190,7 @@ return function(part)
 		for x = 1, 3 do
 			tasks[y][x] = part:newSprite("slice-" .. math.random())
 				:size(1, 1)
-				:renderType("EMISSIVE_SOLID")
+				:renderType("CUTOUT_EMISSIVE_SOLID")
 		end
 	end
 

@@ -24,7 +24,7 @@ local default = {
 	---@type Vector3|Vector4
 	outline = vec(0, 0, 0, 0),
 	---@type boolean
-	shadow = false
+	shadow = false,
 }
 ---@package
 default.__index = default
@@ -36,17 +36,23 @@ local function draw(self)
 
 	local size = styles.size / 9
 
-	self.task
-		:text(styles.text)
-		:width(styles.width / size)
-		:alignment(styles.alignment)
+	local visible = styles.text ~= ""
 
-		:pos(-styles.pos:augmented(1 / 16))
-		:scale(size)
+	if visible then
+		self.task
+			:text(styles.text)
+			:width(styles.width / size)
+			:alignment(styles.alignment)
 
-		:setOutline(styles.outline.a ~= 0)
-		:outlineColor(styles.outline.xyz)
-		:shadow(styles.shadow)
+			:pos(-styles.pos:augmented(1 / 16))
+			:scale(size)
+
+			:setOutline(styles.outline.a ~= 0)
+			:outlineColor(styles.outline.xyz)
+			:shadow(styles.shadow)
+	end
+
+	self.task:visible(visible)
 end
 
 ---@generic v
