@@ -1,5 +1,5 @@
 3rd Rewrite:
-	☐ Rewrite layers and add sprite layer
+	✔ Rewrite layers and add sprite layer
 	☐ Decouple layer rendering from elements
 	☐ Rewrite elements
 	☐ Rewrite widgets
