@@ -135,6 +135,13 @@ function class:newElement(name, props)
 	return elem
 end
 
+---@generic FOXStencil.Layer
+---@param layer fun(part: ModelPart): FOXStencil.Layer
+---@return FOXStencil.Layer
+function class:addLayer(layer)
+	return layer(self.part)
+end
+
 ---@generic t
 ---@param a `t`
 ---@param b t
