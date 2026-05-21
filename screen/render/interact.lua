@@ -14,8 +14,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 	if root.clicked and not click then
 		local props = root.clicked.props
-
-		root.clicked:setPropsGroup(2, false)
+		
 		if props.click then
 			props.click(rel_pos, true_pos, sound_pos, false)
 		end
@@ -25,8 +24,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 	if root.hovered and root.hovered ~= elem then
 		local props = root.hovered.props
-
-		root.hovered:setPropsGroup(1, false)
+		
 		if props.hover then
 			props.hover(rel_pos, true_pos, sound_pos, false, true)
 		end
@@ -42,10 +40,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 	local changed = root.hovered ~= elem
 	root.hovered = elem
-
-	if changed then
-		elem:setPropsGroup(1, true)
-	end
+	
 	if props.hover then
 		props.hover(rel_pos, true_pos, sound_pos, true, changed)
 	end
@@ -60,8 +55,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 			elem = elem.parn --[[@as FOXStencil.Element]]
 			props = elem.props
 		end
-
-		elem:setPropsGroup(2, true)
+		
 		if props.click then
 			props.click(rel_pos, true_pos, sound_pos, true)
 		end
@@ -99,8 +93,8 @@ function lib.relative_hover(elem, click, rel_pos, true_pos, sound_pos)
 	-- TODO Fix clicking outside an element then moving cursor into element triggering a click for that element
 
 	local state = elem.state
-	local bound_pos = state.bound_pos
-	local bound_size = state.bound_size
+	local bound_pos = state.pos
+	local bound_size = state.size
 	if not (bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and elem.state.visible) then return end
 
 	rel_pos = rel_pos - state.pos
@@ -140,7 +134,6 @@ function lib.screen_hover(elem)
 end
 
 local EPSILON = 2.2204460492503131e-16
-local abs = math.abs
 local dot = vectors.vec3().dot
 
 ---@param ray_pos Vector3

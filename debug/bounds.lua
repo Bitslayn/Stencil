@@ -9,10 +9,10 @@ local enabled = false
 
 if not enabled then return end
 
--- Inject into element draw call
+-- Inject into layout draw call
 
----@type FOXStencil.Element
-local class = require("../element/element")
+---@type FOXStencil.Render.Layout
+local class = require("../screen/render/layout")
 
 local draw = class.draw
 
@@ -41,21 +41,32 @@ local function outline(name, part, color, pos, size)
 end
 
 function class.draw(elem, ...)
+	-- TEMP
+
+	elem.state.pos = vectors.vec2(table.unpack(elem.state.raw_pos))
+	elem.state.size = vectors.vec2(table.unpack(elem.state.raw_size))
+	elem.state.size_min = vectors.vec2(table.unpack(elem.state.raw_size_min))
+	elem.state.size_max = vectors.vec2(table.unpack(elem.state.raw_size_max))
+
 	local part = elem.part
 
 	local props = elem.props
 	local state = elem.state
 
-	local pos = props.tex_extend.wx --[[@as Vector2]]
-	local size = state.size.xy + props.tex_extend.wx + props.tex_extend.yz --[[@as Vector2]]
+	local pos = vec(0, 0)
+	local size = state.size
 
 	outline("debug-bounds-outer", part, vectors.hexToRGB("figura_blue"), pos, size)
 
 	if props.padding:length() > 0 then
 		outline("debug-bounds-inner", part, vectors.hexToRGB("orange"),
 			pos - props.padding.wx --[[@as Vector2]],
-			size - props.padding.wx - props.padding.yz --[[@as Vector2]] --[[@as Vector2]]
+			size - props.padding.wx - props.padding.yz --[[@as Vector2]]
 		)
+	end
+
+	if elem.name == "elem_b" then
+		host:actionbar(state.size[1] .. " " .. state.raw_size[1])
 	end
 
 	draw(elem, ...)

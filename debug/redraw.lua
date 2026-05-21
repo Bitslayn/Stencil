@@ -6,10 +6,10 @@ local enabled = false
 
 if not enabled then return end
 
--- Inject into element draw call
+-- Inject into layout draw call
 
----@type FOXStencil.Element
-local class = require("../element/element")
+---@type FOXStencil.Render.Layout
+local class = require("../screen/render/layout")
 
 local draw = class.draw
 
@@ -40,15 +40,14 @@ local function pulse(part, pos, size)
 	events.tick:register(tick)
 end
 
-function class.draw(elem)
+function class.draw(elem, ...)
 	local part = elem.part
-
-	local props = elem.props
+	
 	local state = elem.state
 
-	local pos = props.tex_extend.wx --[[@as Vector2]]
-	local size = state.size.xy + props.tex_extend.wx + props.tex_extend.yz --[[@as Vector2]]
+	local pos = vec(0, 0)
+	local size = state.size
 
 	pulse(part, pos, size)
-	draw(elem)
+	draw(elem, ...)
 end

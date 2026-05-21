@@ -6,7 +6,7 @@ class.__index = class
 ---@class FOXStencil.Props
 ---@field click fun(rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean)?
 ---@field hover fun(rel_pos: Vector2, true_pos: Vector2, sound_pos: Vector3, state: boolean, changed: boolean)?
-local props_default = {
+local default = {
 	---This element's preferred offset position
 	pos = vec(0, 0),
 	---State defines whether this element should be absolutely positioned and draw through its siblings
@@ -31,65 +31,12 @@ local props_default = {
 	vertical = false,
 	---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
 	align = vec(0, 0),
-
-	---Background texture
-	---@type Texture
-	tex = textures["FOXStencil_blank"],
-	---UV position on the texture
-	tex_uv_pos = vec(0, 0),
-	---UV region on the texture
-	tex_uv_size = vec(1, 1),
-	---Background tint
-	---@type Vector3|Vector4
-	tex_color = vec(1, 1, 1, 1),
-	---Amount of pixels to overlap in each direction
-	tex_extend = vec(0, 0, 0, 0),
-	---UV pixels starting at each edge to slice inwards
-	tex_slice = vec(0, 0, 0, 0),
-	---If set, virtually offsets the texture's position
-	---@type Vector2
-	tex_reg_pos = nil,
-	---If set, virtually sets the texture's size
-	---@type Vector2
-	tex_reg_size = nil,
-
-	---Border line weight at each edge
-	border = vec(0, 0, 0, 0),
-	---Border color
-	---@type Vector3|Vector4
-	border_color = vec(1, 1, 1, 1),
-	---Border offset at each edge
-	border_extend = vec(0, 0, 0, 0),
-
-	---Text string
-	label = "",
-	---Text shadow state
-	---@type boolean
-	label_shadow = false,
-	---Text outline state
-	---@type boolean
-	label_outline = false,
-	---Text outline color
-	label_outline_color = vec(1, 1, 1) / 8,
-	---Text size
-	label_size = 1,
-	---Text margin
-	label_margin = vec(0, 0, 0, 0),
-	---Text alignment
-	label_align = vec(0.5, 0.5),
-	---Text wrap
-	---@type boolean
-	label_wrap = true,
 }
-
----@package
-props_default.__index = props_default
 
 -- immediate, parents, siblings, children
 
 ---@alias FOXStencil.QueueShape {immediate: boolean, parents: boolean, siblings: boolean, children: boolean}
 
-local IMMEDIATE = { immediate = true }
 local PARENTS = { parents = true }
 local SIBLINGS = { parents = true, siblings = true }
 local CHILDREN = { parents = true, children = true }
@@ -109,34 +56,6 @@ local queue_shape = {
 	gap = ALL,
 	vertical = ALL,
 	align = ALL,
-
-	tex = IMMEDIATE,
-	tex_uv_pos = IMMEDIATE,
-	tex_uv_size = IMMEDIATE,
-	tex_color = IMMEDIATE,
-	tex_extend = IMMEDIATE,
-	tex_slice = IMMEDIATE,
-	tex_reg_pos = IMMEDIATE,
-	tex_reg_size = IMMEDIATE,
-
-	border = IMMEDIATE,
-	border_color = IMMEDIATE,
-	border_extend = IMMEDIATE,
-
-	label = function(old, new, elem)
-		if not elem.props.label_wrap and client.getTextWidth(old) == client.getTextWidth(new) then
-			return IMMEDIATE
-		else
-			return SIBLINGS
-		end
-	end,
-	label_shadow = IMMEDIATE,
-	label_outline = IMMEDIATE,
-	label_outline_color = IMMEDIATE,
-	label_size = SIBLINGS,
-	label_margin = SIBLINGS,
-	label_align = IMMEDIATE,
-	label_wrap = SIBLINGS,
 }
 
 ---@param part ModelPart
@@ -145,39 +64,12 @@ local queue_shape = {
 ---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
 local function new(name, part, root, parn, sibl)
-	local basic = setmetatable({}, props_default)
-	local hover = setmetatable({}, { __index = basic })
-	local click = setmetatable({}, { __index = basic })
-	local mixed = setmetatable({}, {
-		__index = function(_, k)
-			return rawget(click, k) or hover[k]
-		end,
-	}) --[[@as FOXStencil.Props]]
-
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
 		name = name,
 
-		props = basic,
-		props_groups = {
-			basic, -- None
-			hover, -- ID: 1
-			click, -- ID: 2
-			mixed, -- Both 1 and 2
-		},
-		props_groups_shape = {
-			basic = {},
-			hover = {},
-			click = {},
-			mixed = {},
-		},
-		props_groups_named = {
-			basic = basic,
-			hover = hover,
-			click = click,
-			mixed = mixed,
-		},
+		props = setmetatable({}, { __index = default }),
 
 		---@class FOXStencil.Element.State
 		state = {
@@ -187,7 +79,7 @@ local function new(name, part, root, parn, sibl)
 			---This element's calculated position relative to its parent
 			pos = vec(0, 0),
 			---This element's position being calculated
-			calc_pos = { 0, 0 },
+			raw_pos = { 0, 0 },
 
 			---Interlaced layer used to prevent z fighting elements
 			layer = 0,
@@ -195,15 +87,15 @@ local function new(name, part, root, parn, sibl)
 			---This element's calculated size
 			size = vec(0, 0),
 			---This element's size being calculated
-			calc_size = { 0, 0 },
+			raw_size = { 0, 0 },
 			---This element's calculated minimum size
 			size_min = vec(0, 0),
 			---This element's minimum size being calculated
-			calc_size_min = { 0, 0 },
+			raw_size_min = { 0, 0 },
 			---This element's calculated maximum size
 			size_max = vec(0, 0),
 			---This element's minimum size being calculated
-			calc_size_max = { 0, 0 },
+			raw_size_max = { 0, 0 },
 
 			---Precalculated size of child elements with gap along direction
 			child_span = 0,
@@ -214,15 +106,6 @@ local function new(name, part, root, parn, sibl)
 
 			---Position on this element that was hovered
 			hover_pos = vec(0, 0),
-			---This element's bounding box position
-			bound_pos = vec(0, 0),
-			---This element's bounding box size
-			bound_size = vec(0, 0),
-
-			---Props group index set by hovering or clicking the element
-			mouse_mode = 1,
-			---Automatically queues this element when its properties are changed
-			auto_queue = true,
 		},
 
 		root = root,
@@ -233,12 +116,6 @@ local function new(name, part, root, parn, sibl)
 
 		queued = true,
 	}, class)
-
-	self.layers = {
-		require("./layers/slice")(self),
-		require("./layers/border")(self),
-		require("./layers/label")(self),
-	}
 
 	return self
 end
@@ -270,16 +147,14 @@ end
 ---@generic self
 ---@param self self|FOXStencil.Element
 ---@param props FOXStencil.Props
----@param group string?
 ---@return self
-function class:setProps(props, group)
+function class:setProps(props)
 	-- Check group before queuing!
 
 	---@type table<string, boolean>
 	local shape = {}
 
-	group = group or "basic"
-	local p = self.props_groups_named[group]
+	local p = self.props
 
 	for k, v in next, props --[[@as table<string, unknown>]] do
 		local diff = false
@@ -305,32 +180,11 @@ function class:setProps(props, group)
 		p[k] = v
 	end
 
-	if not self.state.auto_queue or p ~= self.props then return self end
+	if p ~= self.props then return self end
 
-	if shape.immediate then
-		self:draw()
-	end
 	self:queue(shape)
 
 	return self
-end
-
----@generic self
----@param self self|FOXStencil.Element
----@param id integer
----@param state boolean
----@return self
-function class:setPropsGroup(id, state)
-	if state then
-		self.state.mouse_mode = bit32.bor(self.state.mouse_mode - 1, id) + 1
-	else
-		local _id = bit32.bxor(id, #self.props_groups - 1)
-		self.state.mouse_mode = bit32.band(self.state.mouse_mode - 1, _id) + 1
-	end
-
-	self.props = self.props_groups[self.state.mouse_mode]
-
-	return self:draw()
 end
 
 ---Removes this element from its parent
@@ -434,24 +288,6 @@ function class:queue(shape)
 		until not tree
 	elseif not shape.immediate then
 		tree.queued = true
-	end
-
-	return self
-end
-
----@generic self
----@param self self|FOXStencil.Element
----@return self
-function class:draw()
-	local state = self.state
-	local extend = self.props.tex_extend
-	state.bound_pos = state.pos - extend.wx --[[@as Vector2]]
-	state.bound_size = state.size + extend.wx + extend.yz --[[@as Vector2]]
-
-	self.part:pos(-self.state.pos:augmented(self.state.layer)):visible(self.state.visible)
-
-	for i = 1, #self.layers do
-		self.layers[i]:draw()
 	end
 
 	return self

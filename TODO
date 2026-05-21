@@ -1,7 +1,9 @@
 3rd Rewrite:
 	✔ Rewrite layers and add sprite layer
-	☐ Decouple layer rendering from elements
-	☐ Rewrite elements
+	✔ Decouple layer rendering from elements
+	☐ Allow elements to take layers
+	☐ Rewrite interaction
+	☐ Add events for element hover, click, redraw
 	☐ Rewrite widgets
 
 Flex queue:

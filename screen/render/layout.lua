@@ -40,20 +40,20 @@ function lib.size(elem, axis)
 	-- Restore
 
 	if axis == 1 then
-		state.calc_size = { props.size:unpack() }
-		state.calc_size_min = { props.size_min:unpack() }
-		state.calc_size_max = { props.size_max:unpack() }
+		state.raw_size = { props.size:unpack() }
+		state.raw_size_min = { props.size_min:unpack() }
+		state.raw_size_max = { props.size_max:unpack() }
 
-		state.calc_size[1] = math.clamp(state.calc_size[1], state.calc_size_min[1], state.calc_size_max[1])
-		state.calc_size[2] = math.clamp(state.calc_size[2], state.calc_size_min[2], state.calc_size_max[2])
+		state.raw_size[1] = math.clamp(state.raw_size[1], state.raw_size_min[1], state.raw_size_max[1])
+		state.raw_size[2] = math.clamp(state.raw_size[2], state.raw_size_min[2], state.raw_size_max[2])
 	end
 
-	if props.label ~= "" and axis == 1 then
-		local width = client.getTextWidth(props.label_wrap and string.gsub(props.label, "%s", "\n") or props.label)
-			* props.label_size + props.label_margin.w + props.label_margin.y
-		state.calc_size[1] = math.max(state.calc_size[1], width)
-		state.calc_size_min[1] = math.max(state.calc_size_min[1], width)
-	end
+	-- if props.label ~= "" and axis == 1 then
+	-- 	local width = client.getTextWidth(props.label_wrap and string.gsub(props.label, "%s", "\n") or props.label)
+	-- 		* props.label_size + props.label_margin.w + props.label_margin.y
+	-- 	state.raw_size[1] = math.max(state.raw_size[1], width)
+	-- 	state.raw_size_min[1] = math.max(state.raw_size_min[1], width)
+	-- end
 
 	-- Fit children
 
@@ -67,42 +67,42 @@ function lib.size(elem, axis)
 				-- Normal
 
 				if axis == a then
-					size = size + chld.state.calc_size[a]
-					state.calc_size_min[a] = state.calc_size_min[a] + chld.state.calc_size_min[a]
+					size = size + chld.state.raw_size[a]
+					state.raw_size_min[a] = state.raw_size_min[a] + chld.state.raw_size_min[a]
 				else
-					state.calc_size[b] = math.max(state.calc_size[b], chld.state.calc_size[b])
-					state.calc_size_min[b] = math.max(state.calc_size_min[b], chld.state.calc_size_min[b])
+					state.raw_size[b] = math.max(state.raw_size[b], chld.state.raw_size[b])
+					state.raw_size_min[b] = math.max(state.raw_size_min[b], chld.state.raw_size_min[b])
 				end
 			else
 				-- Absolute
 
 				if axis == a then
-					size = math.max(size, chld.state.calc_size[a])
+					size = math.max(size, chld.state.raw_size[a])
 				else
-					state.calc_size[b] = math.max(state.calc_size[b], chld.state.calc_size[b])
+					state.raw_size[b] = math.max(state.raw_size[b], chld.state.raw_size[b])
 				end
 			end
 		end
 	end
-	state.calc_size[a] = math.max(state.calc_size[a], size)
+	state.raw_size[a] = math.max(state.raw_size[a], size)
 
 	-- Gap & Padding
 
 	if axis == a then
 		local inner = props.gap * (#elem.chld - 1)
 		state.child_span = size + inner
-		state.calc_size[axis] = state.calc_size[axis] + inner
+		state.raw_size[axis] = state.raw_size[axis] + inner
 	end
 
-	state.calc_size[axis] = state.calc_size[axis] + p[axis][1] + p[axis][2]
+	state.raw_size[axis] = state.raw_size[axis] + p[axis][1] + p[axis][2]
 
 	-- Fit label
 
-	if props.label ~= "" and axis == 2 then
-		local wrd_size = client.getTextDimensions(props.label, state.calc_size[1])
-			* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
-		state.calc_size[2] = math.max(state.calc_size[2], state.calc_size_min[2], wrd_size.y)
-	end
+	-- if props.label ~= "" and axis == 2 then
+	-- 	local wrd_size = client.getTextDimensions(props.label, state.raw_size[1])
+	-- 		* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
+	-- 	state.raw_size[2] = math.max(state.raw_size[2], state.raw_size_min[2], wrd_size.y)
+	-- end
 end
 
 ---Recursively grows child elements
@@ -127,18 +127,18 @@ function lib.grow(elem, axis)
 			if axis == a then
 				flexible[#flexible + 1] = chld
 			else
-				chld.state.calc_size[axis] = state.calc_size[axis] - (p[axis][1] + p[axis][2])
+				chld.state.raw_size[axis] = state.raw_size[axis] - (p[axis][1] + p[axis][2])
 			end
 		end
 	end
 
 	-- Calculate remaining size
 
-	local rem = state.calc_size[a] - (p[a][1] + p[a][2])
+	local rem = state.raw_size[a] - (p[a][1] + p[a][2])
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
 		if not chld.props.absolute_pos then
-			rem = rem - chld.state.calc_size[a]
+			rem = rem - chld.state.raw_size[a]
 		end
 	end
 	rem = rem - props.gap * (#elem.chld - 1)
@@ -147,7 +147,7 @@ function lib.grow(elem, axis)
 
 	while rem - rem % .25 ~= 0 and flexible[1] do
 		local sign = math.sign(rem)
-		local size_l = flexible[1].state.calc_size[a]
+		local size_l = flexible[1].state.raw_size[a]
 		local size_r = math.huge
 		local add = rem
 
@@ -155,7 +155,7 @@ function lib.grow(elem, axis)
 
 		for i = 1, #flexible do
 			local chld = flexible[i]
-			local size = chld.state.calc_size[a]
+			local size = chld.state.raw_size[a]
 			if size ~= size_l then
 				if sign * size < sign * size_l then
 					size_r = size_l
@@ -175,16 +175,16 @@ function lib.grow(elem, axis)
 		-- Dev note: ipairs used here since indexes get removed from this table
 
 		for i, chld in ipairs(flexible) do
-			local size = chld.state.calc_size[a]
+			local size = chld.state.raw_size[a]
 			local prev = size
 			if size == size_l then
 				size = size + add
-				if size <= chld.state.calc_size_min[a] or size >= chld.state.calc_size_max[a] then
-					size = math.clamp(size, chld.state.calc_size_min[a], chld.state.calc_size_max[a])
+				if size <= chld.state.raw_size_min[a] or size >= chld.state.raw_size_max[a] then
+					size = math.clamp(size, chld.state.raw_size_min[a], chld.state.raw_size_max[a])
 					table.remove(flexible, i)
 				end
 				rem = rem - (size - prev)
-				chld.state.calc_size[a] = size
+				chld.state.raw_size[a] = size
 			end
 		end
 	end
@@ -209,11 +209,11 @@ function lib.position(elem)
 
 	-- Restore
 
-	state.calc_pos = { props.pos:unpack() }
+	state.raw_pos = { props.pos:unpack() }
 
 	local offset = math.lerp(
 		p[a][1],
-		elem.state.calc_size[a] - elem.state.child_span - p[a][2],
+		elem.state.raw_size[a] - elem.state.child_span - p[a][2],
 		props.align[a]
 	)
 
@@ -225,19 +225,19 @@ function lib.position(elem)
 			if not chld.props.absolute_pos then
 				-- Normal
 
-				chld.state.calc_pos[a] = chld.state.calc_pos[a] + offset
-				chld.state.calc_pos[b] = math.lerp(
-					chld.state.calc_pos[b] + p[b][1],
-					elem.state.calc_size[b] - chld.state.calc_size[b] - p[b][2],
+				chld.state.raw_pos[a] = chld.state.raw_pos[a] + offset
+				chld.state.raw_pos[b] = math.lerp(
+					chld.state.raw_pos[b] + p[b][1],
+					elem.state.raw_size[b] - chld.state.raw_size[b] - p[b][2],
 					props.align[b]
 				)
 
-				offset = offset + chld.state.calc_size[a] + props.gap
+				offset = offset + chld.state.raw_size[a] + props.gap
 			else
 				-- Absolute
 
-				chld.state.calc_pos[a] = chld.state.calc_pos[a] + p[a][1]
-				chld.state.calc_pos[b] = chld.state.calc_pos[b] + p[b][1]
+				chld.state.raw_pos[a] = chld.state.raw_pos[a] + p[a][1]
+				chld.state.raw_pos[b] = chld.state.raw_pos[b] + p[b][1]
 			end
 		end
 	end
@@ -250,10 +250,10 @@ end
 function lib.draw(elem, lace, dist)
 	if not elem.queued then return end
 
-	elem.state.pos = vectors.vec2(table.unpack(elem.state.calc_pos))
-	elem.state.size = vectors.vec2(table.unpack(elem.state.calc_size))
-	elem.state.size_min = vectors.vec2(table.unpack(elem.state.calc_size_min))
-	elem.state.size_max = vectors.vec2(table.unpack(elem.state.calc_size_max))
+	elem.state.pos = vectors.vec2(table.unpack(elem.state.raw_pos))
+	elem.state.size = vectors.vec2(table.unpack(elem.state.raw_size))
+	elem.state.size_min = vectors.vec2(table.unpack(elem.state.raw_size_min))
+	elem.state.size_max = vectors.vec2(table.unpack(elem.state.raw_size_max))
 
 	-- Recurse
 
@@ -265,9 +265,8 @@ function lib.draw(elem, lace, dist)
 
 	-- Draw elements
 
-	elem.state.layer = lace
 	elem.queued = false
-	elem:draw()
+	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.state.visible)
 end
 
 return lib
