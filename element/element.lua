@@ -71,6 +71,30 @@ local function new(name, part, root, parn, sibl)
 
 		props = setmetatable({}, { __index = default }),
 
+		---Called on mouse click, swing, or item use action
+		---
+		---The callback vector is the position on this element that was pressed
+		---@type fun(pos: Vector2)
+		press = function() end,
+		---Called when mouse click, swing, or item use action expires
+		---
+		---The callback vector is the closest position on this element that was released
+		---@type fun(pos: Vector2)
+		release = function() end,
+		---Called while moused over or looked at
+		---@type fun(pos: Vector2)
+		hover = function() end,
+		---Called while pressed and hovered
+		---
+		---The callback vector is the position offset from when the element was first pressed
+		---@type fun(offset: Vector2)
+		drag = function() end,
+		---Called whenever this element changes shape or position
+		---@type fun()
+		draw = function() end,
+
+		--TODO Need events for sizing text
+
 		---@class FOXStencil.Element.State
 		state = {
 			---This element's visibility state
