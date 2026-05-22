@@ -7,8 +7,6 @@ obj.__index = obj
 local default = {
 	---@type string
 	text = "",
-	---@type Vector3|Vector4
-	color = vec(1, 1, 1, 1),
 
 	---@type Vector2
 	pos = vec(0, 0),
@@ -21,8 +19,10 @@ local default = {
 	---@type "CENTER"|"LEFT"|"RIGHT"
 	alignment = "LEFT",
 
-	---@type Vector3|Vector4
-	outline = vec(0, 0, 0, 0),
+	---@type Vector3
+	outline = vectors.intToRGB(0x202020),
+	---@type boolean
+	outline_state = false,
 	---@type boolean
 	shadow = false,
 }
@@ -45,8 +45,8 @@ local function draw(self)
 			:pos(-styles.pos:augmented(1 / 16))
 			:scale(size)
 
-			:setOutline(styles.outline.a ~= 0)
-			:outlineColor(styles.outline.xyz)
+			:setOutline(styles.outline_state)
+			:outlineColor(styles.outline)
 			:shadow(styles.shadow)
 	end
 
