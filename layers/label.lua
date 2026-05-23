@@ -53,7 +53,7 @@ local function draw(self)
 	self.task:visible(visible)
 end
 
----@type fun(from: table, to: table): diff: boolean
+---@type FOXStencil.Functions.Copy
 local copy = require(... .. "/../common/copy")
 
 ---Sets the given styles

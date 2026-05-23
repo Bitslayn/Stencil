@@ -23,6 +23,8 @@ local types = {
 	string = function(v) return v end,
 }
 
+---@alias FOXStencil.Functions.Copy fun(from: table, to: table): diff: boolean
+
 ---@param from table
 ---@param to table
 ---@return boolean
