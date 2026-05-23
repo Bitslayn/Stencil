@@ -29,6 +29,9 @@ local default = {
 	vertical = false,
 	---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
 	align = vec(0, 0),
+
+	---Element visibility
+	visible = true,
 }
 
 ---@param part ModelPart
@@ -44,25 +47,11 @@ local function new(name, part, root, parn, sibl)
 
 		props = setmetatable({}, { __index = default }),
 
-		---Called on mouse click, swing, or item use action
-		---@type fun(pos: Vector2)
-		press = function() end,
-		---Called when mouse click, swing, or item use action expires
-		---@type fun(pos: Vector2)
-		release = function() end,
-		---Called while moused over or looked at
-		---@type fun(pos: Vector2)
-		hover = function() end,
-
-		---Called whenever this element changes shape or position
-		---@type fun()
-		draw = function() end,
-
-		--TODO Need events for sizing text
-
 		---@class FOXStencil.Element.State
 		state = {
-			---This element's visibility state
+			-- TODO remove raw_ fields
+
+			---This element's visibility state TODO Move to props
 			---@type boolean
 			visible = true,
 			---This element's calculated position relative to its parent
@@ -95,6 +84,27 @@ local function new(name, part, root, parn, sibl)
 
 			---Position on this element that was hovered
 			hover_pos = vec(0, 0),
+
+			screen_pos = vec(0, 0),
+			world_pos = vec(0, 0, 0),
+		},
+
+		events = {
+			--TODO Need events for sizing text
+
+			---Called on mouse click, swing, or item use action
+			---@type fun(pos: Vector2)
+			press = function() end,
+			---Called when mouse click, swing, or item use action expires
+			---@type fun(pos: Vector2)
+			release = function() end,
+			---Called while moused over or looked at
+			---@type fun(pos: Vector2)
+			hover = function() end,
+
+			---Called whenever this element changes shape or position
+			---@type fun()
+			draw = function() end,
 		},
 
 		root = root,
@@ -251,16 +261,6 @@ function class:queue()
 	end
 
 	return self
-end
-
----@generic self
----@param self self|FOXStencil.Element
----@param state boolean?
----@return self
-function class:visible(state)
-	state = state == nil and true or state --[[@as boolean]]
-	self.state.visible = state
-	return self:queue()
 end
 
 return class
