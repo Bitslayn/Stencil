@@ -34,7 +34,7 @@ local default_props = {
 	visible = true,
 }
 
----@class FOXStencil.Element.State
+---@class FOXStencil.State
 local default_state = {
 	-- TODO remove raw_ fields
 
@@ -89,22 +89,23 @@ local function new(name, part, root, parn, sibl)
 
 		props = setmetatable({}, { __index = default_props }),
 		state = setmetatable({}, { __index = default_state }),
+		events = {
+			--TODO Need events for sizing text
 
-		--TODO Need events for sizing text
+			---Called on mouse click, swing, or item use action
+			---@type fun(pos: Vector2)
+			press = function() end,
+			---Called when mouse click, swing, or item use action expires
+			---@type fun(pos: Vector2)
+			release = function() end,
+			---Called while moused over or looked at
+			---@type fun(pos: Vector2)
+			hover = function() end,
 
-		---Called on mouse click, swing, or item use action
-		---@type fun(pos: Vector2)
-		press = function() end,
-		---Called when mouse click, swing, or item use action expires
-		---@type fun(pos: Vector2)
-		release = function() end,
-		---Called while moused over or looked at
-		---@type fun(pos: Vector2)
-		hover = function() end,
-
-		---Called whenever this element changes shape or position
-		---@type fun()
-		draw = function() end,
+			---Called whenever this element changes shape or position
+			---@type fun()
+			draw = function() end,
+		},
 
 		root = root,
 		parn = parn,
@@ -136,12 +137,20 @@ end
 ---@generic FOXStencil.Layer
 ---@param layer fun(part: ModelPart): FOXStencil.Layer
 ---@return FOXStencil.Layer
-function class:addLayer(layer)
+function class:newLayer(layer)
 	return layer(self.part)
 end
 
----@type FOXStencil.Functions.Copy
-local copy = require("./core/parser")
+---@generic self
+---@generic FOXStencil.Widget
+---@param self self|FOXStencil.Element
+---@param widget fun(elem: self): FOXStencil.Widget
+---@return FOXStencil.Widget
+function class:newWidget(widget)
+	return widget(self)
+end
+
+local copy = require("./core/parser").copy
 
 ---@generic self
 ---@param self self|FOXStencil.Element

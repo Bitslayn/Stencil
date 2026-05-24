@@ -1,5 +1,10 @@
----@type FOXStencil.Functions.Copy
-local copy = require("./../core/parser")
+---Generates a border layer
+---
+---Call :setStyles() with a table to change the styles
+---@alias FOXStencil.Border.Generator fun(part: ModelPart): FOXStencil.Border
+
+---@class FOXStencil.Layers
+---@field border FOXStencil.Border.Generator
 
 ---@class FOXStencil.Border
 local obj = {}
@@ -61,6 +66,8 @@ local function draw(self)
 	end
 end
 
+local copy = require("./../core/parser").copy
+
 ---Sets the given styles
 ---@param styles FOXStencil.Border.Styles
 ---@return self
@@ -71,14 +78,6 @@ function obj:setStyles(styles)
 
 	return self
 end
-
----Generates a border layer
----
----Call :setStyles() with a table to change the styles
----@alias FOXStencil.Border.Generator fun(part: ModelPart): FOXStencil.Border
-
----@class FOXStencil.Layers
----@field border FOXStencil.Border.Generator
 
 return function(part)
 	---@type SpriteTask[]

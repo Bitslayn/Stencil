@@ -1,3 +1,5 @@
+local lib = {}
+
 ---@generic v
 ---@param v v
 ---@param msg string?
@@ -23,12 +25,10 @@ local types = {
 	string = function(v) return v end,
 }
 
----@alias FOXStencil.Functions.Copy fun(from: table, to: table): diff: boolean
-
 ---@param from table
 ---@param to table
 ---@return boolean
-return function(from, to)
+function lib.copy(from, to)
 	local diff = false
 
 	for k, v in next, from do
@@ -49,3 +49,5 @@ return function(from, to)
 
 	return diff
 end
+
+return lib

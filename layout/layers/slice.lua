@@ -1,5 +1,10 @@
----@type FOXStencil.Functions.Copy
-local copy = require("./../core/parser")
+---Generates a slice layer
+---
+---Call :setStyles() with a table to change the styles
+---@alias FOXStencil.Slice.Generator fun(part: ModelPart): FOXStencil.Slice
+
+---@class FOXStencil.Layers
+---@field slice FOXStencil.Slice.Generator
 
 ---@class FOXStencil.Slice
 local obj = {}
@@ -145,6 +150,8 @@ local function draw(self)
 	end
 end
 
+local copy = require("./../core/parser").copy
+
 ---Sets the given styles
 ---@param styles FOXStencil.Slice.Styles
 ---@return self
@@ -155,14 +162,6 @@ function obj:setStyles(styles)
 
 	return self
 end
-
----Generates a slice layer
----
----Call :setStyles() with a table to change the styles
----@alias FOXStencil.Slice.Generator fun(part: ModelPart): FOXStencil.Slice
-
----@class FOXStencil.Layers
----@field slice FOXStencil.Slice.Generator
 
 return function(part)
 	---@type SpriteTask[][]

@@ -1,5 +1,10 @@
----@type FOXStencil.Functions.Copy
-local copy = require("./../core/parser")
+---Generates a label layer
+---
+---Call :setStyles() with a table to change the styles
+---@alias FOXStencil.Sprite.Generator fun(part: ModelPart): FOXStencil.Sprite
+
+---@class FOXStencil.Layers
+---@field sprite FOXStencil.Sprite.Generator
 
 ---@class FOXStencil.Sprite
 local obj = {}
@@ -52,6 +57,8 @@ local function draw(self)
 	self.task:visible(visible)
 end
 
+local copy = require("./../core/parser").copy
+
 ---Sets the given styles
 ---@param styles FOXStencil.Sprite.Styles
 ---@return self
@@ -62,14 +69,6 @@ function obj:setStyles(styles)
 
 	return self
 end
-
----Generates a label layer
----
----Call :setStyles() with a table to change the styles
----@alias FOXStencil.Sprite.Generator fun(part: ModelPart): FOXStencil.Sprite
-
----@class FOXStencil.Layers
----@field sprite FOXStencil.Sprite.Generator
 
 return function(part)
 	---@class FOXStencil.Sprite
