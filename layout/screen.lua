@@ -77,4 +77,4 @@ function class:render(block)
 	return self
 end
 
-return { new = new, class = class }
+return new

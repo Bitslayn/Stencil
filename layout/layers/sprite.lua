@@ -63,11 +63,14 @@ function obj:setStyles(styles)
 	return self
 end
 
----Generates a sprite layer
+---Generates a label layer
 ---
 ---Call :setStyles() with a table to change the styles
----@param part ModelPart
----@return FOXStencil.Sprite
+---@alias FOXStencil.Sprite.Generator fun(part: ModelPart): FOXStencil.Sprite
+
+---@class FOXStencil.Layers
+---@field sprite FOXStencil.Sprite.Generator
+
 return function(part)
 	---@class FOXStencil.Sprite
 	local self = {

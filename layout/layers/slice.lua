@@ -159,8 +159,11 @@ end
 ---Generates a slice layer
 ---
 ---Call :setStyles() with a table to change the styles
----@param part ModelPart
----@return FOXStencil.Slice
+---@alias FOXStencil.Slice.Generator fun(part: ModelPart): FOXStencil.Slice
+
+---@class FOXStencil.Layers
+---@field slice FOXStencil.Slice.Generator
+
 return function(part)
 	---@type SpriteTask[][]
 	local tasks = {}

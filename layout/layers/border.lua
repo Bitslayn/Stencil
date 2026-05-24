@@ -75,8 +75,11 @@ end
 ---Generates a border layer
 ---
 ---Call :setStyles() with a table to change the styles
----@param part ModelPart
----@return FOXStencil.Border
+---@alias FOXStencil.Border.Generator fun(part: ModelPart): FOXStencil.Border
+
+---@class FOXStencil.Layers
+---@field border FOXStencil.Border.Generator
+
 return function(part)
 	---@type SpriteTask[]
 	local tasks = {}

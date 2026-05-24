@@ -1,32 +1,17 @@
 textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1)) -- TODO Race condition when autoscripts is disabled
 
 ---@class FOXStencil
+---@field layers FOXStencil.Layers
 local api = {
-	layers = {
-		---Generates a border layer
-		---
-		---Call :setStyles() with a table to change the styles
-		---@type fun(part: ModelPart): FOXStencil.Border
-		border = require("./layout/layers/border"),
-		---Generates a label layer
-		---
-		---Call :setStyles() with a table to change the styles
-		---@type fun(part: ModelPart): FOXStencil.Label
-		label = require("./layout/layers/label"),
-		---Generates a slice layer
-		---
-		---Call :setStyles() with a table to change the styles
-		---@type fun(part: ModelPart): FOXStencil.Slice
-		slice = require("./layout/layers/slice"),
-		---Generates a sprite layer
-		---
-		---Call :setStyles() with a table to change the styles
-		---@type fun(part: ModelPart): FOXStencil.Sprite
-		sprite = require("./layout/layers/sprite"),
-	},
+	---@diagnostic disable-next-line: missing-fields
+	layers = {},
+	newScreen = require("./layout/screen"),
 }
 
-api.newScreen = require("./layout/screen").new
+local layers = listFiles(... .. "/layout/layers")
+for i = 1, #layers do
+	api.layers[layers[i]:match("%w*$")] = require(layers[i])
+end
 
 local debug = listFiles(... .. "/debug")
 for i = 1, #debug do

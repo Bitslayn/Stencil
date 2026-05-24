@@ -70,8 +70,11 @@ end
 ---Generates a label layer
 ---
 ---Call :setStyles() with a table to change the styles
----@param part ModelPart
----@return FOXStencil.Label
+---@alias FOXStencil.Label.Generator fun(part: ModelPart): FOXStencil.Label
+
+---@class FOXStencil.Layers
+---@field label FOXStencil.Label.Generator
+
 return function(part)
 	---@class FOXStencil.Label
 	local self = {
