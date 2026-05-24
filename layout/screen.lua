@@ -1,5 +1,5 @@
 ---@type FOXStencil.Element
-local super = require("../element/element")
+local super = require("./element")
 
 ---@class FOXStencil.Screen: FOXStencil.Element
 local class = {}
@@ -16,14 +16,14 @@ local function new(part)
 	---@field hovered FOXStencil.Element?
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = require("../element/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
+		chld = require("./core/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
 	}
 	self.root = self
 	return setmetatable(self, class)
 end
 
-local layout = require("./render/layout")
-local interact = require("./render/interact")
+local layout = require("./core/layout")
+local interact = require("./core/interact")
 
 ---@param block BlockState?
 ---@return self

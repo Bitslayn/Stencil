@@ -1,3 +1,6 @@
+---@type FOXStencil.Functions.Copy
+local copy = require("./../core/parser")
+
 ---@class FOXStencil.Slice
 local obj = {}
 ---@package
@@ -141,9 +144,6 @@ local function draw(self)
 		end
 	end
 end
-
----@type FOXStencil.Functions.Copy
-local copy = require(... .. "/../common/copy")
 
 ---Sets the given styles
 ---@param styles FOXStencil.Slice.Styles

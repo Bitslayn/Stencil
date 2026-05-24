@@ -1,3 +1,6 @@
+---@type FOXStencil.Functions.Copy
+local copy = require("./../core/parser")
+
 ---@class FOXStencil.Border
 local obj = {}
 ---@package
@@ -57,9 +60,6 @@ local function draw(self)
 		self.tasks[i]:visible(visible)
 	end
 end
-
----@type FOXStencil.Functions.Copy
-local copy = require(... .. "/../common/copy")
 
 ---Sets the given styles
 ---@param styles FOXStencil.Border.Styles

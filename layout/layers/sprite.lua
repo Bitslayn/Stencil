@@ -1,3 +1,6 @@
+---@type FOXStencil.Functions.Copy
+local copy = require("./../core/parser")
+
 ---@class FOXStencil.Sprite
 local obj = {}
 ---@package
@@ -48,9 +51,6 @@ local function draw(self)
 
 	self.task:visible(visible)
 end
-
----@type FOXStencil.Functions.Copy
-local copy = require(... .. "/../common/copy")
 
 ---Sets the given styles
 ---@param styles FOXStencil.Sprite.Styles

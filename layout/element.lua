@@ -4,7 +4,7 @@ local class = {}
 class.__index = class
 
 ---@class FOXStencil.Props
-local default = {
+local default_props = {
 	---This element's preferred offset position
 	pos = vec(0, 0),
 	---State defines whether this element should be absolutely positioned and draw through its siblings
@@ -34,6 +34,48 @@ local default = {
 	visible = true,
 }
 
+---@class FOXStencil.Element.State
+local default_state = {
+	-- TODO remove raw_ fields
+
+	---This element's visibility state TODO Move to props
+	---@type boolean
+	visible = true,
+	---This element's calculated position relative to its parent
+	pos = vec(0, 0),
+	---This element's position being calculated
+	raw_pos = { 0, 0 },
+
+	---Interlaced layer used to prevent z fighting elements
+	layer = 0,
+
+	---This element's calculated size
+	size = vec(0, 0),
+	---This element's size being calculated
+	raw_size = { 0, 0 },
+	---This element's calculated minimum size
+	size_min = vec(0, 0),
+	---This element's minimum size being calculated
+	raw_size_min = { 0, 0 },
+	---This element's calculated maximum size
+	size_max = vec(0, 0),
+	---This element's minimum size being calculated
+	raw_size_max = { 0, 0 },
+
+	---Precalculated size of child elements with gap along direction
+	child_span = 0,
+	---Precalculated element axis priority order
+	elem_axis = { 1, 2 },
+	---Precalculated element padding priority order
+	elem_pad = { { 0, 0 }, { 0, 0 } },
+
+	---Position on this element that was hovered
+	hover_pos = vec(0, 0),
+
+	screen_pos = vec(0, 0),
+	world_pos = vec(0, 0, 0),
+}
+
 ---@param part ModelPart
 ---@param root FOXStencil.Screen
 ---@param parn FOXStencil.Element?
@@ -45,73 +87,30 @@ local function new(name, part, root, parn, sibl)
 		part = part,
 		name = name,
 
-		props = setmetatable({}, { __index = default }),
+		props = setmetatable({}, { __index = default_props }),
+		state = setmetatable({}, { __index = default_state }),
 
-		---@class FOXStencil.Element.State
-		state = {
-			-- TODO remove raw_ fields
+		--TODO Need events for sizing text
 
-			---This element's visibility state TODO Move to props
-			---@type boolean
-			visible = true,
-			---This element's calculated position relative to its parent
-			pos = vec(0, 0),
-			---This element's position being calculated
-			raw_pos = { 0, 0 },
+		---Called on mouse click, swing, or item use action
+		---@type fun(pos: Vector2)
+		press = function() end,
+		---Called when mouse click, swing, or item use action expires
+		---@type fun(pos: Vector2)
+		release = function() end,
+		---Called while moused over or looked at
+		---@type fun(pos: Vector2)
+		hover = function() end,
 
-			---Interlaced layer used to prevent z fighting elements
-			layer = 0,
-
-			---This element's calculated size
-			size = vec(0, 0),
-			---This element's size being calculated
-			raw_size = { 0, 0 },
-			---This element's calculated minimum size
-			size_min = vec(0, 0),
-			---This element's minimum size being calculated
-			raw_size_min = { 0, 0 },
-			---This element's calculated maximum size
-			size_max = vec(0, 0),
-			---This element's minimum size being calculated
-			raw_size_max = { 0, 0 },
-
-			---Precalculated size of child elements with gap along direction
-			child_span = 0,
-			---Precalculated element axis priority order
-			elem_axis = { 1, 2 },
-			---Precalculated element padding priority order
-			elem_pad = { { 0, 0 }, { 0, 0 } },
-
-			---Position on this element that was hovered
-			hover_pos = vec(0, 0),
-
-			screen_pos = vec(0, 0),
-			world_pos = vec(0, 0, 0),
-		},
-
-		events = {
-			--TODO Need events for sizing text
-
-			---Called on mouse click, swing, or item use action
-			---@type fun(pos: Vector2)
-			press = function() end,
-			---Called when mouse click, swing, or item use action expires
-			---@type fun(pos: Vector2)
-			release = function() end,
-			---Called while moused over or looked at
-			---@type fun(pos: Vector2)
-			hover = function() end,
-
-			---Called whenever this element changes shape or position
-			---@type fun()
-			draw = function() end,
-		},
+		---Called whenever this element changes shape or position
+		---@type fun()
+		draw = function() end,
 
 		root = root,
 		parn = parn,
 		sibl = sibl,
 		---@type FOXMap<integer, FOXStencil.Element>
-		chld = require("./map")(),
+		chld = require("./core/map")(),
 
 		queued = true,
 	}, class)
@@ -142,7 +141,7 @@ function class:addLayer(layer)
 end
 
 ---@type FOXStencil.Functions.Copy
-local copy = require(... .. "/../common/copy")
+local copy = require("./core/parser")
 
 ---@generic self
 ---@param self self|FOXStencil.Element
@@ -163,7 +162,7 @@ end
 function class:remove()
 	self:queue()
 	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
-	self.sibl = require("./map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
+	self.sibl = require("./core/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
 	self.part:remove()
 	self.parn = nil
 	self.root = nil
