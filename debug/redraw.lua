@@ -9,7 +9,7 @@ if not enabled then return end
 -- Inject into layout draw call
 
 ---@type FOXStencil.Render.Layout
-local class = require("../screen/render/layout")
+local class = require("../layout/core/layout")
 
 local draw = class.draw
 

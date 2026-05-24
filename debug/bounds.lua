@@ -12,7 +12,7 @@ if not enabled then return end
 -- Inject into layout draw call
 
 ---@type FOXStencil.Render.Layout
-local class = require("../screen/render/layout")
+local class = require("../layout/core/layout")
 
 local draw = class.draw
 
@@ -63,10 +63,6 @@ function class.draw(elem, ...)
 			pos - props.padding.wx --[[@as Vector2]],
 			size - props.padding.wx - props.padding.yz --[[@as Vector2]]
 		)
-	end
-
-	if elem.name == "elem_b" then
-		host:actionbar(state.size[1] .. " " .. state.raw_size[1])
 	end
 
 	draw(elem, ...)
