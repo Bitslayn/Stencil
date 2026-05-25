@@ -6,7 +6,7 @@
 ---@class FOXStencil.Layers
 ---@field border FOXStencil.Border.Generator
 
----@class FOXStencil.Border
+---@class FOXStencil.Border: FOXStencil.Layer
 local obj = {}
 ---@package
 obj.__index = obj

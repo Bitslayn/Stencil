@@ -6,7 +6,7 @@
 ---@class FOXStencil.Layers
 ---@field sprite FOXStencil.Sprite.Generator
 
----@class FOXStencil.Sprite
+---@class FOXStencil.Sprite: FOXStencil.Layer
 local obj = {}
 ---@package
 obj.__index = obj

@@ -6,7 +6,7 @@
 ---@class FOXStencil.Layers
 ---@field slice FOXStencil.Slice.Generator
 
----@class FOXStencil.Slice
+---@class FOXStencil.Slice: FOXStencil.Layer
 local obj = {}
 ---@package
 obj.__index = obj

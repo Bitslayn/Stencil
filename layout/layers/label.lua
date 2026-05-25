@@ -6,7 +6,7 @@
 ---@class FOXStencil.Layers
 ---@field label FOXStencil.Label.Generator
 
----@class FOXStencil.Label
+---@class FOXStencil.Label: FOXStencil.Layer
 local obj = {}
 ---@package
 obj.__index = obj
