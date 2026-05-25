@@ -3,7 +3,7 @@ local class = {}
 ---@package
 class.__index = class
 
----@class FOXStencil.Props
+---@class FOXStencil.Element.Props
 local default_props = {
 	---This element's preferred offset position
 	pos = vec(0, 0),
@@ -34,7 +34,7 @@ local default_props = {
 	visible = true,
 }
 
----@class FOXStencil.State
+---@class FOXStencil.Element.State
 local default_state = {
 	-- TODO remove raw_ fields
 
@@ -154,7 +154,7 @@ local copy = require("./core/parser").copy
 
 ---@generic self
 ---@param self self|FOXStencil.Element
----@param props FOXStencil.Props
+---@param props FOXStencil.Element.Props
 ---@return self
 function class:setProps(props)
 	if not copy(props, self.props) then return self end

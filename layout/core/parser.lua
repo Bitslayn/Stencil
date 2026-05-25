@@ -1,3 +1,4 @@
+---@class FOXStencil.Core.Parser
 local lib = {}
 
 ---@generic v

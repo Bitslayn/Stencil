@@ -1,4 +1,4 @@
----@class FOXStencil.Render.Interact
+---@class FOXStencil.Core.Interact
 local lib = {}
 
 -- TODO Clean up this mess part 2

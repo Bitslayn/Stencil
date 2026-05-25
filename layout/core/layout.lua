@@ -1,4 +1,4 @@
----@class FOXStencil.Render.Layout
+---@class FOXStencil.Core.Layout
 local lib = {}
 
 -- Referenced from Nic Barker's Clay algorithm

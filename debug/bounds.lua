@@ -11,7 +11,7 @@ if not enabled then return end
 
 -- Inject into layout draw call
 
----@type FOXStencil.Render.Layout
+---@type FOXStencil.Core.Layout
 local class = require("../layout/core/layout")
 
 local draw = class.draw
