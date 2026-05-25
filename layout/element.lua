@@ -1,3 +1,7 @@
+--==============================================================================================================================
+--#REGION ˚♡ Class ♡˚
+--==============================================================================================================================
+
 ---@class FOXStencil.Element
 local class = {}
 ---@package
@@ -105,11 +109,10 @@ local default_events = {
 ---@param parn FOXStencil.Element?
 ---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
-local function new(name, part, root, parn, sibl)
+local function new(part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
-		name = name,
 
 		props = setmetatable({}, { __index = default_props }),
 		state = setmetatable({}, { __index = default_state }),
@@ -130,36 +133,9 @@ local function new(name, part, root, parn, sibl)
 	return self
 end
 
----@param name string
----@param props FOXStencil.Props?
----@return FOXStencil.Element
-function class:newElement(name, props)
-	local elem = new(
-		name,
-		self.part:newPart("elem"),
-		self.root,
-		self ~= self.root and self or nil,
-		self.chld
-	):setProps(props or {})
-	self.chld:push(elem)
-	return elem
-end
-
----@generic FOXStencil.Layer
----@param layer fun(part: ModelPart): FOXStencil.Layer
----@return FOXStencil.Layer
-function class:newLayer(layer)
-	return layer(self.part)
-end
-
----@generic self
----@generic FOXStencil.Widget
----@param self self|FOXStencil.Element
----@param widget fun(elem: self): FOXStencil.Widget
----@return FOXStencil.Widget
-function class:newWidget(widget)
-	return widget(self)
-end
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Self ♡˚
+--==============================================================================================================================
 
 local copy = require("./core/parser").copy
 
@@ -174,6 +150,95 @@ function class:setProps(props)
 
 	return self
 end
+
+---@generic self
+---@param self self|FOXStencil.Element
+---@return self
+function class:queue()
+	local shape = { parents = true, siblings = true, children = true }
+
+	-- Queue children
+
+	if shape.children then
+		for i = 1, #self.sibl do
+			self.sibl[i].queued = true
+		end
+	end
+
+	-- Queue siblings up parent tree
+
+	local tree = self
+	if shape.parents then
+		repeat
+			if shape.siblings then
+				for i = 1, #tree.sibl do
+					tree.sibl[i].queued = true
+				end
+			else
+				tree.queued = true
+			end
+			tree = tree.parn
+		until not tree
+	elseif not shape.immediate then
+		tree.queued = true
+	end
+
+	return self
+end
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Children ♡˚
+--==============================================================================================================================
+
+---@param name string
+---@return FOXStencil.Element
+function class:getElement(name)
+
+end
+
+---@generic FOXStencil.Layer
+---@param name string
+---@return FOXStencil.Layer
+function class:getLayer(name)
+	return self.layers[name]
+end
+
+---@param name string
+---@return FOXStencil.Element
+function class:newElement(name)
+	local elem = new(
+		self.part:newPart(name),
+		self.root,
+		self ~= self.root and self or nil,
+		self.chld
+	)
+	self.chld:push(elem)
+	return elem
+end
+
+local provider = require("./core/provider")
+
+---@generic FOXStencil.Widget
+---@param name string
+---@param widget fun(parent: FOXStencil.Element, name: string, layers: FOXStencil.Layers, widgets: FOXStencil.Widgets): FOXStencil.Widget
+---@return FOXStencil.Widget
+function class:newWidget(name, widget)
+	return widget(self, name, provider.layers, provider.widgets)
+end
+
+---@generic FOXStencil.Layer
+---@param name string
+---@param layer fun(part: ModelPart): FOXStencil.Layer
+---@return FOXStencil.Layer
+function class:newLayer(name, layer)
+	assert(not self.layers[name]) -- TODO Multiple layers with the same name should remove the previous layer
+	self.layers[name] = layer(self.part)
+	return self.layers[name]
+end
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Parent ♡˚
+--==============================================================================================================================
 
 ---Removes this element from its parent
 ---@generic self
@@ -247,39 +312,6 @@ function class:swap(elem)
 	return self
 end
 
----@generic self
----@param self self|FOXStencil.Element
----@return self
-function class:queue()
-	local shape = { parents = true, siblings = true, children = true }
-
-	-- Queue children
-
-	if shape.children then
-		for i = 1, #self.sibl do
-			self.sibl[i].queued = true
-		end
-	end
-
-	-- Queue siblings up parent tree
-
-	local tree = self
-	if shape.parents then
-		repeat
-			if shape.siblings then
-				for i = 1, #tree.sibl do
-					tree.sibl[i].queued = true
-				end
-			else
-				tree.queued = true
-			end
-			tree = tree.parn
-		until not tree
-	elseif not shape.immediate then
-		tree.queued = true
-	end
-
-	return self
-end
-
 return class
+
+--#ENDREGION

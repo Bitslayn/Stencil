@@ -8,20 +8,6 @@ function class:__index(k)
 	return class[k] or super[k]
 end
 
----@param part ModelPart
----@return FOXStencil.Screen
-local function new(part)
-	---@class FOXStencil.Screen
-	---@field clicked FOXStencil.Element?
-	---@field hovered FOXStencil.Element?
-	local self = {
-		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = require("./core/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
-	}
-	self.root = self
-	return setmetatable(self, class)
-end
-
 local layout = require("./core/layout")
 local interact = require("./core/interact")
 
@@ -77,4 +63,16 @@ function class:render(block)
 	return self
 end
 
-return new
+---@param part ModelPart
+---@return FOXStencil.Screen
+return function(part)
+	---@class FOXStencil.Screen
+	---@field clicked FOXStencil.Element?
+	---@field hovered FOXStencil.Element?
+	local self = {
+		part = part:newPart("root"):scale(1, 1, 0.2),
+		chld = require("./core/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
+	}
+	self.root = self
+	return setmetatable(self, class)
+end
