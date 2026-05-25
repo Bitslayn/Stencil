@@ -85,7 +85,7 @@ return function(parent, name, layers, widgets)
 		visible = false,
 	})
 
-	function elem.events.hover(_, state)
+	function elem.events.hover(_, _, state)
 		elem:getLayer("outline"):setStyles({
 			visible = state,
 		})

@@ -98,7 +98,7 @@ local default_events = {
 	---Called while moused over or looked at
 	---@type FOXStencil.Element.Events.Hover
 	hover = function() end,
-	
+
 	---Called whenever this element changes shape
 	---@type FOXStencil.Element.Events.Redraw
 	redraw = function() end,
@@ -245,12 +245,20 @@ end
 ---@param self self|FOXStencil.Element
 ---@return self
 function class:remove()
-	self:queue()
-	self.sibl:remove(self.sibl:getKey(self) --[[@as integer]])
-	self.sibl = require("./core/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
+	-- Remove this element from its siblings
+
+	local key = self.sibl:getKey(self) --[[@as integer]]
+	self.sibl:remove(key)
+
+	-- Make this element an orphan
+
+	self.sibl = require("./core/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self) -- TODO Localize
 	self.part:remove()
 	self.parn = nil
 	self.root = nil
+
+	-- TODO test with queue
+
 	return self
 end
 
@@ -258,58 +266,42 @@ end
 ---@generic self
 ---@param self self|FOXStencil.Element
 ---@param elem FOXStencil.Element
----@param pos integer?
 ---@return self
-function class:moveTo(elem, pos)
-	self.sibl[1]:queue()
-	if pos then
-		elem.chld:insert(math.clamp(pos, 1, #elem.chld), self:remove())
-	else
-		elem.chld:push(self:remove())
-	end
+function class:moveTo(elem)
+	-- Move this element
+
+	local key = self.sibl:getKey(self) --[[@as integer]]
+	local val = self.sibl:remove(key) --[[@as FOXStencil.Element]]
+	elem.chld:push(val)
+
+	-- Reparent
+
+	self.sibl = elem.chld
+	self.part:moveTo(elem.part)
 	self.parn = elem
 	self.root = elem.root
-	self.sibl = elem.chld
-	self.sibl[1]:queue()
-	self.part:moveTo(elem.part)
-	self.root:render()
+
+	-- TODO test with queue
+
 	return self
 end
 
----Adds the given element as a child of this element
+---Sets this element's index
 ---@generic self
 ---@param self self|FOXStencil.Element
----@param elem FOXStencil.Element
----@param pos integer?
 ---@return self
-function class:addChild(elem, pos)
-	elem:moveTo(self, pos)
-	return self
-end
+function class:setIndex(index)
+	assert(1 <= index and index <= #self.sibl, "Index out of range for setIndex") -- TODO assertion level
 
----Moves this element through its siblings by a given interval
----@generic self
----@param self self|FOXStencil.Element
----@return self
-function class:drop(interval)
-	local sibl = self.sibl
-	local key = sibl:getKey(self) --[[@as integer]]
-	sibl:insert(math.clamp(key + interval, 1, #sibl), sibl:remove(key) --[[@as FOXStencil.Element]])
-	sibl[math.clamp(key - math.abs(interval), 1, #sibl)]:queue()
-	return self
-end
+	-- Removes the element, then inserts at the desired position
 
----Swaps an element with another element
----@generic self
----@param self self|FOXStencil.Element
----@param elem FOXStencil.Element
----@return self
-function class:swap(elem)
-	local parn = self.parn --[[@as FOXStencil.Element]]
-	local key = self.sibl:getKey(self)
-	self:moveTo(elem.parn, elem.sibl:getKey(elem))
-	elem:moveTo(parn, key)
-	return self
+	local key = self.sibl:getKey(self) --[[@as integer]]
+	local val = self.sibl:remove(key) --[[@as FOXStencil.Element]]
+	self.sibl:insert(index, val)
+
+	-- TODO test with queue
+
+	return self:queue()
 end
 
 return class
