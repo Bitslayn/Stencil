@@ -76,6 +76,30 @@ local default_state = {
 	world_pos = vec(0, 0, 0),
 }
 
+---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, pos: Vector2)
+---@alias FOXStencil.Element.Events.Release fun(elem: FOXStencil.Element, pos: Vector2)
+---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, pos: Vector2, state: boolean)
+---@alias FOXStencil.Element.Events.Redraw fun(elem: FOXStencil.Element)
+
+---@class FOXStencil.Element.Events
+local default_events = {
+	--TODO Need events for sizing text
+
+	---Called on mouse click, swing, or item use action
+	---@type FOXStencil.Element.Events.Press
+	press = function() end,
+	---Called when mouse click, swing, or item use action expires
+	---@type FOXStencil.Element.Events.Release
+	release = function() end,
+	---Called while moused over or looked at
+	---@type FOXStencil.Element.Events.Hover
+	hover = function() end,
+	
+	---Called whenever this element changes shape
+	---@type FOXStencil.Element.Events.Redraw
+	redraw = function() end,
+}
+
 ---@param part ModelPart
 ---@param root FOXStencil.Screen
 ---@param parn FOXStencil.Element?
@@ -89,23 +113,10 @@ local function new(name, part, root, parn, sibl)
 
 		props = setmetatable({}, { __index = default_props }),
 		state = setmetatable({}, { __index = default_state }),
-		events = {
-			--TODO Need events for sizing text
+		events = setmetatable({}, { __index = default_events }),
 
-			---Called on mouse click, swing, or item use action
-			---@type fun(pos: Vector2)
-			press = function() end,
-			---Called when mouse click, swing, or item use action expires
-			---@type fun(pos: Vector2)
-			release = function() end,
-			---Called while moused over or looked at
-			---@type fun(pos: Vector2)
-			hover = function() end,
-
-			---Called whenever this element changes shape or position
-			---@type fun()
-			draw = function() end,
-		},
+		---@type FOXStencil.Layer[]
+		layers = {},
 
 		root = root,
 		parn = parn,

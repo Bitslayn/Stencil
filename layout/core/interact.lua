@@ -13,22 +13,12 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	-- Unhover last hovered element
 
 	if root.clicked and not click then
-		local props = root.clicked.props
-		
-		if props.click then
-			props.click(rel_pos, true_pos, sound_pos, false)
-		end
-
+		root.clicked.events.release(root.clicked, nil)
 		root.clicked = nil
 	end
 
 	if root.hovered and root.hovered ~= elem then
-		local props = root.hovered.props
-		
-		if props.hover then
-			props.hover(rel_pos, true_pos, sound_pos, false, true)
-		end
-
+		root.hovered.events.hover(root.hovered, nil, false)
 		root.hovered = nil
 	end
 
@@ -40,26 +30,22 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 
 	local changed = root.hovered ~= elem
 	root.hovered = elem
-	
-	if props.hover then
-		props.hover(rel_pos, true_pos, sound_pos, true, changed)
-	end
+
+	root.hovered.events.hover(root.hovered, nil, true)
 
 	elem.state.hover_pos = rel_pos
 
 	-- Click through to clickable element
 
 	if not root.clicked and click then
-		while elem.parn and not props.click do
-			rel_pos = rel_pos + elem.state.pos
-			elem = elem.parn --[[@as FOXStencil.Element]]
-			props = elem.props
-		end
-		
-		if props.click then
-			props.click(rel_pos, true_pos, sound_pos, true)
-		end
+		-- while elem.parn and not props.click do
+		-- 	rel_pos = rel_pos + elem.state.pos
+		-- 	elem = elem.parn --[[@as FOXStencil.Element]]
+		-- 	props = elem.props
+		-- end
+
 		root.clicked = elem
+		root.clicked.events.press(root.clicked, nil)
 
 		local time = world.getTime()
 		if root.click_time == time then return end

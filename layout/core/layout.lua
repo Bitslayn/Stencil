@@ -250,10 +250,14 @@ end
 function lib.draw(elem, lace, dist)
 	if not elem.queued then return end
 
+	local size = elem.state.size
+
 	elem.state.pos = vectors.vec2(table.unpack(elem.state.raw_pos))
 	elem.state.size = vectors.vec2(table.unpack(elem.state.raw_size))
 	elem.state.size_min = vectors.vec2(table.unpack(elem.state.raw_size_min))
 	elem.state.size_max = vectors.vec2(table.unpack(elem.state.raw_size_max))
+
+	local diff = elem.state.size ~= size
 
 	-- Recurse
 
@@ -267,6 +271,9 @@ function lib.draw(elem, lace, dist)
 
 	elem.queued = false
 	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.state.visible)
+	if diff then
+		elem.events.redraw(elem)
+	end
 end
 
 return lib
