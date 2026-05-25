@@ -34,6 +34,9 @@ local default = {
 	clip_pos = vec(0, 0),
 	---@type Vector2
 	clip_size = vec(0, 0),
+
+	---@type boolean
+	visible = true
 }
 
 ---Redraws this slice
@@ -130,11 +133,11 @@ local function draw(self)
 
 	for y = 1, 3 do
 		for x = 1, 3 do
-			local visible = 0 < e_atlas_w[x] and 0 < e_atlas_h[y]
+			local visible = 0 < e_atlas_w[x] and 0 < e_atlas_h[y] and styles.visible
 
 			if visible then
 				self.tasks[y][x]
-					:uv(styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y]) / dim)
+					:uv((styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y])) / dim)
 					:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
 
 					:pos(-e_model_x[x] - pos_x, -e_model_y[y] - pos_y)
@@ -163,6 +166,7 @@ function obj:setStyles(styles)
 	return self
 end
 
+---@param part ModelPart
 return function(part)
 	---@type SpriteTask[][]
 	local tasks = {}

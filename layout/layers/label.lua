@@ -33,6 +33,9 @@ local default = {
 	outline_state = false,
 	---@type boolean
 	shadow = false,
+
+	---@type boolean
+	visible = true
 }
 
 ---Redraws this label
@@ -42,7 +45,7 @@ local function draw(self)
 
 	local size = styles.size / 9
 
-	local visible = styles.text ~= ""
+	local visible = styles.text ~= "" and styles.visible
 
 	if visible then
 		self.task
@@ -74,6 +77,7 @@ function obj:setStyles(styles)
 	return self
 end
 
+---@param part ModelPart
 return function(part)
 	---@class FOXStencil.Label
 	local self = {

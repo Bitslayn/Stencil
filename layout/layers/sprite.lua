@@ -29,6 +29,9 @@ local default = {
 	uv_pos = vec(0, 0),
 	---@type Vector2
 	uv_size = vec(1, 1),
+
+	---@type boolean
+	visible = true
 }
 
 ---Redraws this label
@@ -38,7 +41,7 @@ local function draw(self)
 	
 	local dim = styles.texture:getDimensions()
 
-	local visible = 0 < styles.size:length()
+	local visible = 0 < styles.size:length() and styles.visible
 	local size = styles.grid and styles.size or styles.uv_size
 
 	if visible then
@@ -70,6 +73,7 @@ function obj:setStyles(styles)
 	return self
 end
 
+---@param part ModelPart
 return function(part)
 	---@class FOXStencil.Sprite
 	local self = {

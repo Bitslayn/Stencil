@@ -22,6 +22,9 @@ local default = {
 	size = vec(0, 0),
 	---@type number
 	weight = 1,
+
+	---@type boolean
+	visible = true
 }
 
 ---Redraws this label
@@ -54,11 +57,11 @@ local function draw(self)
 	}
 
 	for i = 1, 4 do
-		local visible = weight > 0
+		local visible = weight > 0 and styles.visible
 
 		if visible then
 			self.tasks[i]
-				:matrix(matrices.translate4(-styles.pos:augmented(1 / 16)) * mats[i])
+				:matrix(matrices.translate4(-styles.pos:augmented(1)) * mats[i])
 				:color(styles.color)
 		end
 
@@ -79,6 +82,7 @@ function obj:setStyles(styles)
 	return self
 end
 
+---@param part ModelPart
 return function(part)
 	---@type SpriteTask[]
 	local tasks = {}
