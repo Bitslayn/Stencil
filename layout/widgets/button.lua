@@ -89,15 +89,14 @@ end
 
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
-	return client.getTextDimensions(elem.widg.styles.text, width - 6).y + 4
+	---@type FOXStencil.Label
+	local label = elem:getLayer("label")
+	local size = label.styles.size / 9
+	return client.getTextDimensions(elem.widg.styles.text, (width - 6) / size).y * size + 6
 end
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
-	elem:setProps({
-		size_min = client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n")).x_
-	})
-
 	---@type FOXStencil.Slice
 	local background = elem:getLayer("background")
 	background:setStyles({
@@ -109,13 +108,18 @@ local function draw(elem)
 	local label = elem:getLayer("label")
 	label:setStyles({
 		text = elem.widg.styles.text,
-		width = client.getTextDimensions(elem.widg.styles.text, elem.state.size.x - 6).x,
+		width = elem.state.size.x - 6,
 	})
 
 	---@type FOXStencil.Border
 	local outline = elem:getLayer("outline")
 	outline:setStyles({
 		size = elem.state.size + vec(0, 2),
+	})
+
+	local size = label.styles.size / 9
+	elem:setProps({
+		size_min = vec(client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n"), 0).x * size + 6, 0),
 	})
 end
 
@@ -142,7 +146,7 @@ end
 return function(parent, name, layers, widgets)
 	local elem = parent:newElement(name):setProps({
 		size = vec(-1, 0),
-		size_min = client.getTextDimensions("Button").x_
+		size_min = client.getTextDimensions("Button").x_,
 	})
 
 	---@class FOXStencil.Button
@@ -159,7 +163,6 @@ return function(parent, name, layers, widgets)
 
 	elem:newLayer("label", layers.label):setStyles({
 		pos = vec(3, 1),
-		-- size = 4.5,
 		text = "Button",
 	})
 
