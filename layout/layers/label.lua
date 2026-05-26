@@ -81,8 +81,7 @@ end
 return function(part)
 	---@class FOXStencil.Label
 	local self = {
-		task = part:newText("label-" .. math.random())
-			:light(15),
+		task = part:newText("label-" .. math.random()):light(15),
 		styles = setmetatable({}, { __index = default }),
 	}
 

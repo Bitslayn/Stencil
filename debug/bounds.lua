@@ -41,13 +41,6 @@ local function outline(name, part, color, pos, size)
 end
 
 function class.draw(elem, ...)
-	-- TEMP
-
-	elem.state.pos = vectors.vec2(table.unpack(elem.state.raw_pos))
-	elem.state.size = vectors.vec2(table.unpack(elem.state.raw_size))
-	elem.state.size_min = vectors.vec2(table.unpack(elem.state.raw_size_min))
-	elem.state.size_max = vectors.vec2(table.unpack(elem.state.raw_size_max))
-
 	local part = elem.part
 
 	local props = elem.props

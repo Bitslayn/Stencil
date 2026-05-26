@@ -74,7 +74,8 @@ local default_state = {
 ---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, pos: Vector2)
 ---@alias FOXStencil.Element.Events.Release fun(elem: FOXStencil.Element, pos: Vector2)
 ---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, pos: Vector2, state: boolean)
----@alias FOXStencil.Element.Events.Redraw fun(elem: FOXStencil.Element)
+---@alias FOXStencil.Element.Events.Wrap fun(elem: FOXStencil.Element, width: number): number?
+---@alias FOXStencil.Element.Events.Draw fun(elem: FOXStencil.Element)
 
 ---@class FOXStencil.Element.Events
 local default_events = {
@@ -90,9 +91,14 @@ local default_events = {
 	---@type FOXStencil.Element.Events.Hover
 	hover = function() end,
 
+	---Called when this element is ready to wrap text
+	---
+	---The returned number will be used as the minimum height of this element
+	---@type FOXStencil.Element.Events.Wrap
+	wrap = function() end,
 	---Called whenever this element changes shape
-	---@type FOXStencil.Element.Events.Redraw
-	redraw = function() end,
+	---@type FOXStencil.Element.Events.Draw
+	draw = function() end,
 }
 
 ---@param part ModelPart
@@ -104,6 +110,7 @@ local function new(part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
 		part = part,
+		widg = {},
 
 		props = setmetatable({}, { __index = default_props }),
 		state = setmetatable({}, { __index = default_state }),
@@ -151,8 +158,8 @@ function class:queue()
 	-- Queue children
 
 	if shape.children then
-		for i = 1, #self.sibl do
-			self.sibl[i].queued = true
+		for i = 1, #self.chld do
+			self.chld[i].queued = true
 		end
 	end
 

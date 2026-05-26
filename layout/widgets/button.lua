@@ -1,3 +1,7 @@
+--==============================================================================================================================
+--#REGION ˚♡ Class ♡˚
+--==============================================================================================================================
+
 ---Generates a button widget
 ---
 ---Call :setConfigs() with a table to change the configs
@@ -18,32 +22,106 @@ local default_styles = {
 	color = vec(1, 1, 1),
 }
 
----Redraws this button
----@param self FOXStencil.Button
-local function draw(self)
-	local size = client.getTextDimensions(self.styles.text) + 6
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Events ♡˚
+--==============================================================================================================================
 
-	self.elem:setProps({
-		size = size - vec(0, 2),
+---@type FOXStencil.Element.Events.Press
+local function press(elem)
+	---@type FOXStencil.Slice
+	local background = elem:getLayer("background")
+	background:setStyles({
+		pos = background.styles.pos + vec(0, 2),
+		size = background.styles.size - vec(0, 2),
+		uv_pos = vec(4, 0),
+		uv_size = vec(5, 5),
+		slice = vec(2, 2, 2, 2),
 	})
 
-	self.elem:getLayer("background"):setStyles({
-		color = self.styles.color,
-		size = size,
+	---@type FOXStencil.Label
+	local label = elem:getLayer("label")
+	label:setStyles({
+		pos = label.styles.pos + vec(0, 2),
 	})
 
-	self.elem:getLayer("label"):setStyles({
-		text = self.styles.text,
-	})
-
-	self.elem:getLayer("outline"):setStyles({
-		size = size,
+	---@type FOXStencil.Border
+	local outline = elem:getLayer("outline")
+	outline:setStyles({
+		pos = outline.styles.pos + vec(0, 2),
+		size = outline.styles.size - vec(0, 2),
 	})
 end
 
-local function press()
+---@type FOXStencil.Element.Events.Release
+local function release(elem)
+	---@type FOXStencil.Slice
+	local background = elem:getLayer("background")
+	background:setStyles({
+		pos = background.styles.pos - vec(0, 2),
+		size = background.styles.size + vec(0, 2),
+		uv_pos = vec(0, 0),
+		uv_size = vec(5, 7),
+		slice = vec(2, 2, 4, 2),
+	})
 
+	---@type FOXStencil.Label
+	local label = elem:getLayer("label")
+	label:setStyles({
+		pos = label.styles.pos - vec(0, 2),
+	})
+
+	---@type FOXStencil.Border
+	local outline = elem:getLayer("outline")
+	outline:setStyles({
+		pos = outline.styles.pos - vec(0, 2),
+		size = outline.styles.size + vec(0, 2),
+	})
 end
+
+---@type FOXStencil.Element.Events.Hover
+local function hover(elem, _, state)
+	---@type FOXStencil.Border
+	local outline = elem:getLayer("outline")
+	outline:setStyles({
+		visible = state,
+	})
+end
+
+---@type FOXStencil.Element.Events.Wrap
+local function wrap(elem, width)
+	return client.getTextDimensions(elem.widg.styles.text, width - 6).y + 4
+end
+
+---@type FOXStencil.Element.Events.Draw
+local function draw(elem)
+	elem:setProps({
+		size_min = client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n")).x_
+	})
+
+	---@type FOXStencil.Slice
+	local background = elem:getLayer("background")
+	background:setStyles({
+		color = elem.widg.styles.color,
+		size = elem.state.size + vec(0, 2),
+	})
+
+	---@type FOXStencil.Label
+	local label = elem:getLayer("label")
+	label:setStyles({
+		text = elem.widg.styles.text,
+		width = client.getTextDimensions(elem.widg.styles.text, elem.state.size.x - 6).x,
+	})
+
+	---@type FOXStencil.Border
+	local outline = elem:getLayer("outline")
+	outline:setStyles({
+		size = elem.state.size + vec(0, 2),
+	})
+end
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Builder ♡˚
+--==============================================================================================================================
 
 local copy = require("./../core/parser").copy
 
@@ -51,8 +129,8 @@ local copy = require("./../core/parser").copy
 ---@param styles FOXStencil.Button.Styles
 ---@return self
 function obj:setStyles(styles)
-	if copy(styles, self.styles) then
-		draw(self)
+	if copy(styles, self.elem.widg.styles) then
+		draw(self.elem)
 	end
 
 	return self
@@ -62,13 +140,14 @@ end
 ---@param layers FOXStencil.Layers
 ---@param widgets FOXStencil.Widgets
 return function(parent, name, layers, widgets)
-	local elem = parent:newElement(name)
+	local elem = parent:newElement(name):setProps({
+		size = vec(-1, 0),
+		size_min = client.getTextDimensions("Button").x_
+	})
 
 	---@class FOXStencil.Button
-	local self = {
-		elem = elem,
-		styles = setmetatable({}, { __index = default_styles }),
-	}
+	local self = { elem = elem }
+	elem.widg.styles = setmetatable({}, { __index = default_styles })
 
 	elem:newLayer("background", layers.slice):setStyles({
 		pos = vec(0, -2),
@@ -77,69 +156,27 @@ return function(parent, name, layers, widgets)
 		uv_size = vec(5, 7),
 		slice = vec(2, 2, 4, 2),
 	})
+
 	elem:newLayer("label", layers.label):setStyles({
 		pos = vec(3, 1),
+		-- size = 4.5,
+		text = "Button",
 	})
+
 	elem:newLayer("outline", layers.border):setStyles({
 		pos = vec(0, -2),
 		visible = false,
 	})
 
-	function elem.events.hover(_, _, state)
-		elem:getLayer("outline"):setStyles({
-			visible = state,
-		})
-	end
+	elem.events.press = press
+	elem.events.release = release
+	elem.events.hover = hover
+	elem.events.wrap = wrap
+	elem.events.draw = draw
 
-	function elem.events.press()
-		---@type FOXStencil.Slice
-		local background = elem:getLayer("background")
-		background:setStyles({
-			pos = background.styles.pos + vec(0, 2),
-			size = background.styles.size - vec(0, 2),
-			uv_pos = vec(4, 0),
-			uv_size = vec(5, 5),
-			slice = vec(2, 2, 2, 2),
-		})
-
-		---@type FOXStencil.Label
-		local label = elem:getLayer("label")
-		label:setStyles({
-			pos = label.styles.pos + vec(0, 2),
-		})
-
-		---@type FOXStencil.Border
-		local outline = elem:getLayer("outline")
-		outline:setStyles({
-			pos = outline.styles.pos + vec(0, 2),
-			size = outline.styles.size - vec(0, 2),
-		})
-	end
-
-	function elem.events.release()
-		---@type FOXStencil.Slice
-		local background = elem:getLayer("background")
-		background:setStyles({
-			pos = background.styles.pos - vec(0, 2),
-			size = background.styles.size + vec(0, 2),
-			uv_pos = vec(0, 0),
-			uv_size = vec(5, 7),
-			slice = vec(2, 2, 4, 2),
-		})
-
-		---@type FOXStencil.Label
-		local label = elem:getLayer("label")
-		label:setStyles({
-			pos = label.styles.pos - vec(0, 2),
-		})
-
-		---@type FOXStencil.Border
-		local outline = elem:getLayer("outline")
-		outline:setStyles({
-			pos = outline.styles.pos - vec(0, 2),
-			size = outline.styles.size + vec(0, 2),
-		})
-	end
+	draw(elem)
 
 	return setmetatable(self, obj)
 end
+
+--#ENDREGION

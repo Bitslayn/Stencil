@@ -45,17 +45,7 @@ function lib.size(elem, axis)
 		state.raw_size_max = { props.size_max:unpack() }
 
 		state.size_flex = { state.raw_size[1] < 0, state.raw_size[2] < 0 }
-
-		state.raw_size[1] = math.clamp(state.raw_size[1], state.raw_size_min[1], state.raw_size_max[1])
-		state.raw_size[2] = math.clamp(state.raw_size[2], state.raw_size_min[2], state.raw_size_max[2])
 	end
-
-	-- if props.label ~= "" and axis == 1 then
-	-- 	local width = client.getTextWidth(props.label_wrap and string.gsub(props.label, "%s", "\n") or props.label)
-	-- 		* props.label_size + props.label_margin.w + props.label_margin.y
-	-- 	state.raw_size[1] = math.max(state.raw_size[1], width)
-	-- 	state.raw_size_min[1] = math.max(state.raw_size_min[1], width)
-	-- end
 
 	-- Fit children
 
@@ -75,6 +65,7 @@ function lib.size(elem, axis)
 		end
 	end
 	state.raw_size[a] = math.max(state.raw_size[a], size)
+	state.raw_size[axis] = math.max(state.raw_size[axis], state.raw_size_min[axis])
 
 	-- Gap & Padding
 
@@ -86,13 +77,11 @@ function lib.size(elem, axis)
 
 	state.raw_size[axis] = state.raw_size[axis] + p[axis][1] + p[axis][2]
 
-	-- Fit label
+	-- Wrap element
 
-	-- if props.label ~= "" and axis == 2 then
-	-- 	local wrd_size = client.getTextDimensions(props.label, state.raw_size[1])
-	-- 		* props.label_size + props.label_margin.wx + props.label_margin.yz --[[@as Vector2]]
-	-- 	state.raw_size[2] = math.max(state.raw_size[2], state.raw_size_min[2], wrd_size.y)
-	-- end
+	if axis == 2 then
+		state.raw_size[2] = math.max(state.raw_size[2], elem.events.wrap(elem, state.raw_size[1]))
+	end
 end
 
 ---Recursively grows child elements
@@ -134,7 +123,7 @@ function lib.grow(elem, axis)
 
 	-- Grow and shrink along layout
 
-	while rem - rem % .25 ~= 0 and flexible[1] do
+	while rem ~= 0 and flexible[1] do
 		local sign = math.sign(rem)
 		local size_l = flexible[1].state.raw_size[a]
 		local size_r = math.huge
@@ -176,6 +165,8 @@ function lib.grow(elem, axis)
 				chld.state.raw_size[a] = size
 			end
 		end
+
+		rem = rem - rem % 0.05
 	end
 
 	-- Recurse children
@@ -252,7 +243,7 @@ function lib.draw(elem, lace, dist)
 	elem.queued = false
 	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.props.visible)
 	if diff then
-		elem.events.redraw(elem)
+		elem.events.draw(elem)
 	end
 end
 
