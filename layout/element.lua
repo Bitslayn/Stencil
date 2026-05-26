@@ -11,26 +11,20 @@ class.__index = class
 local default_props = {
 	---This element's preferred offset position
 	pos = vec(0, 0),
-	---State defines whether this element should be absolutely positioned and draw through its siblings
-	absolute_pos = false,
-
-	---This element's preferred size
+	---This element's size
 	size = vec(0, 0),
 	---This element's minimum size
 	size_min = vec(0, 0),
 	---This element's maximum size
 	size_max = vec(math.huge, math.huge),
-	---States define whether this element is allowed to dynamically scale within min and max bounds
-	---@type [boolean, boolean]
-	size_flex = { false, false }, -- TODO merge with size
 
 	---Child padding, or space around children
 	padding = vec(0, 0, 0, 0),
 	---Child gap, or space between children
 	gap = 0,
-	---Child layout direction, false is horizontal and true is vertical
-	---@type boolean
-	vertical = false,
+	---Child layout direction
+	---@type "HORIZONTAL"|"VERTICAL"
+	direction = "HORIZONTAL",
 	---Child gravity or alignment. (0, 0) is top-left and (1, 1) is bottom-right
 	align = vec(0, 0),
 
@@ -40,11 +34,6 @@ local default_props = {
 
 ---@class FOXStencil.Element.State
 local default_state = {
-	-- TODO remove raw_ fields
-
-	---This element's visibility state TODO Move to props
-	---@type boolean
-	visible = true,
 	---This element's calculated position relative to its parent
 	pos = vec(0, 0),
 	---This element's position being calculated
@@ -65,6 +54,8 @@ local default_state = {
 	size_max = vec(0, 0),
 	---This element's minimum size being calculated
 	raw_size_max = { 0, 0 },
+	---If this element is flexing in each direction
+	size_flex = { false, false },
 
 	---Precalculated size of child elements with gap along direction
 	child_span = 0,

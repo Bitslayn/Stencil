@@ -9,7 +9,7 @@ function lib.restore(elem)
 	-- TODO: Deprecation
 
 	if not elem.queued then return end
-	if not elem.state.visible then return end
+	if not elem.props.visible then return end
 	for i = 1, #elem.chld do
 		lib.restore(elem.chld[i])
 	end
@@ -17,7 +17,7 @@ function lib.restore(elem)
 	local props = elem.props
 	local state = elem.state
 
-	local dir = props.vertical and 2 or 1
+	local dir = props.direction == "VERTICAL" and 2 or 1
 
 	state.elem_axis = { dir, dir % 2 + 1 }
 	state.elem_pad = {
@@ -31,7 +31,7 @@ end
 ---@param axis integer
 function lib.size(elem, axis)
 	if not elem.queued then return end
-	if not elem.state.visible then return end
+	if not elem.props.visible then return end
 	local props = elem.props
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
@@ -43,6 +43,8 @@ function lib.size(elem, axis)
 		state.raw_size = { props.size:unpack() }
 		state.raw_size_min = { props.size_min:unpack() }
 		state.raw_size_max = { props.size_max:unpack() }
+
+		state.size_flex = { state.raw_size[1] < 0, state.raw_size[2] < 0 }
 
 		state.raw_size[1] = math.clamp(state.raw_size[1], state.raw_size_min[1], state.raw_size_max[1])
 		state.raw_size[2] = math.clamp(state.raw_size[2], state.raw_size_min[2], state.raw_size_max[2])
@@ -60,27 +62,15 @@ function lib.size(elem, axis)
 	local size = 0
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if chld.state.visible then
+		if chld.props.visible then
 			lib.size(chld, axis)
 
-			if not chld.props.absolute_pos then
-				-- Normal
-
-				if axis == a then
-					size = size + chld.state.raw_size[a]
-					state.raw_size_min[a] = state.raw_size_min[a] + chld.state.raw_size_min[a]
-				else
-					state.raw_size[b] = math.max(state.raw_size[b], chld.state.raw_size[b])
-					state.raw_size_min[b] = math.max(state.raw_size_min[b], chld.state.raw_size_min[b])
-				end
+			if axis == a then
+				size = size + chld.state.raw_size[a]
+				state.raw_size_min[a] = state.raw_size_min[a] + chld.state.raw_size_min[a]
 			else
-				-- Absolute
-
-				if axis == a then
-					size = math.max(size, chld.state.raw_size[a])
-				else
-					state.raw_size[b] = math.max(state.raw_size[b], chld.state.raw_size[b])
-				end
+				state.raw_size[b] = math.max(state.raw_size[b], chld.state.raw_size[b])
+				state.raw_size_min[b] = math.max(state.raw_size_min[b], chld.state.raw_size_min[b])
 			end
 		end
 	end
@@ -110,7 +100,7 @@ end
 ---@param axis integer
 function lib.grow(elem, axis)
 	if not elem.queued then return end
-	if not elem.state.visible then return end
+	if not elem.props.visible then return end
 	local props = elem.props
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
@@ -123,7 +113,7 @@ function lib.grow(elem, axis)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if chld.props.size_flex[axis] then
+		if chld.state.size_flex[axis] then
 			if axis == a then
 				flexible[#flexible + 1] = chld
 			else
@@ -137,9 +127,8 @@ function lib.grow(elem, axis)
 	local rem = state.raw_size[a] - (p[a][1] + p[a][2])
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if not chld.props.absolute_pos then
-			rem = rem - chld.state.raw_size[a]
-		end
+
+		rem = rem - chld.state.raw_size[a]
 	end
 	rem = rem - props.gap * (#elem.chld - 1)
 
@@ -201,7 +190,7 @@ end
 ---@param elem FOXStencil.Element
 function lib.position(elem)
 	if not elem.queued then return end
-	if not elem.state.visible then return end
+	if not elem.props.visible then return end
 	local props = elem.props
 	local state = elem.state
 	local a, b = table.unpack(state.elem_axis)
@@ -219,26 +208,17 @@ function lib.position(elem)
 
 	for i = 1, #elem.chld do
 		local chld = elem.chld[i]
-		if chld.state.visible and chld.queued then
+		if chld.props.visible and chld.queued then
 			lib.position(chld)
 
-			if not chld.props.absolute_pos then
-				-- Normal
+			chld.state.raw_pos[a] = chld.state.raw_pos[a] + offset
+			chld.state.raw_pos[b] = math.lerp(
+				chld.state.raw_pos[b] + p[b][1],
+				elem.state.raw_size[b] - chld.state.raw_size[b] - p[b][2],
+				props.align[b]
+			)
 
-				chld.state.raw_pos[a] = chld.state.raw_pos[a] + offset
-				chld.state.raw_pos[b] = math.lerp(
-					chld.state.raw_pos[b] + p[b][1],
-					elem.state.raw_size[b] - chld.state.raw_size[b] - p[b][2],
-					props.align[b]
-				)
-
-				offset = offset + chld.state.raw_size[a] + props.gap
-			else
-				-- Absolute
-
-				chld.state.raw_pos[a] = chld.state.raw_pos[a] + p[a][1]
-				chld.state.raw_pos[b] = chld.state.raw_pos[b] + p[b][1]
-			end
+			offset = offset + chld.state.raw_size[a] + props.gap
 		end
 	end
 end
@@ -264,13 +244,13 @@ function lib.draw(elem, lace, dist)
 	local len = #elem.chld
 	for i = 1, len do
 		local chld = elem.chld[i]
-		lib.draw(chld, chld.props.absolute_pos and (i - 1) * 2 or dist * i / len, 1 / len)
+		lib.draw(chld, dist * i / len, 1 / len)
 	end
 
 	-- Draw elements
 
 	elem.queued = false
-	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.state.visible)
+	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.props.visible)
 	if diff then
 		elem.events.redraw(elem)
 	end

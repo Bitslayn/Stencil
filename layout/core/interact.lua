@@ -81,7 +81,7 @@ function lib.relative_hover(elem, click, rel_pos, true_pos, sound_pos)
 	local state = elem.state
 	local bound_pos = state.pos
 	local bound_size = state.size
-	if not (bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and elem.state.visible) then return end
+	if not (bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and elem.props.visible) then return end
 
 	rel_pos = rel_pos - state.pos
 
