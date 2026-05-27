@@ -74,7 +74,7 @@ local default_state = {
 ---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, pos: Vector2)
 ---@alias FOXStencil.Element.Events.Release fun(elem: FOXStencil.Element, pos: Vector2)
 ---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, pos: Vector2, state: boolean)
----@alias FOXStencil.Element.Events.Wrap fun(elem: FOXStencil.Element, width: number): number?
+---@alias FOXStencil.Element.Events.Wrap fun(elem: FOXStencil.Element, width: number): Vector2?
 ---@alias FOXStencil.Element.Events.Draw fun(elem: FOXStencil.Element)
 
 ---@class FOXStencil.Element.Events
@@ -91,9 +91,9 @@ local default_events = {
 	---@type FOXStencil.Element.Events.Hover
 	hover = function() end,
 
-	---Called when this element is ready to wrap text
+	---Called twice while this element is wrapping
 	---
-	---The returned number will be used as the minimum height of this element
+	---The returned vector will be used as the size of this element
 	---@type FOXStencil.Element.Events.Wrap
 	wrap = function() end,
 	---Called whenever this element changes shape

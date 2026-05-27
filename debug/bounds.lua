@@ -5,7 +5,7 @@ Adds debug outlines to visualize element bounds
 	Orange: Inner padding for child elements
 ]]
 
-local enabled = false
+local enabled = true
 
 if not enabled then return end
 

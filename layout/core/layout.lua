@@ -47,6 +47,18 @@ function lib.size(elem, axis)
 		state.size_flex = { state.raw_size[1] < 0, state.raw_size[2] < 0 }
 	end
 
+	-- Wrap element
+
+	local wrap = elem.events.wrap(elem, state.raw_size[1])
+	local x, y = (wrap or vectors.vec2()):unpack()
+
+	if axis == 1 then
+		state.raw_size_max[1] = math.min(state.raw_size_max[1], x)
+	else
+		state.raw_size[2] = y or 0
+		state.raw_size_max[2] = math.min(state.raw_size_max[2], y)
+	end
+
 	-- Fit children
 
 	local size = 0
@@ -76,12 +88,6 @@ function lib.size(elem, axis)
 	end
 
 	state.raw_size[axis] = state.raw_size[axis] + p[axis][1] + p[axis][2]
-
-	-- Wrap element
-
-	if axis == 2 then
-		state.raw_size[2] = math.max(state.raw_size[2], elem.events.wrap(elem, state.raw_size[1]))
-	end
 end
 
 ---Recursively grows child elements
@@ -106,7 +112,7 @@ function lib.grow(elem, axis)
 			if axis == a then
 				flexible[#flexible + 1] = chld
 			else
-				chld.state.raw_size[axis] = state.raw_size[axis] - (p[axis][1] + p[axis][2])
+				chld.state.raw_size[b] = math.min(chld.state.raw_size_max[b], state.raw_size[b] - (p[b][1] + p[b][2]))
 			end
 		end
 	end
