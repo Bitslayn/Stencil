@@ -41,6 +41,8 @@ local function outline(name, part, color, pos, size)
 end
 
 function class.draw(elem, ...)
+	draw(elem, ...)
+
 	local part = elem.part
 
 	local props = elem.props
@@ -57,6 +59,4 @@ function class.draw(elem, ...)
 			size - props.padding.wx - props.padding.yz --[[@as Vector2]]
 		)
 	end
-
-	draw(elem, ...)
 end

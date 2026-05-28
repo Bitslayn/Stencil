@@ -33,12 +33,17 @@ local default_styles = {
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
+	local size = elem.widg.styles.size / 9
+	elem:setProps({
+		size_min = vec(client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n"), 0).x * size, 0),
+	})
+
 	---@type FOXStencil.Text
 	local label = elem:getLayer("label")
 	label:setStyles({
 		text = elem.widg.styles.text,
 		width = elem.state.size.x,
-		size = elem.widg.styles.size
+		size = elem.widg.styles.size,
 	})
 end
 
@@ -84,7 +89,7 @@ return function(parent, name, layers, widgets)
 
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("label", layers.text):setStyles({ text = "Label" })
+	elem:newLayer("label", layers.text)
 
 	elem.events.draw = draw
 	elem.events.wrap = wrap

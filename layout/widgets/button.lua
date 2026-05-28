@@ -33,6 +33,10 @@ local default_styles = {
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
+	elem:setProps({
+		size_min = vec(client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n"), 0).x + 6, 0),
+	})
+
 	local extend_pos = vec(0, -elem.widg.extend)
 	local extend_size = elem.state.size + vec(0, elem.widg.extend)
 
@@ -43,6 +47,7 @@ local function draw(elem)
 		size = extend_size,
 		color = elem.widg.styles.color,
 
+		texture = textures["assets.textures.ui"],
 		uv_pos = elem.widg.pressed and vec(4, 0) or vec(0, 0),
 		uv_size = elem.widg.pressed and vec(5, 5) or vec(5, 7),
 		slice = elem.widg.pressed and vec(2, 2, 2, 2) or vec(2, 2, 4, 2),
@@ -92,7 +97,7 @@ end
 
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
-	return client.getTextDimensions(elem.widg.styles.text, width - 6) + 6
+	return client.getTextDimensions(elem.widg.styles.text, width - 6) + vec(6, 4)
 end
 
 
@@ -150,26 +155,11 @@ return function(parent, name, layers, widgets)
 	widg.press = function() end
 	widg.release = function() end
 	widg.extend = 2
-
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("background", layers.slice):setStyles({
-		pos = vec(0, -2),
-		texture = textures["assets.textures.ui"],
-		uv_pos = vec(0, 0),
-		uv_size = vec(5, 7),
-		slice = vec(2, 2, 4, 2),
-	})
-
-	elem:newLayer("label", layers.text):setStyles({
-		pos = vec(3, 1),
-		text = "Button",
-	})
-
-	elem:newLayer("outline", layers.border):setStyles({
-		pos = vec(0, -2),
-		visible = false,
-	})
+	elem:newLayer("background", layers.slice)
+	elem:newLayer("label", layers.text)
+	elem:newLayer("outline", layers.border):setStyles({ visible = false })
 
 	elem.events.draw = draw
 	elem.events.press = press
