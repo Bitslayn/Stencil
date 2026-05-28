@@ -103,7 +103,7 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../../core/parser").copy
+local copy = require("./../core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Button.Styles
