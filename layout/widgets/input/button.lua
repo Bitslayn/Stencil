@@ -31,26 +31,30 @@ local default_styles = {
 --#REGION ˚♡ Events ♡˚
 --==============================================================================================================================
 
----@type FOXStencil.Element.Events.Press
-local function press(elem)
-	local extend_pos = vec(0, 0)
-	local extend_size = elem.state.size
+---@type FOXStencil.Element.Events.Draw
+local function draw(elem)
+	local extend_pos = vec(0, -elem.widg.extend)
+	local extend_size = elem.state.size + vec(0, elem.widg.extend)
 
 	---@type FOXStencil.Slice
 	local background = elem:getLayer("background")
 	background:setStyles({
 		pos = extend_pos,
 		size = extend_size,
+		color = elem.widg.styles.color,
 
-		uv_pos = vec(4, 0),
-		uv_size = vec(5, 5),
-		slice = vec(2, 2, 2, 2),
+		uv_pos = elem.widg.pressed and vec(4, 0) or vec(0, 0),
+		uv_size = elem.widg.pressed and vec(5, 5) or vec(5, 7),
+		slice = elem.widg.pressed and vec(2, 2, 2, 2) or vec(2, 2, 4, 2),
 	})
 
 	---@type FOXStencil.Label
 	local label = elem:getLayer("label")
 	label:setStyles({
 		pos = extend_pos + vec(3, 3),
+
+		text = elem.widg.styles.text,
+		width = elem.state.size.x - 6,
 	})
 
 	---@type FOXStencil.Border
@@ -59,39 +63,21 @@ local function press(elem)
 		pos = extend_pos,
 		size = extend_size,
 	})
+end
 
+---@type FOXStencil.Element.Events.Press
+local function press(elem)
+	elem.widg.extend = 0
+	elem.widg.pressed = true
+	draw(elem)
 	elem.widg.press(elem.widg)
 end
 
 ---@type FOXStencil.Element.Events.Release
 local function release(elem)
-	local extend_pos = vec(0, -2)
-	local extend_size = elem.state.size + vec(0, 2)
-
-	---@type FOXStencil.Slice
-	local background = elem:getLayer("background")
-	background:setStyles({
-		pos = extend_pos,
-		size = extend_size,
-
-		uv_pos = vec(0, 0),
-		uv_size = vec(5, 7),
-		slice = vec(2, 2, 4, 2),
-	})
-
-	---@type FOXStencil.Label
-	local label = elem:getLayer("label")
-	label:setStyles({
-		pos = extend_pos + vec(3, 3),
-	})
-
-	---@type FOXStencil.Border
-	local outline = elem:getLayer("outline")
-	outline:setStyles({
-		pos = extend_pos,
-		size = extend_size,
-	})
-
+	elem.widg.extend = 2
+	elem.widg.pressed = false
+	draw(elem)
 	elem.widg.release(elem.widg)
 end
 
@@ -109,34 +95,12 @@ local function wrap(elem, width)
 	---@type FOXStencil.Label
 	local label = elem:getLayer("label")
 	local size = label.styles.size / 9
-	return client.getTextDimensions(elem.widg.styles.text, (width - 6) / size) * size + 6
+	return client.getTextDimensions(elem.widg.styles.text, (width - 6) / size) * size + vec(6, 6)
 end
 
----@type FOXStencil.Element.Events.Draw
-local function draw(elem)
-	---@type FOXStencil.Slice
-	local background = elem:getLayer("background")
-	background:setStyles({
-		color = elem.widg.styles.color,
-		size = elem.state.size + vec(0, 2),
-	})
-
-	---@type FOXStencil.Label
-	local label = elem:getLayer("label")
-	label:setStyles({
-		text = elem.widg.styles.text,
-		width = elem.state.size.x - 6,
-	})
-
-	---@type FOXStencil.Border
-	local outline = elem:getLayer("outline")
-	outline:setStyles({
-		size = elem.state.size + vec(0, 2),
-	})
-end
 
 --#ENDREGION --=================================================================================================================
---#REGION ˚♡ Builder ♡˚
+--#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
 local copy = require("./../../core/parser").copy
@@ -170,6 +134,10 @@ function obj:onRelease(func)
 	return self
 end
 
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Builder ♡˚
+--==============================================================================================================================
+
 ---@param parent FOXStencil.Element
 ---@param layers FOXStencil.Layers
 ---@param widgets FOXStencil.Widgets
@@ -184,6 +152,7 @@ return function(parent, name, layers, widgets)
 
 	widg.press = function() end
 	widg.release = function() end
+	widg.extend = 2
 
 	widg.styles = setmetatable({}, { __index = default_styles })
 
@@ -205,11 +174,11 @@ return function(parent, name, layers, widgets)
 		visible = false,
 	})
 
+	elem.events.draw = draw
 	elem.events.press = press
 	elem.events.release = release
 	elem.events.hover = hover
 	elem.events.wrap = wrap
-	elem.events.draw = draw
 
 	draw(elem)
 
