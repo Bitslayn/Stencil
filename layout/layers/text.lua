@@ -1,17 +1,17 @@
----Generates a label layer
+---Generates a text layer
 ---
 ---Call :setStyles() with a table to change the styles
----@alias FOXStencil.Label.Generator fun(part: ModelPart): FOXStencil.Label
+---@alias FOXStencil.Text.Generator fun(part: ModelPart): FOXStencil.Text
 
 ---@class FOXStencil.Layers
----@field label FOXStencil.Label.Generator
+---@field text FOXStencil.Text.Generator
 
----@class FOXStencil.Label: FOXStencil.Layer
+---@class FOXStencil.Text: FOXStencil.Layer
 local obj = {}
 ---@package
 obj.__index = obj
 
----@class FOXStencil.Label.Styles
+---@class FOXStencil.Text.Styles
 local default = {
 	---@type string
 	text = "",
@@ -38,8 +38,8 @@ local default = {
 	visible = true
 }
 
----Redraws this label
----@param self FOXStencil.Label
+---Redraws this text
+---@param self FOXStencil.Text
 local function draw(self)
 	local styles = self.styles
 
@@ -67,7 +67,7 @@ end
 local copy = require("./../core/parser").copy
 
 ---Sets the given styles
----@param styles FOXStencil.Label.Styles
+---@param styles FOXStencil.Text.Styles
 ---@return self
 function obj:setStyles(styles)
 	if copy(styles, self.styles) then
@@ -79,9 +79,9 @@ end
 
 ---@param part ModelPart
 return function(part)
-	---@class FOXStencil.Label
+	---@class FOXStencil.Text
 	local self = {
-		task = part:newText("label-" .. math.random()):light(15),
+		task = part:newText("text-" .. math.random()):light(15),
 		styles = setmetatable({}, { __index = default }),
 	}
 

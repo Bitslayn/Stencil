@@ -48,7 +48,7 @@ local function draw(elem)
 		slice = elem.widg.pressed and vec(2, 2, 2, 2) or vec(2, 2, 4, 2),
 	})
 
-	---@type FOXStencil.Label
+	---@type FOXStencil.Text
 	local label = elem:getLayer("label")
 	label:setStyles({
 		pos = extend_pos + vec(3, 3),
@@ -92,10 +92,7 @@ end
 
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
-	---@type FOXStencil.Label
-	local label = elem:getLayer("label")
-	local size = label.styles.size / 9
-	return client.getTextDimensions(elem.widg.styles.text, (width - 6) / size) * size + vec(6, 6)
+	return client.getTextDimensions(elem.widg.styles.text, width - 6) + 6
 end
 
 
@@ -164,7 +161,7 @@ return function(parent, name, layers, widgets)
 		slice = vec(2, 2, 4, 2),
 	})
 
-	elem:newLayer("label", layers.label):setStyles({
+	elem:newLayer("label", layers.text):setStyles({
 		pos = vec(3, 1),
 		text = "Button",
 	})
