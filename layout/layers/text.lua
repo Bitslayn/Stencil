@@ -22,8 +22,6 @@ local default = {
 	size = 9,
 	---@type number
 	width = 0,
-	---@type boolean
-	wrap = true,
 	---@type "CENTER"|"LEFT"|"RIGHT"
 	align = "LEFT",
 
