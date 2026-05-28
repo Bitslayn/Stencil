@@ -25,7 +25,7 @@ local default = {
 	---@type boolean
 	wrap = true,
 	---@type "CENTER"|"LEFT"|"RIGHT"
-	alignment = "LEFT",
+	align = "LEFT",
 
 	---@type Vector3
 	outline = vectors.intToRGB(0x202020),
@@ -51,7 +51,7 @@ local function draw(self)
 		self.task
 			:text(styles.text)
 			:width(styles.width / size)
-			:alignment(styles.alignment)
+			:alignment(styles.align)
 
 			:pos(-styles.pos:augmented(1 / 16))
 			:scale(size)

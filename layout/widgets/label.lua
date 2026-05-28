@@ -23,8 +23,12 @@ obj.__index = obj
 
 ---@class FOXStencil.Label.Styles
 local default_styles = {
+	---@type string
 	text = "Label",
+	---@type number
 	size = 9,
+	---@type "CENTER"|"LEFT"|"RIGHT"
+	align = "LEFT",
 }
 
 --#ENDREGION --=================================================================================================================
@@ -38,12 +42,24 @@ local function draw(elem)
 		size_min = vec(client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n"), 0).x * size, 0),
 	})
 
+	local align = elem.widg.styles.align
+	local pan = 0
+
+	if align == "RIGHT" then
+		pan = 1
+	elseif align == "CENTER" then
+		pan = 0.5
+	end
+
 	---@type FOXStencil.Text
 	local label = elem:getLayer("label")
 	label:setStyles({
-		text = elem.widg.styles.text,
-		width = elem.state.size.x,
+		pos = vec(elem.state.size.x * pan, 0),
 		size = elem.widg.styles.size,
+		width = elem.state.size.x,
+
+		text = elem.widg.styles.text,
+		align = align,
 	})
 end
 

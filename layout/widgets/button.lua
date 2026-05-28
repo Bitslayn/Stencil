@@ -23,7 +23,9 @@ obj.__index = obj
 
 ---@class FOXStencil.Button.Styles
 local default_styles = {
+	---@type string
 	text = "Button",
+	---@type Vector3|Vector4
 	color = vec(1, 1, 1),
 }
 
