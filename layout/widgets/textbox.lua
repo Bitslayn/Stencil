@@ -33,6 +33,9 @@ local default_styles = {
 --#REGION ˚♡ Events ♡˚
 --==============================================================================================================================
 
+---@type FOXStencil.String
+local str = require("./../core/string")
+
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
 	elem:setProps({
@@ -51,7 +54,7 @@ local function draw(elem)
 		slice = vec(2, 2, 2, 2),
 	})
 
-	---@type string
+	---@type FOXStencil.String
 	local text = elem.widg.text
 	---@type string
 	local hint = elem.widg.styles.hint
@@ -61,7 +64,7 @@ local function draw(elem)
 	label:setStyles({
 		pos = vec(3, 3),
 
-		text = text ~= "" and text or hint,
+		text = text ~= "" and tostring(text) or hint,
 	})
 
 	---@type FOXStencil.Border
@@ -73,13 +76,15 @@ local function draw(elem)
 	---@type FOXStencil.Sprite
 	local caret = elem:getLayer("caret")
 	caret:setStyles({
-		pos = vec(3 + client.getTextWidth(text:gsub("%s", "..")), 2),
+		pos = vec(3 + client.getTextWidth(tostring(text):gsub("%s", "..")), 2),
 		size = vec(1, 9),
 	})
 end
 
 ---@param elem FOXStencil.Element
 local function capture(elem)
+	local close
+
 	---@type FOXStencil.Sprite
 	local caret = elem:getLayer("caret")
 	local function tick()
@@ -97,9 +102,11 @@ local function capture(elem)
 	---@type Event.KeyPress.func
 	local function key_press(key, state)
 		if state == 0 then return end
-		if key == 259 then
-			elem.widg.text = string.sub(elem.widg.text, 1, -2)
+		if key == 259 then -- Backspace
+			elem.widg.text = elem.widg.text:sub(1, -2)
 			draw(elem)
+		elseif key == 256 then -- Escape
+			close()
 		end
 	end
 
@@ -107,10 +114,15 @@ local function capture(elem)
 	events.char_typed:register(char_typed)
 	events.key_press:register(key_press)
 
-	return function()
+	function close()
+		elem.widg.capture = nil
+		caret:setStyles({ visible = false })
 		events.tick:remove(tick)
 		events.char_typed:remove(char_typed)
+		events.key_press:remove(key_press)
 	end
+
+	return close
 end
 
 ---@type FOXStencil.Element.Events.Press
@@ -165,7 +177,7 @@ return function(parent, name, layers, widgets)
 	local elem = parent:newElement(name)
 
 	---@class FOXStencil.Textbox
-	local widg = { elem = elem, text = "" }
+	local widg = { elem = elem, text = str.of("") } -- αβψδεφγ
 	elem.widg = widg
 
 	widg.styles = setmetatable({}, { __index = default_styles })
