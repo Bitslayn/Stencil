@@ -55,9 +55,7 @@ local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
 
 	for i = 1, 3 do
 		if clip_l < model_len and clip_l >= model[i] then
-			if i == 1 then
-				atlas[i] = clip_l
-			elseif i == 3 then
+			if i ~= 2 then
 				atlas[i] = atlas[i] - math.max(-1, model[i] - clip_l)
 			end
 			model[i] = clip_l
