@@ -36,112 +36,85 @@ local default = {
 	clip_size = vec(0, 0),
 
 	---@type boolean
-	visible = true
+	visible = true,
 }
+
+---@param atlas_len number
+---@param model_len number
+---@param slice_l number
+---@param slice_r number
+---@param clip_l number
+---@param clip_r number
+local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
+	-- Slice
+
+	local atlas = { 0, slice_l, atlas_len - slice_r, atlas_len }
+	local model = { 0, slice_l, model_len - slice_r, model_len }
+
+	-- Clip before
+
+	for i = 1, 3 do
+		if 0 < clip_l and model[i] <= clip_l then
+			if i ~= 2 then
+				atlas[i] = atlas[i] - math.max(0, model[i] - clip_l)
+			end
+			model[i] = clip_l
+		end
+	end
+
+	-- Clip after
+
+	for i = 2, 4 do
+		if 0 < clip_r and clip_r <= model[i] then
+			if i ~= 3 then
+				atlas[i] = atlas[i] - math.max(0, model[i] - clip_r)
+			end
+			model[i] = clip_r
+		end
+	end
+
+	return atlas, model
+end
 
 ---Redraws this slice
 ---@param self FOXStencil.Slice
 local function draw(self)
 	local styles = self.styles
 
+	-- Calculate slices
+
 	local model_w, model_h = styles.size:unpack()
 	local atlas_w, atlas_h = styles.uv_size:unpack()
 
 	local slice_t, slice_r, slice_b, slice_l = styles.slice:unpack()
 
-	-- Row slices
+	local clip_x, clip_y = styles.clip_pos:unpack()
+	local clip_w, clip_h = styles.clip_size:unpack()
 
-	local e_atlas_x = { 0, slice_l, atlas_w - slice_r }
-	local e_atlas_w = { slice_l, atlas_w - slice_l - slice_r, slice_r }
-	local e_model_x = { 0, slice_l, model_w - slice_r }
-	local e_model_w = { slice_l, model_w - slice_l - slice_r, slice_r }
-
-	-- Column slices
-
-	local e_atlas_y = { 0, slice_t, atlas_h - slice_b }
-	local e_atlas_h = { slice_t, atlas_h - slice_t - slice_b, slice_b }
-	local e_model_y = { 0, slice_t, model_h - slice_b }
-	local e_model_h = { slice_t, model_h - slice_t - slice_b, slice_b }
-
-	-- Crop region
-
-	local reg_pos = styles.clip_pos or vec(0, 0)
-	local reg_size = styles.clip_size ~= vec(0, 0) and styles.clip_size or styles.size
-	local reg_x, reg_y = (reg_size + reg_pos):unpack()
-	local marker_x, marker_y = reg_pos:unpack()
-
-	-- Crop along x
-
-	for i = 1, 3 do
-		-- Clip after (right)
-
-		reg_x = reg_x - e_model_w[i]
-		if reg_x < 0 then
-			e_model_w[i] = e_model_w[i] + reg_x
-			if i ~= 2 then
-				e_atlas_w[i] = e_atlas_w[i] + reg_x
-			end
-			reg_x = 0
-		end
-
-		-- Clip before (left)
-
-		local t = e_model_w[i]
-		if 0 < marker_x then
-			e_model_x[i] = math.max(e_model_x[i] + marker_x, 0)
-			e_model_w[i] = math.max(e_model_w[i] - marker_x, 0)
-			if i ~= 2 then
-				e_atlas_x[i] = e_atlas_x[i] + marker_x
-				e_atlas_w[i] = e_atlas_w[i] - marker_x
-			end
-		end
-		marker_x = marker_x - t
-	end
-
-	-- Crop along y
-
-	for i = 1, 3 do
-		-- Clip after (below)
-
-		reg_y = reg_y - e_model_h[i]
-		if reg_y < 0 then
-			e_model_h[i] = e_model_h[i] + reg_y
-			if i ~= 2 then
-				e_atlas_h[i] = e_atlas_h[i] + reg_y
-			end
-			reg_y = 0
-		end
-
-		-- Clip before (above)
-
-		local t = e_model_h[i]
-		if 0 < marker_y then
-			e_model_y[i] = math.max(e_model_y[i] + marker_y, 0)
-			e_model_h[i] = math.max(e_model_h[i] - marker_y, 0)
-			if i ~= 2 then
-				e_atlas_y[i] = e_atlas_y[i] + marker_y
-				e_atlas_h[i] = e_atlas_h[i] - marker_y
-			end
-		end
-		marker_y = marker_y - t
-	end
+	local e_atlas_x, e_model_x = slice(atlas_w, model_w, slice_l, slice_r, clip_x, clip_w)
+	local e_atlas_y, e_model_y = slice(atlas_h, model_h, slice_t, slice_b, clip_y, clip_h)
 
 	-- Update slices
 
-	local pos_x, pos_y = styles.pos:unpack()
 	local dim = styles.texture:getDimensions()
 
 	for y = 1, 3 do
 		for x = 1, 3 do
-			local visible = 0 < e_atlas_w[x] and 0 < e_atlas_h[y] and styles.visible
+			local model_pos = vec(e_model_x[x], e_model_y[y])
+			local atlas_pos = vec(e_atlas_x[x], e_atlas_y[y])
+
+			local model_size = vec(e_model_x[x + 1] - e_model_x[x], e_model_y[y + 1] - e_model_y[y])
+			local atlas_size = vec(e_atlas_x[x + 1] - e_atlas_x[x], e_atlas_y[y + 1] - e_atlas_y[y])
+
+			local visible = 0 < atlas_size:length() and styles.visible
 
 			if visible then
 				self.tasks[y][x]
-					:uv((styles.uv_pos + vec(e_atlas_x[x], e_atlas_y[y])) / dim)
-					:region(e_atlas_w[x] * 1000, e_atlas_h[y] * 1000)
+					:uv((styles.uv_pos + atlas_pos) / dim)
+					:region(atlas_size * 1000)
 
-					:pos(-e_model_x[x] - pos_x, -e_model_y[y] - pos_y)
-					:scale(e_model_w[x], e_model_h[y])
+					:pos((-model_pos - styles.pos):augmented(0))
+					:scale(model_size:augmented(0))
 
 					:dimensions(dim * 1000)
 					:texture(styles.texture)
