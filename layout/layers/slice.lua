@@ -54,9 +54,11 @@ local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
 	-- Clip before
 
 	for i = 1, 3 do
-		if 0 < clip_l and model[i] <= clip_l then
-			if i ~= 2 then
-				atlas[i] = atlas[i] - math.max(0, model[i] - clip_l)
+		if clip_l < model_len and clip_l >= model[i] then
+			if i == 1 then
+				atlas[i] = clip_l
+			elseif i == 3 then
+				atlas[i] = atlas[i] - math.max(-1, model[i] - clip_l)
 			end
 			model[i] = clip_l
 		end
@@ -65,7 +67,7 @@ local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
 	-- Clip after
 
 	for i = 2, 4 do
-		if 0 < clip_r and clip_r <= model[i] then
+		if clip_r > 0 and clip_r <= model[i] then
 			if i ~= 3 then
 				atlas[i] = atlas[i] - math.max(0, model[i] - clip_r)
 			end
@@ -91,8 +93,8 @@ local function draw(self)
 	local clip_x, clip_y = styles.clip_pos:unpack()
 	local clip_w, clip_h = styles.clip_size:unpack()
 
-	local e_atlas_x, e_model_x = slice(atlas_w, model_w, slice_l, slice_r, clip_x, clip_w)
-	local e_atlas_y, e_model_y = slice(atlas_h, model_h, slice_t, slice_b, clip_y, clip_h)
+	local e_atlas_x, e_model_x = slice(atlas_w, model_w, slice_l, slice_r, clip_x, clip_w + clip_x)
+	local e_atlas_y, e_model_y = slice(atlas_h, model_h, slice_t, slice_b, clip_y, clip_h + clip_y)
 
 	-- Update slices
 
