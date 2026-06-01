@@ -11,29 +11,26 @@ local obj = {}
 ---@package
 obj.__index = obj
 
+local vec2 = vectors.vec2
+local vec3 = vectors.vec3
+local vec4 = vectors.vec4
+
 ---@class FOXStencil.Slice.Styles
 local default = {
 	---@type Texture
 	texture = textures["FOXStencil_blank"],
 	---@type Vector3|Vector4
-	color = vec(1, 1, 1, 1),
+	color = vec4() + 1,
 
-	---@type Vector2
-	pos = vec(0, 0),
-	---@type Vector2
-	size = vec(0, 0),
-	---@type Vector4
-	slice = vec(0, 0, 0, 0),
+	pos = vec2(),
+	size = vec2(),
+	slice = vec4(),
 
-	---@type Vector2
-	uv_pos = vec(0, 0),
-	---@type Vector2
-	uv_size = vec(1, 1),
+	uv_pos = vec2(),
+	uv_size = vec2(),
 
-	---@type Vector2
-	clip_pos = vec(0, 0),
-	---@type Vector2
-	clip_size = vec(0, 0),
+	clip_pos = vec2(),
+	clip_size = vec2(),
 
 	---@type boolean
 	visible = true,
@@ -96,15 +93,16 @@ local function draw(self)
 
 	-- Update slices
 
+	local pos = styles.pos.xy_
 	local dim = styles.texture:getDimensions()
 
 	for y = 1, 3 do
 		for x = 1, 3 do
-			local model_pos = vec(e_model_x[x], e_model_y[y])
-			local atlas_pos = vec(e_atlas_x[x], e_atlas_y[y])
+			local model_pos = vec3(e_model_x[x], e_model_y[y])
+			local atlas_pos = vec2(e_atlas_x[x], e_atlas_y[y])
 
-			local model_size = vec(e_model_x[x + 1] - e_model_x[x], e_model_y[y + 1] - e_model_y[y])
-			local atlas_size = vec(e_atlas_x[x + 1] - e_atlas_x[x], e_atlas_y[y + 1] - e_atlas_y[y])
+			local model_size = vec3(e_model_x[x + 1] - e_model_x[x], e_model_y[y + 1] - e_model_y[y])
+			local atlas_size = vec2(e_atlas_x[x + 1] - e_atlas_x[x], e_atlas_y[y + 1] - e_atlas_y[y])
 
 			local visible = 0 < atlas_size:length() and styles.visible
 
@@ -113,8 +111,8 @@ local function draw(self)
 					:uv((styles.uv_pos + atlas_pos) / dim)
 					:region(atlas_size * 1000)
 
-					:pos((-model_pos - styles.pos):augmented(0))
-					:scale(model_size:augmented(0))
+					:pos(-model_pos - pos)
+					:scale(model_size)
 
 					:dimensions(dim * 1000)
 					:texture(styles.texture)
