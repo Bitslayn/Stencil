@@ -34,7 +34,7 @@ local default_styles = {
 --==============================================================================================================================
 
 ---@type FOXStencil.String
-local str = require("./../../layout/core/string")
+local str = require("./../../layout/types/string")
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)

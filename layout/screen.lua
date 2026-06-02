@@ -71,7 +71,7 @@ return function(part)
 	---@field hovered FOXStencil.Element?
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = require("./core/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
+		chld = require("./types/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
 	}
 	self.root = self
 	return setmetatable(self, class)

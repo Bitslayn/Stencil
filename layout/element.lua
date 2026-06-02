@@ -123,7 +123,7 @@ local function new(part, root, parn, sibl)
 		parn = parn,
 		sibl = sibl,
 		---@type FOXMap<integer, FOXStencil.Element>
-		chld = require("./core/map")(),
+		chld = require("./types/map")(),
 
 		queued = true,
 	}, class)
@@ -214,7 +214,7 @@ function class:newElement(name)
 	return elem
 end
 
-local assets = require("./core/assets")
+local assets = require("./../assets/assets")
 
 ---@generic FOXStencil.Widget
 ---@param name string
@@ -250,7 +250,7 @@ function class:remove()
 
 	-- Make this element an orphan
 
-	self.sibl = require("./core/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self) -- TODO Localize
+	self.sibl = require("./types/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self) -- TODO Localize
 	self.part:remove()
 	self.parn = nil
 	self.root = nil
