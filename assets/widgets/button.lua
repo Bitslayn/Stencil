@@ -5,7 +5,7 @@
 ---Generates a button widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Button.Generator fun(parent: FOXStencil.Element, name: string, layers: FOXStencil.Layers, widgets: FOXStencil.Widgets): FOXStencil.Button
+---@alias FOXStencil.Button.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Button
 
 ---@class FOXStencil.Widgets
 ---@field button FOXStencil.Button.Generator
@@ -49,7 +49,6 @@ local function draw(elem)
 		size = extend_size,
 		color = elem.widg.styles.color,
 
-		texture = textures["assets.textures.ui"],
 		uv_pos = elem.widg.pressed and vec(4, 0) or vec(0, 0),
 		uv_size = elem.widg.pressed and vec(5, 5) or vec(5, 7),
 		slice = elem.widg.pressed and vec(2, 2, 2, 2) or vec(2, 2, 4, 2),
@@ -107,7 +106,7 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../core/parser").copy
+local copy = require("./../../layout/core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Button.Styles
@@ -143,9 +142,8 @@ end
 --==============================================================================================================================
 
 ---@param parent FOXStencil.Element
----@param layers FOXStencil.Layers
----@param widgets FOXStencil.Widgets
-return function(parent, name, layers, widgets)
+---@param assets FOXStencil.Assets
+return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({
 		size = vec(-1, -1),
 	})
@@ -159,9 +157,9 @@ return function(parent, name, layers, widgets)
 	widg.extend = 2
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("background", layers.slice)
-	elem:newLayer("label", layers.text)
-	elem:newLayer("outline", layers.border):setStyles({ visible = false })
+	elem:newLayer("background", assets.layers.slice):setStyles({ texture = assets.themes.ui.textures.ui })
+	elem:newLayer("label", assets.layers.text)
+	elem:newLayer("outline", assets.layers.border):setStyles({ visible = false })
 
 	elem.events.draw = draw
 	elem.events.press = press

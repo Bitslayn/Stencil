@@ -150,7 +150,7 @@ local function draw(self)
 	end
 end
 
-local copy = require("./../core/parser").copy
+local copy = require("./../../layout/core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Slice.Styles

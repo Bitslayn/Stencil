@@ -5,7 +5,7 @@
 ---Generates a label widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Label.Generator fun(parent: FOXStencil.Element, name: string, layers: FOXStencil.Layers, widgets: FOXStencil.Widgets): FOXStencil.Label
+---@alias FOXStencil.Label.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Label
 
 ---@class FOXStencil.Widgets
 ---@field label FOXStencil.Label.Generator
@@ -74,7 +74,7 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../core/parser").copy
+local copy = require("./../../layout/core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Label.Styles
@@ -92,9 +92,8 @@ end
 --==============================================================================================================================
 
 ---@param parent FOXStencil.Element
----@param layers FOXStencil.Layers
----@param widgets FOXStencil.Widgets
-return function(parent, name, layers, widgets)
+---@param assets FOXStencil.Assets
+return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({
 		size = vec(-1, -1),
 	})
@@ -105,7 +104,7 @@ return function(parent, name, layers, widgets)
 
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("label", layers.text)
+	elem:newLayer("label", assets.layers.text)
 
 	elem.events.draw = draw
 	elem.events.wrap = wrap

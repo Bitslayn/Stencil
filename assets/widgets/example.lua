@@ -5,7 +5,7 @@
 ---Generates an example widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Example.Generator fun(parent: FOXStencil.Element, name: string, layers: FOXStencil.Layers, widgets: FOXStencil.Widgets): FOXStencil.Example
+---@alias FOXStencil.Example.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Example
 
 ---@class FOXStencil.Widgets
 ---@field example FOXStencil.Example.Generator
@@ -32,7 +32,7 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../core/parser").copy
+local copy = require("./../../layout/core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Example.Styles
@@ -50,9 +50,8 @@ end
 --==============================================================================================================================
 
 ---@param parent FOXStencil.Element
----@param layers FOXStencil.Layers
----@param widgets FOXStencil.Widgets
-return function(parent, name, layers, widgets)
+---@param assets FOXStencil.Assets
+return function(parent, name, assets)
 	local elem = parent:newElement(name)
 
 	---@class FOXStencil.Example

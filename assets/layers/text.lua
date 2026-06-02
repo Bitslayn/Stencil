@@ -62,7 +62,7 @@ local function draw(self)
 	self.task:visible(visible)
 end
 
-local copy = require("./../core/parser").copy
+local copy = require("./../../layout/core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Text.Styles

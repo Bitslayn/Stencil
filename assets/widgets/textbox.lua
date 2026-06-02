@@ -7,7 +7,7 @@
 ---Generates a textbox widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Textbox.Generator fun(parent: FOXStencil.Element, name: string, layers: FOXStencil.Layers, widgets: FOXStencil.Widgets): FOXStencil.Textbox
+---@alias FOXStencil.Textbox.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Textbox
 
 ---@class FOXStencil.Widgets
 ---@field textbox FOXStencil.Textbox.Generator
@@ -34,7 +34,7 @@ local default_styles = {
 --==============================================================================================================================
 
 ---@type FOXStencil.String
-local str = require("./../core/string")
+local str = require("./../../layout/core/string")
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
@@ -47,8 +47,7 @@ local function draw(elem)
 	background:setStyles({
 		size = elem.state.size,
 		color = vec(0.2, 0.2, 0.2),
-
-		texture = textures["assets.textures.ui"],
+		
 		uv_pos = vec(4, 4),
 		uv_size = vec(5, 5),
 		slice = vec(2, 2, 2, 2),
@@ -153,7 +152,7 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../core/parser").copy
+local copy = require("./../../layout/core/parser").copy
 
 ---Sets the given styles
 ---@param styles FOXStencil.Textbox.Styles
@@ -171,9 +170,8 @@ end
 --==============================================================================================================================
 
 ---@param parent FOXStencil.Element
----@param layers FOXStencil.Layers
----@param widgets FOXStencil.Widgets
-return function(parent, name, layers, widgets)
+---@param assets FOXStencil.Assets
+return function(parent, name, assets)
 	local elem = parent:newElement(name)
 
 	---@class FOXStencil.Textbox
@@ -182,10 +180,10 @@ return function(parent, name, layers, widgets)
 
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("background", layers.slice)
-	elem:newLayer("label", layers.text)
-	elem:newLayer("outline", layers.border):setStyles({ visible = false })
-	elem:newLayer("caret", layers.sprite):setStyles({ visible = false })
+	elem:newLayer("background", assets.layers.slice):setStyles({texture = assets.themes.ui.textures.ui})
+	elem:newLayer("label", assets.layers.text)
+	elem:newLayer("outline", assets.layers.border):setStyles({ visible = false })
+	elem:newLayer("caret", assets.layers.sprite):setStyles({ visible = false })
 
 	elem.events.draw = draw
 	elem.events.press = press

@@ -214,14 +214,14 @@ function class:newElement(name)
 	return elem
 end
 
-local provider = require("./core/provider")
+local assets = require("./core/assets")
 
 ---@generic FOXStencil.Widget
 ---@param name string
----@param widget fun(parent: FOXStencil.Element, name: string, layers: FOXStencil.Layers, widgets: FOXStencil.Widgets): FOXStencil.Widget
+---@param widget fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Widget
 ---@return FOXStencil.Widget
 function class:newWidget(name, widget)
-	return widget(self, name, provider.layers, provider.widgets)
+	return widget(self, name, assets)
 end
 
 ---@generic FOXStencil.Layer

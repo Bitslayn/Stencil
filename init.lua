@@ -1,13 +1,15 @@
 textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1)) -- TODO Race condition when autoscripts is disabled
 
-local provider = require("./layout/core/provider")
+local assets = require("./layout/core/assets")
 
 ---@class FOXStencil
+---@field themes FOXStencil.Themes
 ---@field layers FOXStencil.Layers
 ---@field widgets FOXStencil.Widgets
 local api = {
-	layers = provider.layers,
-	widgets = provider.widgets,
+	themes = assets.themes,
+	layers = assets.layers,
+	widgets = assets.widgets,
 	newScreen = require("./layout/screen"),
 }
 
