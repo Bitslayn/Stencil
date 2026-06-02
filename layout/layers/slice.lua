@@ -81,6 +81,19 @@ local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
 	return atlas_points, model_points, atlas_sizes, model_sizes
 end
 
+-- ---@param ids string[]
+-- ---@param vals [table, table, table, table]
+-- ---@return boolean[]
+-- local function diff(ids, vals)
+-- 	local states = {}
+-- 	for i = 1, 3 do
+-- 		local id = vals[1][i] .. vals[2][i] .. vals[3][i] .. vals[4][i]
+-- 		states[i] = ids[i] ~= id
+-- 		ids[i] = id
+-- 	end
+-- 	return states
+-- end
+
 ---Redraws this slice
 ---@param self FOXStencil.Slice
 local function draw(self)
@@ -99,6 +112,11 @@ local function draw(self)
 	local e_atlas_x, e_model_x, e_atlas_w, e_model_w = slice(atlas_w, model_w, slice_l, slice_r, clip_x, clip_w + clip_x)
 	local e_atlas_y, e_model_y, e_atlas_h, e_model_h = slice(atlas_h, model_h, slice_t, slice_b, clip_y, clip_h + clip_y)
 
+	-- Diff check
+
+	-- local diff_x = diff(self.ids_x, { e_atlas_x, e_model_x, e_atlas_w, e_model_w })
+	-- local diff_y = diff(self.ids_y, { e_atlas_y, e_model_y, e_atlas_h, e_model_h })
+
 	-- Update slices
 
 	local dim = styles.texture:getDimensions()
@@ -107,6 +125,7 @@ local function draw(self)
 
 	for y = 1, 3 do
 		for x = 1, 3 do
+			-- if diff_x[x] or diff_y[y] then
 			local atlas_pos = vec(e_atlas_x[x], e_atlas_y[y])
 			local atlas_size = vec(e_atlas_w[x], e_atlas_h[y])
 
@@ -126,6 +145,7 @@ local function draw(self)
 			end
 
 			self.cells[y][x]:visible(visible)
+			-- end
 		end
 	end
 end
@@ -152,6 +172,8 @@ return function(part)
 	local self = {
 		pivot = pivot,
 		cells = cells,
+		-- ids_x = {},
+		-- ids_y = {},
 		styles = setmetatable({}, { __index = default }),
 	}
 
