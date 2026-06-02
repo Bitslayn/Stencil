@@ -11,26 +11,22 @@ local obj = {}
 ---@package
 obj.__index = obj
 
-local vec2 = vectors.vec2
-local vec3 = vectors.vec3
-local vec4 = vectors.vec4
-
 ---@class FOXStencil.Slice.Styles
 local default = {
 	---@type Texture
 	texture = textures["FOXStencil_blank"],
 	---@type Vector3|Vector4
-	color = vec4() + 1,
+	color = vec(1, 1, 1, 1),
 
-	pos = vec2(),
-	size = vec2(),
-	slice = vec4(),
+	pos = vec(0, 0),
+	size = vec(0, 0),
+	slice = vec(0, 0, 0, 0),
 
-	uv_pos = vec2(),
-	uv_size = vec2(),
+	uv_pos = vec(0, 0),
+	uv_size = vec(0, 0),
 
-	clip_pos = vec2(),
-	clip_size = vec2(),
+	clip_pos = vec(0, 0),
+	clip_size = vec(0, 0),
 
 	---@type boolean
 	visible = true,
@@ -42,35 +38,47 @@ local default = {
 ---@param slice_r number
 ---@param clip_l number
 ---@param clip_r number
+---@return [number, number, number, number] atlas_points
+---@return [number, number, number, number] model_points
+---@return [number, number, number] atlas_sizes
+---@return [number, number, number] model_sizes
 local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
 	-- Slice
 
-	local atlas = { 0, slice_l, atlas_len - slice_r, atlas_len }
-	local model = { 0, slice_l, model_len - slice_r, model_len }
+	slice_l = math.min(slice_l, model_len / 2)
+	slice_r = math.min(slice_r, model_len / 2)
+
+	local atlas_points = { 0, slice_l, atlas_len - slice_r, atlas_len }
+	local model_points = { 0, slice_l, model_len - slice_r, model_len }
 
 	-- Clip before
 
 	for i = 1, 3 do
-		if clip_l < model_len and clip_l >= model[i] then
+		if clip_l < model_len and clip_l >= model_points[i] then
 			if i ~= 2 then
-				atlas[i] = atlas[i] - math.max(-1, model[i] - clip_l)
+				atlas_points[i] = atlas_points[i] - math.max(-1, model_points[i] - clip_l)
 			end
-			model[i] = clip_l
+			model_points[i] = clip_l
 		end
 	end
 
 	-- Clip after
 
 	for i = 2, 4 do
-		if clip_r > 0 and clip_r <= model[i] then
+		if clip_r > 0 and clip_r <= model_points[i] then
 			if i ~= 3 then
-				atlas[i] = atlas[i] - math.max(0, model[i] - clip_r)
+				atlas_points[i] = atlas_points[i] - math.max(0, model_points[i] - clip_r)
 			end
-			model[i] = clip_r
+			model_points[i] = clip_r
 		end
 	end
 
-	return atlas, model
+	-- Sizing
+
+	local atlas_sizes = { atlas_points[2] - atlas_points[1], atlas_points[3] - atlas_points[2], atlas_points[4] - atlas_points[3] }
+	local model_sizes = { model_points[2] - model_points[1], model_points[3] - model_points[2], model_points[4] - model_points[3] }
+
+	return atlas_points, model_points, atlas_sizes, model_sizes
 end
 
 ---Redraws this slice
@@ -80,46 +88,44 @@ local function draw(self)
 
 	-- Calculate slices
 
-	local model_w, model_h = styles.size:unpack()
 	local atlas_w, atlas_h = styles.uv_size:unpack()
+	local model_w, model_h = styles.size:unpack()
 
 	local slice_t, slice_r, slice_b, slice_l = styles.slice:unpack()
 
 	local clip_x, clip_y = styles.clip_pos:unpack()
 	local clip_w, clip_h = styles.clip_size:unpack()
 
-	local e_atlas_x, e_model_x = slice(atlas_w, model_w, slice_l, slice_r, clip_x, clip_w + clip_x)
-	local e_atlas_y, e_model_y = slice(atlas_h, model_h, slice_t, slice_b, clip_y, clip_h + clip_y)
+	local e_atlas_x, e_model_x, e_atlas_w, e_model_w = slice(atlas_w, model_w, slice_l, slice_r, clip_x, clip_w + clip_x)
+	local e_atlas_y, e_model_y, e_atlas_h, e_model_h = slice(atlas_h, model_h, slice_t, slice_b, clip_y, clip_h + clip_y)
 
 	-- Update slices
 
-	local pos = styles.pos.xy_
 	local dim = styles.texture:getDimensions()
+
+	self.pivot:pos(-styles.pos.xy_)
 
 	for y = 1, 3 do
 		for x = 1, 3 do
-			local model_pos = vec3(e_model_x[x], e_model_y[y])
-			local atlas_pos = vec2(e_atlas_x[x], e_atlas_y[y])
-
-			local model_size = vec3(e_model_x[x + 1] - e_model_x[x], e_model_y[y + 1] - e_model_y[y])
-			local atlas_size = vec2(e_atlas_x[x + 1] - e_atlas_x[x], e_atlas_y[y + 1] - e_atlas_y[y])
+			local atlas_pos = vec(e_atlas_x[x], e_atlas_y[y])
+			local atlas_size = vec(e_atlas_w[x], e_atlas_h[y])
 
 			local visible = 0 < atlas_size:length() and styles.visible
 
 			if visible then
-				self.tasks[y][x]
-					:uv((styles.uv_pos + atlas_pos) / dim)
+				self.cells[y][x]
+					:dimensions(dim * 1000)
+					:uvPixels((styles.uv_pos + atlas_pos) * 1000)
 					:region(atlas_size * 1000)
 
-					:pos(-model_pos - pos)
-					:scale(model_size)
+					:pos(-e_model_x[x], -e_model_y[y])
+					:scale(e_model_w[x], e_model_h[y])
 
-					:dimensions(dim * 1000)
 					:texture(styles.texture)
 					:color(styles.color)
 			end
 
-			self.tasks[y][x]:visible(visible)
+			self.cells[y][x]:visible(visible)
 		end
 	end
 end
@@ -139,20 +145,22 @@ end
 
 ---@param part ModelPart
 return function(part)
+	local pivot = part:newPart("slice")
 	---@type SpriteTask[][]
-	local tasks = {}
+	local cells = {}
 	---@class FOXStencil.Slice
 	local self = {
-		tasks = tasks,
+		pivot = pivot,
+		cells = cells,
 		styles = setmetatable({}, { __index = default }),
 	}
 
 	for y = 1, 3 do
-		tasks[y] = {}
+		cells[y] = {}
 		for x = 1, 3 do
-			tasks[y][x] = part:newSprite("slice-" .. math.random())
-				:size(1, 1)
+			cells[y][x] = pivot:newSprite("node-" .. math.random())
 				:renderType("CUTOUT_EMISSIVE_SOLID")
+				:size(1, 1)
 		end
 	end
 
