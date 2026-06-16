@@ -9,9 +9,10 @@ local function assert(v, msg)
 	return v or error(msg, 4)
 end
 
----@type table<string, table<type, true>>
+---@type table<string, {key: string, types: table<string, boolean>}>
 local overloads = {
-	color = setmetatable({ Vector3 = true, Vector4 = true }, { __type = "Vector3|Vector4" }),
+	texture = { key = "Texture", types = { Texture = true } },
+	color = { key = "Vector3|Vector4", types = { Vector3 = true, Vector4 = true } },
 }
 
 ---@generic v
@@ -36,9 +37,9 @@ function lib.copy(from, to)
 		if to[k] ~= v then
 			local t1 = type(to[k])
 			local t2 = type(v)
-			local t3 = overloads[k] and type(overloads[k])
+			local t3 = overloads[k] and overloads[k].key
 
-			if not (overloads[k] and overloads[k][t2]) then
+			if not (overloads[k] and overloads[k].types[t2]) then
 				assert(t1 == t2, string.format("Unexpected type to set on key '%s', %s expected but found %s", k, t3 or t1, t2))
 				assert(types[t2], string.format("Unsupported type %s to copy", t2))
 			end
