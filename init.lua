@@ -1,6 +1,6 @@
 textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1)) -- TODO Race condition when autoscripts is disabled
 
-local assets = require("./assets/assets")
+local assets = require("./assets/assets") --[[@as FOXStencil.Assets]]
 
 ---@class FOXStencil
 ---@field themes FOXStencil.Themes

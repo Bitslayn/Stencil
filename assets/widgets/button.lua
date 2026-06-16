@@ -157,7 +157,7 @@ return function(parent, name, assets)
 	widg.extend = 2
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("background", assets.layers.slice):setStyles({ texture = assets.themes.ui.textures.ui })
+	elem:newLayer("background", assets.layers.slice):setStyles({ texture = assets.themes.stencil.texture })
 	elem:newLayer("label", assets.layers.text)
 	elem:newLayer("outline", assets.layers.border):setStyles({ visible = false })
 
