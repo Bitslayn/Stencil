@@ -14,7 +14,7 @@ obj.__index = obj
 ---@class FOXStencil.Slice.Styles
 local default = {
 	---@type Texture
-	texture = textures["FOXStencil_blank"],
+	texture = nil,
 	---@type Vector3|Vector4
 	color = vec(1, 1, 1, 1),
 
@@ -98,6 +98,7 @@ end
 ---@param self FOXStencil.Slice
 local function draw(self)
 	local styles = self.styles
+	if not styles.texture then return end
 
 	-- Calculate slices
 
