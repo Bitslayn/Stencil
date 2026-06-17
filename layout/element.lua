@@ -116,9 +116,9 @@ local function new(part, root, parn, sibl)
 		state = setmetatable({}, { __index = default_state }),
 		events = setmetatable({}, { __index = default_events }),
 
-		---@type type<string, FOXStencil.Element>
+		---@type table<string, FOXMap<integer, FOXStencil.Element>>
 		elem_dict = {},
-		---@type table<string, FOXStencil.Layer>
+		---@type table<string, FOXMap<integer, FOXStencil.Layer>>
 		layer_dict = {},
 
 		root = root,
@@ -193,31 +193,33 @@ end
 ---@param name string
 ---@return FOXStencil.Element
 function class:getElement(name)
-	return self.elem_dict[name]
+	return self.elem_dict[name][#self.elem_dict[name]]
 end
 
 ---@generic FOXStencil.Layer
 ---@param name string
 ---@return FOXStencil.Layer
 function class:getLayer(name)
-	return self.layer_dict[name]
+	return self.layer_dict[name][#self.layer_dict[name]]
 end
 
 ---@param name string
 ---@return FOXStencil.Element
 function class:newElement(name)
-	if self.elem_dict[name] then
-		self.elem_dict[name]:remove()
-	end
-
-	self.elem_dict[name] = new(
+	local elem = new(
 		self.part:newPart(name),
 		self.root,
 		self ~= self.root and self or nil,
 		self.chld
 	)
-	self.chld:push(self.elem_dict[name])
-	return self.elem_dict[name]
+	self.chld:push(elem)
+
+	if not self.elem_dict[name] then
+		self.elem_dict[name] = map()
+	end
+	self.elem_dict[name]:push(elem)
+
+	return elem
 end
 
 local assets = require("./../assets/assets") --[[@as FOXStencil.Assets]]
@@ -232,15 +234,17 @@ end
 
 ---@generic FOXStencil.Layer
 ---@param name string
----@param layer fun(part: ModelPart): FOXStencil.Layer
+---@param fun fun(part: ModelPart): FOXStencil.Layer
 ---@return FOXStencil.Layer
-function class:newLayer(name, layer)
-	if self.layer_dict[name] then
-		self.layer_dict[name]:remove()
-	end
+function class:newLayer(name, fun)
+	local layer = fun(self.part)
 
-	self.layer_dict[name] = layer(self.part)
-	return self.layer_dict[name]
+	if not self.layer_dict[name] then
+		self.layer_dict[name] = map()
+	end
+	self.layer_dict[name]:push(layer)
+
+	return layer
 end
 
 --#ENDREGION --=================================================================================================================
