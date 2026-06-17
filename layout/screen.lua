@@ -63,6 +63,8 @@ function class:render(block)
 	return self
 end
 
+local map = require("./types/map")
+
 ---@param part ModelPart
 ---@return FOXStencil.Screen
 return function(part)
@@ -71,7 +73,7 @@ return function(part)
 	---@field hovered FOXStencil.Element?
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = require("./types/map")(), --[[@as FOXMap<integer, FOXStencil.Element>]]
+		chld = map(), --[[@as FOXMap<integer, FOXStencil.Element>]]
 	}
 	self.root = self
 	return setmetatable(self, class)

@@ -74,13 +74,13 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../../layout/core/parser").copy
+local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Parser]]
 
 ---Sets the given styles
 ---@param styles FOXStencil.Label.Styles
 ---@return self
 function obj:setStyles(styles)
-	if copy(styles, self.elem.widg.styles) then
+	if parser.copy(styles, self.elem.widg.styles) then
 		draw(self.elem)
 	end
 

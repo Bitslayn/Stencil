@@ -99,6 +99,8 @@ local default_events = {
 	draw = function() end,
 }
 
+local map = require("./types/map")
+
 ---@param part ModelPart
 ---@param root FOXStencil.Screen
 ---@param parn FOXStencil.Element?
@@ -121,7 +123,7 @@ local function new(part, root, parn, sibl)
 		parn = parn,
 		sibl = sibl,
 		---@type FOXMap<integer, FOXStencil.Element>
-		chld = require("./types/map")(),
+		chld = map(),
 
 		queued = true,
 	}, class)
@@ -133,14 +135,14 @@ end
 --#REGION ˚♡ Self ♡˚
 --==============================================================================================================================
 
-local copy = require("./core/parser").copy
+local parser = require("./core/parser") --[[@as FOXStencil.Core.Parser]]
 
 ---@generic self
 ---@param self self|FOXStencil.Element
 ---@param props FOXStencil.Element.Props
 ---@return self
 function class:setProps(props)
-	if not copy(props, self.props) then return self end
+	if not parser.copy(props, self.props) then return self end
 
 	self:queue()
 
@@ -212,7 +214,7 @@ function class:newElement(name)
 	return elem
 end
 
-local assets = require("./../assets/assets")
+local assets = require("./../assets/assets") --[[@as FOXStencil.Assets]]
 
 ---@generic FOXStencil.Widget
 ---@param name string
@@ -253,7 +255,7 @@ function class:remove()
 
 	-- Make this element an orphan
 
-	self.sibl = require("./types/map")() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self) -- TODO Localize
+	self.sibl = map() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
 	self.part:remove()
 	self.parn = nil
 	self.root = nil

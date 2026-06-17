@@ -13,8 +13,7 @@ textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
 
 -- Inject into layout draw call
 
----@type FOXStencil.Core.Layout
-local class = require("../layout/core/layout")
+local class = require("../layout/core/layout") --[[@as FOXStencil.Core.Layout]]
 
 local draw = class.draw
 

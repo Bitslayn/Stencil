@@ -33,9 +33,6 @@ local default_styles = {
 --#REGION ˚♡ Events ♡˚
 --==============================================================================================================================
 
----@type FOXStencil.String
-local str = require("./../../layout/types/string")
-
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
 	elem:setProps({
@@ -152,13 +149,13 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-local copy = require("./../../layout/core/parser").copy
+local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Parser]]
 
 ---Sets the given styles
 ---@param styles FOXStencil.Textbox.Styles
 ---@return self
 function obj:setStyles(styles)
-	if copy(styles, self.elem.widg.styles) then
+	if parser.copy(styles, self.elem.widg.styles) then
 		draw(self.elem)
 	end
 
@@ -168,6 +165,8 @@ end
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Builder ♡˚
 --==============================================================================================================================
+
+local str = require("./../../layout/types/string") --[[@as FOXStencil.String]]
 
 ---@param parent FOXStencil.Element
 ---@param assets FOXStencil.Assets

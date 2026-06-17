@@ -61,13 +61,13 @@ local function draw(self)
 	self.task:visible(visible)
 end
 
-local copy = require("./../../layout/core/parser").copy
+local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Parser]]
 
 ---Sets the given styles
 ---@param styles FOXStencil.Sprite.Styles
 ---@return self
 function obj:setStyles(styles)
-	if copy(styles, self.styles) then
+	if parser.copy(styles, self.styles) then
 		draw(self)
 	end
 
