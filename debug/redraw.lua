@@ -6,6 +6,8 @@ local enabled = false
 
 if not enabled then return end
 
+textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
+
 -- Inject into layout draw call
 
 ---@type FOXStencil.Core.Layout
