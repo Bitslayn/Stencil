@@ -74,6 +74,7 @@ return function(part)
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
 		chld = map(), --[[@as FOXMap<integer, FOXStencil.Element>]]
+		elem_dict = {}
 	}
 	self.root = self
 	return setmetatable(self, class)
