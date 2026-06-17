@@ -75,6 +75,13 @@ function obj:setStyles(styles)
 	return self
 end
 
+---Removes this layer from its parent
+---@return self
+function obj:remove()
+	self.task:remove()
+	return self
+end
+
 ---@param part ModelPart
 return function(part)
 	---@class FOXStencil.Text

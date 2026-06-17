@@ -164,6 +164,17 @@ function obj:setStyles(styles)
 	return self
 end
 
+---Removes this layer from its parent
+---@return self
+function obj:remove()
+	for y = 1, 3 do
+		for x = 1, 3 do
+			self.cells[y][x]:remove()
+		end
+	end
+	return self
+end
+
 ---@param part ModelPart
 return function(part)
 	local pivot = part:newPart("slice")

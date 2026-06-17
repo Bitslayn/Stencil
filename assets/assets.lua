@@ -1,6 +1,8 @@
 ---@diagnostic disable: missing-fields
 
 ---@class FOXStencil.Layer
+---@field setStyles function
+---@field remove function
 
 ---@class FOXStencil.Assets
 ---@field themes FOXStencil.Themes

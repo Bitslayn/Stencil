@@ -79,8 +79,6 @@ local default_state = {
 
 ---@class FOXStencil.Element.Events
 local default_events = {
-	--TODO Need events for sizing text
-
 	---Called on mouse click, swing, or item use action
 	---@type FOXStencil.Element.Events.Press
 	press = function() end,
@@ -229,7 +227,10 @@ end
 ---@param layer fun(part: ModelPart): FOXStencil.Layer
 ---@return FOXStencil.Layer
 function class:newLayer(name, layer)
-	assert(not self.layers[name]) -- TODO Multiple layers with the same name should remove the previous layer
+	if self.layers[name] then
+		self.layers[name]:remove()
+	end
+
 	self.layers[name] = layer(self.part)
 	return self.layers[name]
 end
