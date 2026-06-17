@@ -6,8 +6,6 @@ local lib = {}
 
 ---@param elem FOXStencil.Element
 function lib.restore(elem)
-	-- TODO: Deprecation
-
 	if not elem.queued then return end
 	if not elem.props.visible then return end
 	for i = 1, #elem.chld do

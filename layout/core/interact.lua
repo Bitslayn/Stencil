@@ -1,8 +1,6 @@
 ---@class FOXStencil.Core.Interact
 local lib = {}
 
--- TODO Clean up this mess part 2
-
 ---@param root FOXStencil.Screen
 ---@param elem FOXStencil.Element?
 ---@param click boolean

@@ -31,15 +31,20 @@ end
 ---@param j integer?
 ---@return FOXStencil.String
 function class:sub(i, j)
-	local len = #self.symbols
+	local l = #self.symbols
 
 	i = i or 1
-	j = j or len
+	j = j or -1
 
-	if -i > len then i = len end -- TODO Test consistency
-	if -j > len then j = 0 end
-	if i < 0 then i = i % len + 1 end
-	if j < 0 then j = j % len + 1 end
+	-- Calculate negatives
+
+	if i < 0 then i = i + l + 1 end
+	if j < 0 then j = j + l + 1 end
+
+	-- Clamp within range
+
+	if i < 1 then i = 1 end
+	if j > l then j = l end
 
 	return lib.of(table.concat(self.symbols, "", i, j) or "")
 end
