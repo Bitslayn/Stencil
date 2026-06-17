@@ -116,8 +116,10 @@ local function new(part, root, parn, sibl)
 		state = setmetatable({}, { __index = default_state }),
 		events = setmetatable({}, { __index = default_events }),
 
-		---@type FOXStencil.Layer[]
-		layers = {},
+		---@type type<string, FOXStencil.Element>
+		elem_dict = {},
+		---@type table<string, FOXStencil.Layer>
+		layer_dict = {},
 
 		root = root,
 		parn = parn,
@@ -191,27 +193,31 @@ end
 ---@param name string
 ---@return FOXStencil.Element
 function class:getElement(name)
-
+	return self.elem_dict[name]
 end
 
 ---@generic FOXStencil.Layer
 ---@param name string
 ---@return FOXStencil.Layer
 function class:getLayer(name)
-	return self.layers[name]
+	return self.layer_dict[name]
 end
 
 ---@param name string
 ---@return FOXStencil.Element
 function class:newElement(name)
-	local elem = new(
+	if self.elem_dict[name] then
+		self.elem_dict[name]:remove()
+	end
+
+	self.elem_dict[name] = new(
 		self.part:newPart(name),
 		self.root,
 		self ~= self.root and self or nil,
 		self.chld
 	)
-	self.chld:push(elem)
-	return elem
+	self.chld:push(self.elem_dict[name])
+	return self.elem_dict[name]
 end
 
 local assets = require("./../assets/assets") --[[@as FOXStencil.Assets]]
@@ -229,12 +235,12 @@ end
 ---@param layer fun(part: ModelPart): FOXStencil.Layer
 ---@return FOXStencil.Layer
 function class:newLayer(name, layer)
-	if self.layers[name] then
-		self.layers[name]:remove()
+	if self.layer_dict[name] then
+		self.layer_dict[name]:remove()
 	end
 
-	self.layers[name] = layer(self.part)
-	return self.layers[name]
+	self.layer_dict[name] = layer(self.part)
+	return self.layer_dict[name]
 end
 
 --#ENDREGION --=================================================================================================================
