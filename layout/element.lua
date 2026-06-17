@@ -246,6 +246,8 @@ end
 function class:remove()
 	-- Remove this element from its siblings
 
+	self:queue()
+
 	local key = self.sibl:getKey(self) --[[@as integer]]
 	self.sibl:remove(key)
 
@@ -255,8 +257,6 @@ function class:remove()
 	self.part:remove()
 	self.parn = nil
 	self.root = nil
-
-	-- TODO test with queue
 
 	return self
 end
@@ -269,6 +269,8 @@ end
 function class:moveTo(elem)
 	-- Move this element
 
+	self:queue()
+
 	local key = self.sibl:getKey(self) --[[@as integer]]
 	local val = self.sibl:remove(key) --[[@as FOXStencil.Element]]
 	elem.chld:push(val)
@@ -280,7 +282,7 @@ function class:moveTo(elem)
 	self.parn = elem
 	self.root = elem.root
 
-	-- TODO test with queue
+	self:queue()
 
 	return self
 end
@@ -290,17 +292,16 @@ end
 ---@param self self|FOXStencil.Element
 ---@return self
 function class:setIndex(index)
-	assert(1 <= index and index <= #self.sibl, "Index out of range for setIndex") -- TODO assertion level
-
 	-- Removes the element, then inserts at the desired position
+
+	self:queue()
 
 	local key = self.sibl:getKey(self) --[[@as integer]]
 	local val = self.sibl:remove(key) --[[@as FOXStencil.Element]]
+	index = math.clamp(index, - #self.sibl, #self.sibl) % (#self.sibl + 1)
 	self.sibl:insert(index, val)
 
-	-- TODO test with queue
-
-	return self:queue()
+	return self
 end
 
 return class
