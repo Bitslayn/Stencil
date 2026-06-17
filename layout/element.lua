@@ -101,14 +101,16 @@ local default_events = {
 
 local map = require("./types/map")
 
+---@param name string
 ---@param part ModelPart
 ---@param root FOXStencil.Screen
 ---@param parn FOXStencil.Element?
 ---@param sibl FOXMap<integer, FOXStencil.Element>
 ---@return FOXStencil.Element
-local function new(part, root, parn, sibl)
+local function new(name, part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
+		name = name,
 		part = part,
 		widg = {},
 
@@ -118,7 +120,7 @@ local function new(part, root, parn, sibl)
 
 		---@type table<string, FOXMap<integer, FOXStencil.Element>>
 		elem_dict = {},
-		---@type table<string, FOXMap<integer, FOXStencil.Layer>>
+		---@type table<string, FOXStencil.Layer>
 		layer_dict = {},
 
 		root = root,
@@ -193,20 +195,21 @@ end
 ---@param name string
 ---@return FOXStencil.Element
 function class:getElement(name)
-	return self.elem_dict[name][#self.elem_dict[name]]
+	return self.elem_dict[name][1]
 end
 
 ---@generic FOXStencil.Layer
 ---@param name string
 ---@return FOXStencil.Layer
 function class:getLayer(name)
-	return self.layer_dict[name][#self.layer_dict[name]]
+	return self.layer_dict[name]
 end
 
 ---@param name string
 ---@return FOXStencil.Element
 function class:newElement(name)
 	local elem = new(
+		name,
 		self.part:newPart(name),
 		self.root,
 		self ~= self.root and self or nil,
@@ -239,10 +242,10 @@ end
 function class:newLayer(name, fun)
 	local layer = fun(self.part)
 
-	if not self.layer_dict[name] then
-		self.layer_dict[name] = map()
+	if self.layer_dict[name] then
+		self.layer_dict[name]:remove()
 	end
-	self.layer_dict[name]:push(layer)
+	self.layer_dict[name] = layer
 
 	return layer
 end
@@ -262,6 +265,9 @@ function class:remove()
 
 	local key = self.sibl:getKey(self) --[[@as integer]]
 	self.sibl:remove(key)
+
+	local dict = self.elem_dict[self.name]
+	dict:remove(dict:getKey(self) --[[@as integer]])
 
 	-- Make this element an orphan
 
