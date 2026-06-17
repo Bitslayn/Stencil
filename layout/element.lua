@@ -117,17 +117,17 @@ local function new(name, part, root, parn, sibl)
 		props = setmetatable({}, { __index = default_props }),
 		state = setmetatable({}, { __index = default_state }),
 		events = setmetatable({}, { __index = default_events }),
-
-		---@type table<string, FOXMap<integer, FOXStencil.Element>>
-		elem_dict = {},
-		---@type table<string, FOXStencil.Layer>
-		layer_dict = {},
-
+		
 		root = root,
 		parn = parn,
 		sibl = sibl,
 		---@type FOXMap<integer, FOXStencil.Element>
 		chld = map(),
+		---@type table<string, FOXMap<integer, FOXStencil.Element>>
+		chld_dict = {},
+		
+		---@type table<string, FOXStencil.Layer>
+		layers = {},
 
 		queued = true,
 	}, class)
@@ -195,14 +195,14 @@ end
 ---@param name string
 ---@return FOXStencil.Element
 function class:getElement(name)
-	return self.elem_dict[name][1]
+	return self.chld_dict[name][1]
 end
 
 ---@generic FOXStencil.Layer
 ---@param name string
 ---@return FOXStencil.Layer
 function class:getLayer(name)
-	return self.layer_dict[name]
+	return self.layers[name]
 end
 
 ---@param name string
@@ -217,10 +217,10 @@ function class:newElement(name)
 	)
 	self.chld:push(elem)
 
-	if not self.elem_dict[name] then
-		self.elem_dict[name] = map()
+	if not self.chld_dict[name] then
+		self.chld_dict[name] = map()
 	end
-	self.elem_dict[name]:push(elem)
+	self.chld_dict[name]:push(elem)
 
 	return elem
 end
@@ -242,10 +242,10 @@ end
 function class:newLayer(name, fun)
 	local layer = fun(self.part)
 
-	if self.layer_dict[name] then
-		self.layer_dict[name]:remove()
+	if self.layers[name] then
+		self.layers[name]:remove()
 	end
-	self.layer_dict[name] = layer
+	self.layers[name] = layer
 
 	return layer
 end
@@ -266,7 +266,7 @@ function class:remove()
 	local key = self.sibl:getKey(self) --[[@as integer]]
 	self.sibl:remove(key)
 
-	local dict = self.elem_dict[self.name]
+	local dict = self.chld_dict[self.name]
 	dict:remove(dict:getKey(self) --[[@as integer]])
 
 	-- Make this element an orphan
