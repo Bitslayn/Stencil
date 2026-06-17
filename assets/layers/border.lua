@@ -24,8 +24,11 @@ local default = {
 	weight = 1,
 
 	---@type boolean
-	visible = true
+	visible = true,
 }
+
+local text_offset = matrices.scale4(1, 1 / 10, 1)
+	* matrices.translate4(-1, -1, 0)
 
 ---Redraws this label
 ---@param self FOXStencil.Border
@@ -61,8 +64,8 @@ local function draw(self)
 
 		if visible then
 			self.tasks[i]
-				:matrix(matrices.translate4(-styles.pos:augmented(1)) * mats[i])
-				:color(styles.color)
+				:matrix(matrices.translate4(-styles.pos:augmented(1)) * mats[i] * text_offset)
+				:backgroundColor(styles.color)
 		end
 
 		self.tasks[i]:visible(visible)
@@ -84,7 +87,7 @@ end
 
 ---@param part ModelPart
 return function(part)
-	---@type SpriteTask[]
+	---@type TextTask[]
 	local tasks = {}
 	---@class FOXStencil.Border
 	local self = {
@@ -93,9 +96,10 @@ return function(part)
 	}
 
 	for i = 1, 4 do
-		tasks[i] = part:newSprite("border-" .. math.random())
-			:texture(textures["FOXStencil_blank"], 1, 1)
-			:renderType("CUTOUT_EMISSIVE_SOLID")
+		tasks[i] = part:newText("border-" .. math.random())
+			:background(true)
+			:light(15)
+			:text("")
 	end
 
 	return setmetatable(self, obj)
