@@ -44,39 +44,31 @@ local interact = require("./core/interact")
 --#REGION ˚♡ Self ♡˚
 --==============================================================================================================================
 
+---@param mode "GUI"|"MODEL"|"SKULL"
 ---@param block BlockState?
 ---@return self
-function class:render(block)
-	local is_screen = self.part:partToWorldMatrix() == matrices.scale4(1 / 16)
-
-	-- Do interaction
-
-	local hovering = false
+function class:render(mode, block)
+	-- Interact with screen elements
 
 	local len = #self.chld
 	for i = len, 1, -1 do
 		local elem = self.chld[i]
 
 		local hovered
-		if type(block) == "BlockState" then
-			hovered = interact.skull_hover(elem, block)
-		elseif is_screen then
+		if mode == "GUI" then
 			hovered = interact.screen_hover(elem)
-		else
+		elseif mode == "MODEL" then
 			hovered = interact.world_hover(elem)
+		elseif mode == "SKULL" and block then
+			hovered = interact.skull_hover(elem, block)
 		end
 
-		if hovered then
-			hovering = true
-			break
-		end
-	end
+		if hovered then break end
 
-	if not hovering then
 		interact.reset(self)
 	end
 
-	-- Draw screen
+	-- Draw screen elements
 
 	for i = 1, len do
 		local elem = self.chld[i]
