@@ -17,8 +17,10 @@ local function new(part)
 	---@field hovered FOXStencil.Element?
 	local self = {
 		part = part:newPart("root"):scale(1, 1, 0.2),
+		---@package
 		---@type FOXMap<integer, FOXStencil.Element>
 		chld = map(),
+		---@package
 		---@type table<string, FOXMap<integer, FOXStencil.Element>>
 		chld_dict = {},
 	}

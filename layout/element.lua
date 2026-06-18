@@ -110,25 +110,45 @@ local map = require("./types/map")
 local function new(name, part, root, parn, sibl)
 	---@class FOXStencil.Element
 	local self = setmetatable({
+		---@package
+		---@type string
 		name = name,
+		---@package
+		---@type ModelPart
 		part = part,
+
+		---@type table
 		widg = {},
 
+		---@type FOXStencil.Element.Props
 		props = setmetatable({}, { __index = default_props }),
+		---@type FOXStencil.Element.State
 		state = setmetatable({}, { __index = default_state }),
+		---@type FOXStencil.Element.Events
 		events = setmetatable({}, { __index = default_events }),
-		
+
+		---@package
+		---@type FOXStencil.Screen
 		root = root,
+		---@package
+		---@type FOXStencil.Element?
 		parn = parn,
+		---@package
+		---@type FOXMap<integer, FOXStencil.Element>
 		sibl = sibl,
+		---@package
 		---@type FOXMap<integer, FOXStencil.Element>
 		chld = map(),
+		---@package
 		---@type table<string, FOXMap<integer, FOXStencil.Element>>
 		chld_dict = {},
-		
+
+		---@package
 		---@type table<string, FOXStencil.Layer>
 		layers = {},
 
+		---@package
+		---@type boolean
 		queued = true,
 	}, class)
 
