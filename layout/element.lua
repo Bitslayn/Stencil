@@ -166,8 +166,6 @@ end
 
 local parser = require("./core/parser") --[[@as FOXStencil.Core.Parser]]
 
----@generic self
----@param self self|FOXStencil.Element
 ---@param props FOXStencil.Element.Props
 ---@return self
 function class:setProps(props)
@@ -178,8 +176,6 @@ function class:setProps(props)
 	return self
 end
 
----@generic self
----@param self self|FOXStencil.Element
 ---@return self
 function class:queue()
 	local shape = { parents = true, siblings = true, children = true }
@@ -209,6 +205,29 @@ function class:queue()
 	elseif not shape.immediate then
 		tree.queued = true
 	end
+
+	return self
+end
+
+---Removes this element from its parent
+---@return self
+function class:remove()
+	-- Remove this element from its siblings
+
+	self:queue()
+
+	local key = self.sibl:getKey(self) --[[@as integer]]
+	self.sibl:remove(key)
+
+	local dict = self.chld_dict[self.name]
+	dict:remove(dict:getKey(self) --[[@as integer]])
+
+	-- Make this element an orphan
+
+	self.sibl = map() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
+	self.part:remove()
+	self.parn = nil
+	self.root = nil
 
 	return self
 end
@@ -280,34 +299,7 @@ end
 --#REGION ˚♡ Parent ♡˚
 --==============================================================================================================================
 
----Removes this element from its parent
----@generic self
----@param self self|FOXStencil.Element
----@return self
-function class:remove()
-	-- Remove this element from its siblings
-
-	self:queue()
-
-	local key = self.sibl:getKey(self) --[[@as integer]]
-	self.sibl:remove(key)
-
-	local dict = self.chld_dict[self.name]
-	dict:remove(dict:getKey(self) --[[@as integer]])
-
-	-- Make this element an orphan
-
-	self.sibl = map() --[[@as FOXMap<integer, FOXStencil.Element>]]:push(self)
-	self.part:remove()
-	self.parn = nil
-	self.root = nil
-
-	return self
-end
-
 ---Makes this element a child of the given element
----@generic self
----@param self self|FOXStencil.Element
 ---@param elem FOXStencil.Element
 ---@return self
 function class:moveTo(elem)
@@ -332,8 +324,7 @@ function class:moveTo(elem)
 end
 
 ---Sets this element's index
----@generic self
----@param self self|FOXStencil.Element
+---@param index integer
 ---@return self
 function class:setIndex(index)
 	-- Removes the element, then inserts at the desired position

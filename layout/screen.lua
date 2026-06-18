@@ -18,9 +18,11 @@ local map = require("./types/map")
 ---@return FOXStencil.Screen
 local function new(part)
 	---@class FOXStencil.Screen
-	---@field clicked FOXStencil.Element?
-	---@field hovered FOXStencil.Element?
+	---@field package clicked FOXStencil.Element?
+	---@field package hovered FOXStencil.Element?
 	local self = {
+		---@package
+		---@type ModelPart
 		part = part:newPart("root"):scale(1, 1, 0.2),
 		---@package
 		---@type FOXMap<integer, FOXStencil.Element>
@@ -29,6 +31,8 @@ local function new(part)
 		---@type table<string, FOXMap<integer, FOXStencil.Element>>
 		chld_dict = {},
 	}
+	---@package
+	---@type FOXStencil.Screen
 	self.root = self
 	return setmetatable(self, class)
 end
@@ -87,6 +91,12 @@ function class:render(block)
 		layout.draw(elem, (i - 1) * 2, 1 / len)
 	end
 
+	return self
+end
+
+---@return self
+function class:remove()
+	self.part:remove()
 	return self
 end
 
