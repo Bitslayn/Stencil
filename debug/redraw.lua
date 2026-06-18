@@ -1,3 +1,5 @@
+---@diagnostic disable: invisible
+
 --[[
 Flashes an element white when it is being redrawn
 ]]

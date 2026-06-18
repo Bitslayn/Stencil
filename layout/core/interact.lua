@@ -1,3 +1,5 @@
+---@diagnostic disable: invisible
+
 ---@class FOXStencil.Core.Interact
 local lib = {}
 

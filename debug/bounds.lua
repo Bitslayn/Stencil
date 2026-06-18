@@ -1,3 +1,5 @@
+---@diagnostic disable: invisible
+
 --[[
 Adds debug outlines to visualize element bounds
 
