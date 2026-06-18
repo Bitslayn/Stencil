@@ -65,6 +65,8 @@ local function draw(elem)
 		width = elem.state.size.x - 6,
 	})
 
+	-- local bottom = elem.parn.props.direction == "HORIZONTAL" and true or elem.sibl:getKey(elem) == #elem.sibl
+
 	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		pos = extend_pos,
@@ -155,6 +157,7 @@ return function(parent, name, assets)
 
 	widg.press = function() end
 	widg.release = function() end
+	---@package
 	widg.extend = 2
 	widg.styles = setmetatable({}, { __index = default_styles })
 

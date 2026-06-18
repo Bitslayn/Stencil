@@ -107,6 +107,45 @@ function lib.reset(root)
 end
 
 --#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Press ♡˚
+--==============================================================================================================================
+
+local pressed = false
+
+---@type boolean
+local mouse_press
+function events.mouse_press(_, state)
+	mouse_press = state ~= 0 or false
+end
+
+---Returns if the host is clicking the screen
+---@return boolean state
+---@return boolean change
+local function get_screen_press()
+	local mouse_visible = host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()
+
+	local is_pressed = mouse_visible and mouse_press
+	if pressed == is_pressed then return is_pressed, false end
+
+	pressed = is_pressed
+
+	return is_pressed, true
+end
+
+---Returns if the viewer started swinging or using an item
+---@param viewer Player
+---@return boolean state
+---@return boolean change
+local function get_world_press(viewer)
+	local is_pressed = viewer:isSwingingArm() or viewer:isUsingItem()
+	if pressed == is_pressed then return is_pressed, false end
+
+	pressed = is_pressed
+
+	return is_pressed, true
+end
+
+--#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Hover ♡˚
 --==============================================================================================================================
 
@@ -131,19 +170,14 @@ end
 --#REGION ˚♡ Hover > Screen ♡˚
 ------------------------------------------------------------------------------------------------
 
----@type boolean
-local mouse_press
-function events.mouse_press(button, state)
-	if button ~= 0 then return end
-	local mouse_visible = host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()
-	mouse_press = mouse_visible and state ~= 0 or false
-end
-
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
 ---@return FOXStencil.Element?
 function lib.screen_hover(elem)
 	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
+
+	local press_state, press_changed = get_screen_press()
+
 	local true_pos = client.getMousePos() / client.getGuiScale()
 	return lib.relative_hover(elem, mouse_press, true_pos, true_pos, client.getCameraPos())
 end
@@ -174,14 +208,13 @@ function lib.world_hover(elem)
 		:add(viewer:getVariable("eyePos"))
 	local ray_dir = viewer:getLookDir()
 
+	local press_state, press_changed = get_world_press(viewer)
+
 	local hit = intersectPlane(ray_pos, ray_dir, mat:apply(), mat:applyDir(0, 0, -1))
 	if not hit then return end
 
-	local swing = viewer:getSwingTime()
-	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
-
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, click, true_pos, true_pos, hit)
+	return lib.relative_hover(elem, press_state, true_pos, true_pos, hit)
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -215,14 +248,13 @@ function lib.skull_hover(elem, block)
 		:add(viewer:getVariable("eyePos"))
 	local ray_dir = viewer:getLookDir()
 
+	local press_state, press_changed = get_world_press(viewer)
+
 	local hit = intersectPlane(ray_pos, ray_dir, mat:apply(), mat:applyDir(0, 0, -1))
 	if not hit then return end
 
-	local swing = viewer:getSwingTime()
-	local click = 0 < swing and swing < 3 or viewer:isUsingItem()
-
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, click, true_pos, true_pos, hit)
+	return lib.relative_hover(elem, press_state, true_pos, true_pos, hit)
 end
 
 return lib
