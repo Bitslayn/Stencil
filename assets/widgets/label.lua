@@ -2,6 +2,8 @@
 --#REGION ˚♡ Class ♡˚
 --==============================================================================================================================
 
+---@diagnostic disable: invisible
+
 ---Generates a label widget
 ---
 ---Call :setConfigs() with a table to change the configs
@@ -37,12 +39,14 @@ local default_styles = {
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
-	local size = elem.widg.styles.size / 9
+	local widg = elem.widg
+
+	local size = widg.styles.size / 9
 	elem:setProps({
-		size_min = vec(client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n"), 0).x * size, 0),
+		size_min = vec(client.getTextDimensions(string.gsub(widg.styles.text, "%s", "\n"), 0).x * size, 0),
 	})
 
-	local align = elem.widg.styles.align
+	local align = widg.styles.align
 	local pan = 0
 
 	if align == "RIGHT" then
@@ -51,22 +55,22 @@ local function draw(elem)
 		pan = 0.5
 	end
 
-	---@type FOXStencil.Text
-	local label = elem:getLayer("label")
+	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
 	label:setStyles({
 		pos = vec(elem.state.size.x * pan, 0),
-		size = elem.widg.styles.size,
+		size = widg.styles.size,
 		width = elem.state.size.x,
 
-		text = elem.widg.styles.text,
+		text = widg.styles.text,
 		align = align,
 	})
 end
 
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
-	local size = elem.widg.styles.size / 9
-	return client.getTextDimensions(elem.widg.styles.text, width / size) * size
+	local widg = elem.widg
+	local size = widg.styles.size / 9
+	return client.getTextDimensions(widg.styles.text, width / size) * size
 end
 
 
@@ -80,7 +84,8 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@param styles FOXStencil.Label.Styles
 ---@return self
 function obj:setStyles(styles)
-	if parser.copy(styles, self.elem.widg.styles) then
+	local widg = self.elem.widg
+	if parser.copy(styles, widg.styles) then
 		draw(self.elem)
 	end
 

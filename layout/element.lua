@@ -76,9 +76,8 @@ local default_state = {
 	world_pos = vec(0, 0, 0),
 }
 
----@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, pos: Vector2)
----@alias FOXStencil.Element.Events.Release fun(elem: FOXStencil.Element, pos: Vector2)
----@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, pos: Vector2, state: boolean)
+---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean? -- TODO
+---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean? -- TODO
 ---@alias FOXStencil.Element.Events.Wrap fun(elem: FOXStencil.Element, width: number): Vector2?
 ---@alias FOXStencil.Element.Events.Draw fun(elem: FOXStencil.Element)
 
@@ -87,9 +86,6 @@ local default_events = {
 	---Called on mouse click, swing, or item use action
 	---@type FOXStencil.Element.Events.Press
 	press = function() end,
-	---Called when mouse click, swing, or item use action expires
-	---@type FOXStencil.Element.Events.Release
-	release = function() end,
 	---Called while moused over or looked at
 	---@type FOXStencil.Element.Events.Hover
 	hover = function() end,
@@ -122,6 +118,7 @@ local function new(name, part, root, parn, sibl)
 		---@type ModelPart
 		part = part,
 
+		---@package
 		---@type table
 		widg = {},
 

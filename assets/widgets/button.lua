@@ -2,6 +2,8 @@
 --#REGION ˚♡ Class ♡˚
 --==============================================================================================================================
 
+---@diagnostic disable: invisible
+
 ---Generates a button widget
 ---
 ---Call :setConfigs() with a table to change the configs
@@ -35,36 +37,35 @@ local default_styles = {
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
+	local widg = elem.widg
+
 	elem:setProps({
-		size_min = vec(client.getTextDimensions(string.gsub(elem.widg.styles.text, "%s", "\n"), 0).x + 6, 0),
+		size_min = vec(client.getTextDimensions(string.gsub(widg.styles.text, "%s", "\n"), 0).x + 6, 0),
 	})
 
-	local extend_pos = vec(0, -elem.widg.extend)
-	local extend_size = elem.state.size + vec(0, elem.widg.extend)
+	local extend_pos = vec(0, -widg.extend)
+	local extend_size = elem.state.size + vec(0, widg.extend)
 
-	---@type FOXStencil.Slice
-	local background = elem:getLayer("background")
+	local background = elem:getLayer("background") --[[@as FOXStencil.Slice]]
 	background:setStyles({
 		pos = extend_pos,
 		size = extend_size,
-		color = elem.widg.styles.color,
+		color = widg.styles.color,
 
-		uv_pos = elem.widg.pressed and vec(4, 0) or vec(0, 0),
-		uv_size = elem.widg.pressed and vec(5, 5) or vec(5, 7),
-		slice = elem.widg.pressed and vec(2, 2, 2, 2) or vec(2, 2, 4, 2),
+		uv_pos = widg.pressed and vec(4, 0) or vec(0, 0),
+		uv_size = widg.pressed and vec(5, 5) or vec(5, 7),
+		slice = widg.pressed and vec(2, 2, 2, 2) or vec(2, 2, 4, 2),
 	})
 
-	---@type FOXStencil.Text
-	local label = elem:getLayer("label")
+	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
 	label:setStyles({
 		pos = extend_pos + vec(3, 3),
 
-		text = elem.widg.styles.text,
+		text = widg.styles.text,
 		width = elem.state.size.x - 6,
 	})
 
-	---@type FOXStencil.Border
-	local outline = elem:getLayer("outline")
+	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		pos = extend_pos,
 		size = extend_size,
@@ -72,25 +73,23 @@ local function draw(elem)
 end
 
 ---@type FOXStencil.Element.Events.Press
-local function press(elem)
-	elem.widg.extend = 0
-	elem.widg.pressed = true
-	draw(elem)
-	elem.widg.press(elem.widg)
-end
+local function press(elem, state, _)
+	local widg = elem.widg
 
----@type FOXStencil.Element.Events.Release
-local function release(elem)
-	elem.widg.extend = 2
-	elem.widg.pressed = false
+	widg.extend = state and 0 or 2
+	widg.pressed = state
 	draw(elem)
-	elem.widg.release(elem.widg)
+
+	if state then
+		widg.press(widg)
+	else
+		widg.release(widg)
+	end
 end
 
 ---@type FOXStencil.Element.Events.Hover
-local function hover(elem, _, state)
-	---@type FOXStencil.Border
-	local outline = elem:getLayer("outline")
+local function hover(elem, state, _)
+	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		visible = state,
 	})
@@ -98,7 +97,8 @@ end
 
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
-	return client.getTextDimensions(elem.widg.styles.text, width - 6) + vec(6, 4)
+	local widg = elem.widg
+	return client.getTextDimensions(widg.styles.text, width - 6) + vec(6, 4)
 end
 
 
@@ -112,7 +112,8 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@param styles FOXStencil.Button.Styles
 ---@return self
 function obj:setStyles(styles)
-	if parser.copy(styles, self.elem.widg.styles) then
+	local widg = self.elem.widg
+	if parser.copy(styles, widg.styles) then
 		draw(self.elem)
 	end
 
@@ -163,7 +164,6 @@ return function(parent, name, assets)
 
 	elem.events.draw = draw
 	elem.events.press = press
-	elem.events.release = release
 	elem.events.hover = hover
 	elem.events.wrap = wrap
 

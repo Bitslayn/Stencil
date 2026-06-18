@@ -1,3 +1,7 @@
+--==============================================================================================================================
+--#REGION ˚♡ Class ♡˚
+--==============================================================================================================================
+
 ---@diagnostic disable: invisible
 
 ---@class FOXStencil.Core.Interact
@@ -13,12 +17,12 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	-- Unhover last hovered element
 
 	if root.clicked and not click then
-		root.clicked.events.release(root.clicked, nil)
+		root.clicked.events.press(root.clicked, false, nil)
 		root.clicked = nil
 	end
 
 	if root.hovered and root.hovered ~= elem then
-		root.hovered.events.hover(root.hovered, nil, false)
+		root.hovered.events.hover(root.hovered, false, nil)
 		root.hovered = nil
 	end
 
@@ -31,7 +35,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 	local changed = root.hovered ~= elem
 	root.hovered = elem
 
-	root.hovered.events.hover(root.hovered, nil, true)
+	root.hovered.events.hover(root.hovered, true, nil)
 
 	elem.state.hover_pos = rel_pos
 
@@ -45,7 +49,7 @@ local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
 		-- end
 
 		root.clicked = elem
-		root.clicked.events.press(root.clicked, nil)
+		root.clicked.events.press(root.clicked, true, nil)
 
 		local time = world.getTime()
 		if root.click_time == time then return end
@@ -102,22 +106,9 @@ function lib.reset(root)
 	interact(root, nil, false, vec(0, 0), vec(0, 0), vec(0, 0, 0))
 end
 
----@type boolean
-local mouse_press
-function events.mouse_press(button, state)
-	if button ~= 0 then return end
-	local mouse_visible = host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()
-	mouse_press = mouse_visible and state ~= 0 or false
-end
-
----Recursively gets the element hovered over
----@param elem FOXStencil.Element
----@return FOXStencil.Element?
-function lib.screen_hover(elem)
-	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
-	local true_pos = client.getMousePos() / client.getGuiScale()
-	return lib.relative_hover(elem, mouse_press, true_pos, true_pos, client.getCameraPos())
-end
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Hover ♡˚
+--==============================================================================================================================
 
 local EPSILON = 2.2204460492503131e-16
 local dot = vectors.vec3().dot
@@ -135,6 +126,31 @@ local function intersectPlane(ray_pos, ray_dir, plane_pos, plane_normal)
 	if t < EPSILON then return end
 	return ray_pos + ray_dir * t
 end
+
+------------------------------------------------------------------------------------------------
+--#REGION ˚♡ Hover > Screen ♡˚
+------------------------------------------------------------------------------------------------
+
+---@type boolean
+local mouse_press
+function events.mouse_press(button, state)
+	if button ~= 0 then return end
+	local mouse_visible = host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()
+	mouse_press = mouse_visible and state ~= 0 or false
+end
+
+---Recursively gets the element hovered over
+---@param elem FOXStencil.Element
+---@return FOXStencil.Element?
+function lib.screen_hover(elem)
+	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return end
+	local true_pos = client.getMousePos() / client.getGuiScale()
+	return lib.relative_hover(elem, mouse_press, true_pos, true_pos, client.getCameraPos())
+end
+
+--#ENDREGION -----------------------------------------------------------------------------------
+--#REGION ˚♡ Hover > World ♡˚
+------------------------------------------------------------------------------------------------
 
 ---@param hit_pos Vector3
 ---@param plane_mat Matrix4
@@ -167,6 +183,10 @@ function lib.world_hover(elem)
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
 	return lib.relative_hover(elem, click, true_pos, true_pos, hit)
 end
+
+--#ENDREGION -----------------------------------------------------------------------------------
+--#REGION ˚♡ Hover > Skull ♡˚
+------------------------------------------------------------------------------------------------
 
 local face = {
 	north = 0,
@@ -206,3 +226,7 @@ function lib.skull_hover(elem, block)
 end
 
 return lib
+
+--#ENDREGION
+
+--#ENDREGION

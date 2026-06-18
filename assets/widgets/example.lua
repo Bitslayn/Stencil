@@ -2,6 +2,8 @@
 --#REGION ˚♡ Class ♡˚
 --==============================================================================================================================
 
+---@diagnostic disable: invisible
+
 ---Generates an example widget
 ---
 ---Call :setConfigs() with a table to change the configs
@@ -38,7 +40,8 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@param styles FOXStencil.Example.Styles
 ---@return self
 function obj:setStyles(styles)
-	if parser.copy(styles, self.elem.widg.styles) then
+	local widg = self.elem.widg
+	if parser.copy(styles, widg.styles) then
 		draw(self.elem)
 	end
 
@@ -54,15 +57,17 @@ end
 return function(parent, name, assets)
 	local elem = parent:newElement(name)
 
-	---@class FOXStencil.Example
-	local self = { elem = elem }
-	elem.widg.styles = setmetatable({}, { __index = default_styles })
+	---@class FOXStencil.Button
+	local widg = { elem = elem }
+	elem.widg = widg
+
+	widg.styles = setmetatable({}, { __index = default_styles })
 	
 	elem.events.draw = draw
 
 	draw(elem)
 
-	return setmetatable(self, obj)
+	return setmetatable(widg, obj)
 end
 
 --#ENDREGION

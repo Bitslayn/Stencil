@@ -2,6 +2,8 @@
 --#REGION ˚♡ Class ♡˚
 --==============================================================================================================================
 
+---@diagnostic disable: invisible
+
 -- WIP!!!
 
 ---Generates a textbox widget
@@ -35,42 +37,40 @@ local default_styles = {
 
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
+	local widg = elem.widg
+
 	elem:setProps({
-		size = vec(elem.widg.styles.width, 9 + 4),
+		size = vec(widg.styles.width, 9 + 4),
 	})
 
-	---@type FOXStencil.Slice
-	local background = elem:getLayer("background")
+	local background = elem:getLayer("background") --[[@as FOXStencil.Slice]]
 	background:setStyles({
 		size = elem.state.size,
 		color = vec(0.2, 0.2, 0.2),
-		
+
 		uv_pos = vec(4, 4),
 		uv_size = vec(5, 5),
 		slice = vec(2, 2, 2, 2),
 	})
 
 	---@type FOXStencil.String
-	local text = elem.widg.text
+	local text = widg.text
 	---@type string
-	local hint = elem.widg.styles.hint
+	local hint = widg.styles.hint
 
-	---@type FOXStencil.Text
-	local label = elem:getLayer("label")
+	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
 	label:setStyles({
 		pos = vec(3, 3),
 
 		text = text ~= "" and tostring(text) or hint,
 	})
 
-	---@type FOXStencil.Border
-	local outline = elem:getLayer("outline")
+	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		size = elem.state.size,
 	})
 
-	---@type FOXStencil.Sprite
-	local caret = elem:getLayer("caret")
+	local caret = elem:getLayer("caret") --[[@as FOXStencil.Sprite]]
 	caret:setStyles({
 		pos = vec(3 + client.getTextWidth(tostring(text):gsub("%s", "..")), 2),
 		size = vec(1, 9),
@@ -79,10 +79,11 @@ end
 
 ---@param elem FOXStencil.Element
 local function capture(elem)
+	local widg = elem.widg
+
 	local close
 
-	---@type FOXStencil.Sprite
-	local caret = elem:getLayer("caret")
+	local caret = elem:getLayer("caret") --[[@as FOXStencil.Sprite]]
 	local function tick()
 		caret:setStyles({
 			visible = client.getSystemTime() / 1000 % 1 < 0.5,
@@ -91,7 +92,7 @@ local function capture(elem)
 
 	---@type Event.CharTyped.func
 	local function char_typed(char)
-		elem.widg.text = elem.widg.text .. char:gsub("%s", " ")
+		widg.text = widg.text .. char:gsub("%s", " ")
 		draw(elem)
 	end
 
@@ -99,7 +100,7 @@ local function capture(elem)
 	local function key_press(key, state)
 		if state == 0 then return end
 		if key == 259 then -- Backspace
-			elem.widg.text = elem.widg.text:sub(1, -2)
+			widg.text = widg.text:sub(1, -2)
 			draw(elem)
 		elseif key == 256 then -- Escape
 			close()
@@ -111,7 +112,7 @@ local function capture(elem)
 	events.key_press:register(key_press)
 
 	function close()
-		elem.widg.capture = nil
+		widg.capture = nil
 		caret:setStyles({ visible = false })
 		events.tick:remove(tick)
 		events.char_typed:remove(char_typed)
@@ -122,21 +123,17 @@ local function capture(elem)
 end
 
 ---@type FOXStencil.Element.Events.Press
-local function press(elem)
-	if not elem.widg.capture then
-		elem.widg.capture = capture(elem)
+local function press(elem, state)
+	local widg = elem.widg
+	if not state then return end
+	if not widg.capture then
+		widg.capture = capture(elem)
 	end
-end
-
----@type FOXStencil.Element.Events.Release
-local function release(elem)
-
 end
 
 ---@type FOXStencil.Element.Events.Hover
 local function hover(elem, _, state)
-	---@type FOXStencil.Border
-	local outline = elem:getLayer("outline")
+	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		visible = state,
 	})
@@ -155,7 +152,8 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@param styles FOXStencil.Textbox.Styles
 ---@return self
 function obj:setStyles(styles)
-	if parser.copy(styles, self.elem.widg.styles) then
+	local widg = self.elem.widg
+	if parser.copy(styles, widg.styles) then
 		draw(self.elem)
 	end
 
@@ -179,14 +177,13 @@ return function(parent, name, assets)
 
 	widg.styles = setmetatable({}, { __index = default_styles })
 
-	elem:newLayer("background", assets.layers.slice):setStyles({texture = assets.themes.default.texture})
+	elem:newLayer("background", assets.layers.slice):setStyles({ texture = assets.themes.default.texture })
 	elem:newLayer("label", assets.layers.text)
 	elem:newLayer("outline", assets.layers.border):setStyles({ visible = false })
 	elem:newLayer("caret", assets.layers.sprite):setStyles({ visible = false })
 
 	elem.events.draw = draw
 	elem.events.press = press
-	elem.events.release = release
 	elem.events.hover = hover
 
 	draw(elem)
