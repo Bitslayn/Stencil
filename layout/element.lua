@@ -2,10 +2,15 @@
 --#REGION ˚♡ Class ♡˚
 --==============================================================================================================================
 
----@class FOXStencil.Element
+---@class FOXStencil.Element.Index
+---@field [string] FOXStencil.Element
+
+---@class FOXStencil.Element: FOXStencil.Element.Index
 local class = {}
 ---@package
-class.__index = class
+function class:__index(k)
+	return class[k] or self:getElement(k)
+end
 
 ---@class FOXStencil.Element.Props
 local default_props = {
@@ -213,14 +218,15 @@ end
 --==============================================================================================================================
 
 ---@param name string
----@return FOXStencil.Element
+---@return FOXStencil.Element?
 function class:getElement(name)
+	if not self.chld_dict[name] then return end
 	return self.chld_dict[name][1]
 end
 
 ---@generic FOXStencil.Layer
 ---@param name string
----@return FOXStencil.Layer
+---@return FOXStencil.Layer?
 function class:getLayer(name)
 	return self.layers[name]
 end

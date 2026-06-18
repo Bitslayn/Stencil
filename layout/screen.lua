@@ -2,10 +2,15 @@
 --#REGION ˚♡ Class ♡˚
 --==============================================================================================================================
 
----@class FOXStencil.Screen
+---@class FOXStencil.Screen.Index
+---@field [string] FOXStencil.Element
+
+---@class FOXStencil.Screen: FOXStencil.Screen.Index
 local class = {}
 ---@package
-class.__index = class
+function class:__index(k)
+	return class[k] or self:getElement(k)
+end
 
 local map = require("./types/map")
 
@@ -90,8 +95,9 @@ end
 --==============================================================================================================================
 
 ---@param name string
----@return FOXStencil.Element
+---@return FOXStencil.Element?
 function class:getElement(name)
+	if not self.chld_dict[name] then return end
 	return self.chld_dict[name][1]
 end
 
