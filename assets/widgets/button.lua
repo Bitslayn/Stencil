@@ -5,7 +5,7 @@
 ---Generates a button widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Button.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Button
+---@alias FOXStencil.Button.Generator fun(parent: FOXStencil.Element|FOXStencil.Screen, name: string, assets: FOXStencil.Assets): FOXStencil.Button
 
 ---@class FOXStencil.Widgets
 ---@field button FOXStencil.Button.Generator
@@ -141,7 +141,7 @@ end
 --#REGION ˚♡ Builder ♡˚
 --==============================================================================================================================
 
----@param parent FOXStencil.Element
+---@param parent FOXStencil.Element|FOXStencil.Screen
 ---@param assets FOXStencil.Assets
 return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({

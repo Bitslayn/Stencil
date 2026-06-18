@@ -5,7 +5,7 @@
 ---Generates a label widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Label.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Label
+---@alias FOXStencil.Label.Generator fun(parent: FOXStencil.Element|FOXStencil.Screen, name: string, assets: FOXStencil.Assets): FOXStencil.Label
 
 ---@class FOXStencil.Widgets
 ---@field label FOXStencil.Label.Generator
@@ -91,7 +91,7 @@ end
 --#REGION ˚♡ Builder ♡˚
 --==============================================================================================================================
 
----@param parent FOXStencil.Element
+---@param parent FOXStencil.Element|FOXStencil.Screen
 ---@param assets FOXStencil.Assets
 return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({

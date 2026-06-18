@@ -7,7 +7,7 @@
 ---Generates a textbox widget
 ---
 ---Call :setConfigs() with a table to change the configs
----@alias FOXStencil.Textbox.Generator fun(parent: FOXStencil.Element, name: string, assets: FOXStencil.Assets): FOXStencil.Textbox
+---@alias FOXStencil.Textbox.Generator fun(parent: FOXStencil.Element|FOXStencil.Screen, name: string, assets: FOXStencil.Assets): FOXStencil.Textbox
 
 ---@class FOXStencil.Widgets
 ---@field textbox FOXStencil.Textbox.Generator
@@ -168,7 +168,7 @@ end
 
 local str = require("./../../layout/types/string") --[[@as FOXStencil.String]]
 
----@param parent FOXStencil.Element
+---@param parent FOXStencil.Element|FOXStencil.Screen
 ---@param assets FOXStencil.Assets
 return function(parent, name, assets)
 	local elem = parent:newElement(name)

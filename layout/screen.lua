@@ -1,15 +1,37 @@
----@type FOXStencil.Element
-local super = require("./element")
+--==============================================================================================================================
+--#REGION ˚♡ Class ♡˚
+--==============================================================================================================================
 
----@class FOXStencil.Screen: FOXStencil.Element
+---@class FOXStencil.Screen
 local class = {}
 ---@package
-function class:__index(k)
-	return class[k] or super[k]
+class.__index = class
+
+local map = require("./types/map")
+
+---@param part ModelPart
+---@return FOXStencil.Screen
+local function new(part)
+	---@class FOXStencil.Screen
+	---@field clicked FOXStencil.Element?
+	---@field hovered FOXStencil.Element?
+	local self = {
+		part = part:newPart("root"):scale(1, 1, 0.2),
+		---@type FOXMap<integer, FOXStencil.Element>
+		chld = map(),
+		---@type table<string, FOXMap<integer, FOXStencil.Element>>
+		chld_dict = {},
+	}
+	self.root = self
+	return setmetatable(self, class)
 end
 
 local layout = require("./core/layout")
 local interact = require("./core/interact")
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Self ♡˚
+--==============================================================================================================================
 
 ---@param block BlockState?
 ---@return self
@@ -45,37 +67,50 @@ function class:render(block)
 
 	-- Draw screen
 
-	-- local t = client.getSystemTime()
 	for i = 1, len do
 		local elem = self.chld[i]
-		layout.restore(elem) -- 31.697
+		layout.restore(elem)
 
-		layout.size(elem, 1) -- 38.597μs (Text wrapping)
-		layout.grow(elem, 1) -- 38.597μs
-		layout.size(elem, 2) -- 62.197μs (Text wrapping)
-		layout.grow(elem, 2) -- 37.567μs
-		layout.position(elem) -- 32.497μs < 59.197μs Optimized+
+		layout.size(elem, 1)
+		layout.grow(elem, 1)
+		layout.size(elem, 2)
+		layout.grow(elem, 2)
+		layout.position(elem)
 
-		layout.draw(elem, (i - 1) * 2, 1 / len) -- 655.897μs
+		layout.draw(elem, (i - 1) * 2, 1 / len)
 	end
-	-- host:actionbar(tostring(client.getSystemTime() - t))
 
 	return self
 end
 
-local map = require("./types/map")
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Children ♡˚
+--==============================================================================================================================
 
----@param part ModelPart
----@return FOXStencil.Screen
-return function(part)
-	---@class FOXStencil.Screen
-	---@field clicked FOXStencil.Element?
-	---@field hovered FOXStencil.Element?
-	local self = {
-		part = part:newPart("root"):scale(1, 1, 0.2),
-		chld = map(), --[[@as FOXMap<integer, FOXStencil.Element>]]
-		chld_dict = {} --[[@as table<string, FOXMap<integer, FOXStencil.Element>>]]
-	}
-	self.root = self
-	return setmetatable(self, class)
+---@param name string
+---@return FOXStencil.Element
+function class:getElement(name)
+	return self.chld_dict[name][1]
 end
+
+local element = require("./element")
+
+---@param name string
+---@return FOXStencil.Element
+function class:newElement(name)
+	return element.newElement(self, name)
+end
+
+local assets = require("./../assets/assets") --[[@as FOXStencil.Assets]]
+
+---@generic FOXStencil.Widget
+---@param name string
+---@param widget fun(parent: FOXStencil.Screen, name: string, assets: FOXStencil.Assets): FOXStencil.Widget
+---@return FOXStencil.Widget
+function class:newWidget(name, widget)
+	return widget(self, name, assets)
+end
+
+return new
+
+--#ENDREGION
