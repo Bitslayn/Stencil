@@ -76,29 +76,22 @@ local default_state = {
 	world_pos = vec(0, 0, 0),
 }
 
----@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean? -- TODO
----@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean? -- TODO
+---Called on mouse click, swing, or item use action
+---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean?
+---Called on moused over
+---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean?
+---Called twice while this element is wrapping
+---
+---The returned vector will be used as the size of this element
 ---@alias FOXStencil.Element.Events.Wrap fun(elem: FOXStencil.Element, width: number): Vector2?
+---Called whenever this element changes shape
 ---@alias FOXStencil.Element.Events.Draw fun(elem: FOXStencil.Element)
 
 ---@class FOXStencil.Element.Events
-local default_events = {
-	---Called on mouse click, swing, or item use action
-	---@type FOXStencil.Element.Events.Press
-	press = function() end,
-	---Called while moused over or looked at
-	---@type FOXStencil.Element.Events.Hover
-	hover = function() end,
-
-	---Called twice while this element is wrapping
-	---
-	---The returned vector will be used as the size of this element
-	---@type FOXStencil.Element.Events.Wrap
-	wrap = function() end,
-	---Called whenever this element changes shape
-	---@type FOXStencil.Element.Events.Draw
-	draw = function() end,
-}
+---@field press FOXStencil.Element.Events.Press?
+---@field hover FOXStencil.Element.Events.Hover?
+---@field wrap FOXStencil.Element.Events.Wrap?
+---@field draw FOXStencil.Element.Events.Draw?
 
 local map = require("./types/map")
 
@@ -127,7 +120,7 @@ local function new(name, part, root, parn, sibl)
 		---@type FOXStencil.Element.State
 		state = setmetatable({}, { __index = default_state }),
 		---@type FOXStencil.Element.Events
-		events = setmetatable({}, { __index = default_events }),
+		events = {},
 
 		---@package
 		---@type FOXStencil.Screen

@@ -18,8 +18,6 @@ local map = require("./types/map")
 ---@return FOXStencil.Screen
 local function new(part)
 	---@class FOXStencil.Screen
-	---@field package clicked FOXStencil.Element?
-	---@field package hovered FOXStencil.Element?
 	local self = {
 		---@package
 		---@type ModelPart
@@ -30,6 +28,13 @@ local function new(part)
 		---@package
 		---@type table<string, FOXMap<integer, FOXStencil.Element>>
 		chld_dict = {},
+
+		---@package
+		---@type FOXStencil.Element?
+		pressed = nil,
+		---@package
+		---@type FOXStencil.Element?
+		hovered = nil
 	}
 	---@package
 	---@type FOXStencil.Screen
@@ -64,8 +69,6 @@ function class:render(mode, block)
 		end
 
 		if hovered then break end
-
-		interact.reset(self)
 	end
 
 	-- Draw screen elements

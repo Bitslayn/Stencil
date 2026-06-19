@@ -49,7 +49,7 @@ function lib.size(elem, axis)
 
 	-- Wrap element
 
-	if state.size_flex[axis] then
+	if state.size_flex[axis] and elem.events.wrap then
 		local wrap = elem.events.wrap(elem, state.raw_size[1])
 		local x, y = (wrap or vectors.vec2()):unpack()
 
@@ -250,7 +250,7 @@ function lib.draw(elem, lace, dist)
 
 	elem.queued = false
 	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.props.visible)
-	if diff then
+	if diff and elem.events.draw then
 		elem.events.draw(elem)
 	end
 end

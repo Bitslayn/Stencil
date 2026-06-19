@@ -7,103 +7,71 @@
 ---@class FOXStencil.Core.Interact
 local lib = {}
 
----@param root FOXStencil.Screen
----@param elem FOXStencil.Element?
----@param click boolean
+---@param elem FOXStencil.Element
+local function hover(elem)
+	local hovered = elem.root.hovered
+	if hovered and hovered.events.hover and hovered ~= elem then
+		hovered.events.hover(hovered, false, nil)
+	end
+
+	elem.root.hovered = elem
+	if elem.events.hover then
+		elem.events.hover(elem, true, nil)
+	end
+end
+
+---@param elem FOXStencil.Element
+local function press(elem, state)
+	local pressed = elem.root.pressed
+	if pressed and pressed.events.press and not state then
+		pressed.events.press(pressed, false, nil)
+	end
+
+	elem.root.pressed = elem
+	if elem.events.press and state then
+		elem.events.press(elem, true, nil)
+	end
+end
+
+---Recursively gets the tree of elements being hovered over
+---@param elem FOXStencil.Element
 ---@param rel_pos Vector2
----@param true_pos Vector2
----@param sound_pos Vector3
-local function interact(root, elem, click, rel_pos, true_pos, sound_pos)
-	-- Unhover last hovered element
+---@param list FOXStencil.Element[]
+local function get_hovered_list(elem, rel_pos, list)
+	list[#list + 1] = elem
 
-	if root.clicked and not click then
-		root.clicked.events.press(root.clicked, false, nil)
-		root.clicked = nil
+	for i = #elem.chld, 1, -1 do
+		local chld = elem.chld[i]
+
+		local bound_pos = chld.state.pos
+		local bound_size = chld.state.size
+
+		if bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and chld.props.visible then
+			get_hovered_list(chld, rel_pos - bound_pos, list)
+			break
+		end
 	end
-
-	if root.hovered and root.hovered ~= elem then
-		root.hovered.events.hover(root.hovered, false, nil)
-		root.hovered = nil
-	end
-
-	if not elem then return end
-
-	local props = elem.props
-
-	-- Hover currently hovered element
-
-	local changed = root.hovered ~= elem
-	root.hovered = elem
-
-	root.hovered.events.hover(root.hovered, true, nil)
-
-	elem.state.hover_pos = rel_pos
-
-	-- Click through to clickable element
-
-	if not root.clicked and click then
-		-- while elem.parn and not props.click do
-		-- 	rel_pos = rel_pos + elem.state.pos
-		-- 	elem = elem.parn --[[@as FOXStencil.Element]]
-		-- 	props = elem.props
-		-- end
-
-		root.clicked = elem
-		root.clicked.events.press(root.clicked, true, nil)
-
-		local time = world.getTime()
-		if root.click_time == time then return end
-
-		root.click_time = time
-	end
-
-	elem.state.hover_pos = rel_pos
 end
 
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
----@param click boolean
+---@param press_state boolean
+---@param press_changed boolean
 ---@param rel_pos Vector2
 ---@param true_pos Vector2
 ---@param sound_pos Vector3
 ---@return FOXStencil.Element?
-function lib.relative_hover(elem, click, rel_pos, true_pos, sound_pos)
-	if not rel_pos then return end
-	local root = elem.root
+function lib.relative_hover(elem, press_state, press_changed, rel_pos, true_pos, sound_pos)
+	---@type FOXStencil.Element[]
+	local list = {}
 
-	-- TODO Fix bug with this that causes hovering to not behave properly
-	-- Focus elements that have been clicked, up until they are no longer clicked
+	get_hovered_list(elem, rel_pos, list)
 
-	local clicked = elem.root.clicked
-	if clicked then
-		interact(root, clicked, click, clicked.state.hover_pos, true_pos, sound_pos)
-		return clicked
+	hover(list[#list])
+
+	if press_changed then
+		press(list[#list], press_state)
 	end
-
-	-- TODO Fix clicking outside an element then moving cursor into element triggering a click for that element
-
-	local state = elem.state
-	local bound_pos = state.pos
-	local bound_size = state.size
-	if not (bound_pos <= rel_pos and rel_pos <= bound_pos + bound_size and elem.props.visible) then return end
-
-	rel_pos = rel_pos - state.pos
-
-	-- Find hovered child element
-
-	for i = #elem.chld, 1, -1 do
-		local res = lib.relative_hover(elem.chld[i], click, rel_pos, true_pos, sound_pos)
-		if res then return res end
-	end
-
-	interact(root, elem, click, rel_pos, true_pos, sound_pos)
-
-	return elem
-end
-
----@param root FOXStencil.Screen
-function lib.reset(root)
-	interact(root, nil, false, vec(0, 0), vec(0, 0), vec(0, 0, 0))
 end
 
 --#ENDREGION --=================================================================================================================
@@ -179,7 +147,7 @@ function lib.screen_hover(elem)
 	local press_state, press_changed = get_screen_press()
 
 	local true_pos = client.getMousePos() / client.getGuiScale()
-	return lib.relative_hover(elem, mouse_press, true_pos, true_pos, client.getCameraPos())
+	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, client.getCameraPos())
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -214,7 +182,7 @@ function lib.world_hover(elem)
 	if not hit then return end
 
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, press_state, true_pos, true_pos, hit)
+	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, hit)
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -254,7 +222,7 @@ function lib.skull_hover(elem, block)
 	if not hit then return end
 
 	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
-	return lib.relative_hover(elem, press_state, true_pos, true_pos, hit)
+	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, hit)
 end
 
 return lib
