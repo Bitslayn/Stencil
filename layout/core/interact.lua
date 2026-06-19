@@ -8,29 +8,39 @@
 local lib = {}
 
 ---@param elem FOXStencil.Element
+---@return boolean
 local function hover(elem)
 	local hovered = elem.root.hovered
 	if hovered and hovered.events.hover and hovered ~= elem then
 		hovered.events.hover(hovered, false, nil)
 	end
 
-	elem.root.hovered = elem
 	if elem.events.hover then
-		elem.events.hover(elem, true, nil)
+		if not elem.events.hover(elem, true, nil) then
+			elem.root.hovered = elem
+			return true
+		end
 	end
+
+	return false
 end
 
 ---@param elem FOXStencil.Element
+---@return boolean
 local function press(elem, state)
 	local pressed = elem.root.pressed
 	if pressed and pressed.events.press and not state then
 		pressed.events.press(pressed, false, nil)
 	end
 
-	elem.root.pressed = elem
 	if elem.events.press and state then
-		elem.events.press(elem, true, nil)
+		if not elem.events.press(elem, true, nil) then
+			elem.root.pressed = elem
+			return true
+		end
 	end
+
+	return false
 end
 
 ---Recursively gets the tree of elements being hovered over
@@ -67,10 +77,14 @@ function lib.relative_hover(elem, press_state, press_changed, rel_pos, true_pos,
 
 	get_hovered_list(elem, rel_pos, list)
 
-	hover(list[#list])
+	for i = 1, #list do
+		if hover(list[i]) then break end
+	end
 
 	if press_changed then
-		press(list[#list], press_state)
+		for i = 1, #list do
+			if press(list[i], press_state) then break end
+		end
 	end
 end
 
