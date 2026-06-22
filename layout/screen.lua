@@ -34,7 +34,7 @@ local function new(part)
 		pressed = nil,
 		---@package
 		---@type FOXStencil.Element?
-		hovered = nil
+		hovered = nil,
 	}
 	---@package
 	---@type FOXStencil.Screen
@@ -42,14 +42,14 @@ local function new(part)
 	return setmetatable(self, class)
 end
 
-local layout = require("./core/layout")
-local interact = require("./core/interact")
-
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Self ♡˚
 --==============================================================================================================================
 
----@param mode "GUI"|"MODEL"|"SKULL"
+local interact = require("./core/interact")
+local layout = require("./core/layout")
+
+---@param mode "GUI"|"WORLD"|"SKULL"
 ---@param block BlockState?
 ---@return self
 function class:render(mode, block)
@@ -62,7 +62,7 @@ function class:render(mode, block)
 
 		if mode == "GUI" then
 			hovered = interact.screen_hover(elem)
-		elseif mode == "MODEL" then
+		elseif mode == "WORLD" then
 			hovered = interact.world_hover(elem)
 		elseif mode == "SKULL" and block then
 			hovered = interact.skull_hover(elem, block)

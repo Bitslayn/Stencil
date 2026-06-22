@@ -34,10 +34,11 @@ local function get_screen_press()
 end
 
 ---Returns if the viewer started swinging or using an item
----@param viewer Player
 ---@return boolean state
 ---@return boolean change
-local function get_world_press(viewer)
+local function get_world_press()
+	local viewer = client.getViewer()
+
 	local swing_time = viewer:getSwingTime()
 	local is_pressed = 0 < swing_time and swing_time < 3 or viewer:isUsingItem()
 	if was_pressed == is_pressed then return is_pressed, false end
@@ -158,33 +159,26 @@ end
 --#REGION ˚♡ Hover ♡˚
 --==============================================================================================================================
 
+-- Written by 4P5 ★
+
 local EPSILON = 2.2204460492503131e-16
 local dot = vectors.vec3().dot
 
----@param ray_pos Vector3
----@param ray_dir Vector3
----@param plane_pos Vector3
----@param plane_normal Vector3
+---@param mat Matrix4
 ---@return Vector3? intersection_point
-local function intersectPlane(ray_pos, ray_dir, plane_pos, plane_normal)
+local function intersect_plane(mat)
+	local ray_pos = client.getCameraPos()
+	local ray_dir = client.getCameraDir()
+
+	local plane_pos = mat:apply()
+	local plane_normal = mat:applyDir(0, 0, -1)
+
 	local denom = dot(plane_normal, ray_dir)
 	if -denom < EPSILON then return end
 	local d = plane_pos - ray_pos
 	local t = dot(d, plane_normal) / denom
 	if t < EPSILON then return end
 	return ray_pos + ray_dir * t
-end
-
----@param viewer Player
----@return Vector3 pos
----@return Vector3 dir
-local function get_eye_pointer(viewer)
-	local pos = viewer:getPos(client.getFrameTime())
-		:add(0, viewer:getEyeHeight(), 0)
-		:add(viewer:getVariable("eyePos"))
-	local dir = viewer:getLookDir()
-
-	return pos, dir
 end
 
 ------------------------------------------------------------------------------------------------
@@ -195,8 +189,6 @@ end
 ---@param elem FOXStencil.Element
 ---@return boolean
 function lib.screen_hover(elem)
-	if not (host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()) then return false end
-
 	local press_state, press_changed = get_screen_press()
 
 	local true_pos = client.getMousePos() / client.getGuiScale()
@@ -207,30 +199,18 @@ end
 --#REGION ˚♡ Hover > World ♡˚
 ------------------------------------------------------------------------------------------------
 
----@param hit_pos Vector3
----@param plane_mat Matrix4
----@return Vector3
-local function worldToLocal(hit_pos, plane_mat)
-	local pos_mat = matrices.translate4(plane_mat:apply())
-	local rot_mat = matrices.rotation4(0, 180, 0) * (pos_mat:inverted() * plane_mat):inverted()
-
-	return (rot_mat * matrices.translate4(hit_pos - plane_mat:apply())):apply()
-end
-
 ---Recursively gets the element hovered over
 ---@param elem FOXStencil.Element
 ---@return boolean
 function lib.world_hover(elem)
 	local mat = elem.root.part:partToWorldMatrix()
 
-	local viewer = client.getViewer()
-	local eye_pos, eye_dir = get_eye_pointer(viewer)
-	local press_state, press_changed = get_world_press(viewer)
+	local press_state, press_changed = get_world_press()
 
-	local hit = intersectPlane(eye_pos, eye_dir, mat:apply(), mat:applyDir(0, 0, -1))
+	local hit = intersect_plane(mat)
 	if not hit then return false end
 
-	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
+	local true_pos = mat:inverted():apply(hit).xy * vec(1, -1)
 	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, hit)
 end
 
@@ -259,14 +239,12 @@ function lib.skull_hover(elem, block)
 		* matrices.scale4(1 / 16)
 		* elem.root.part:getParent():getPositionMatrixRaw()
 
-	local viewer = client.getViewer()
-	local eye_pos, eye_dir = get_eye_pointer(viewer)
-	local press_state, press_changed = get_world_press(viewer)
+	local press_state, press_changed = get_world_press()
 
-	local hit = intersectPlane(eye_pos, eye_dir, mat:apply(), mat:applyDir(0, 0, -1))
+	local hit = intersect_plane(mat)
 	if not hit then return false end
 
-	local true_pos = worldToLocal(hit, mat).xy * vec(1, -1)
+	local true_pos = -mat:inverted():apply(hit).xy
 	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, hit)
 end
 
