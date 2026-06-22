@@ -19,7 +19,7 @@ function events.mouse_press(_, state)
 	mouse_press = state ~= 0 or false
 end
 
----Returns if the host is clicking the screen
+---Returns if the host is pressing the screen
 ---@return boolean state
 ---@return boolean change
 local function get_screen_press()
@@ -54,25 +54,28 @@ end
 
 ---@param elem FOXStencil.Element?
 ---@param root FOXStencil.Screen
+---@param state boolean
 ---@return boolean
-local function do_hover(elem, root)
-	-- Leave last element
-
+local function do_hover(elem, root, state)
 	local hovered = root.hovered
-	if hovered and hovered ~= elem then
-		hovered.events.hover(hovered, false)
-	end
 
 	-- Enter current element
-
-	if not elem then return false end
-
-	if elem.events.hover and not elem.events.hover(elem, true) then
-		elem.root.hovered = elem
-		return true
+	
+	if elem and elem.events.hover and not elem.events.hover(elem, true) then
+		root.hovered = elem
+		state = true
 	end
 
-	return false
+	-- Leave last element
+
+	if hovered and state and elem ~= hovered then
+		hovered.events.hover(hovered, false)
+		if hovered == root.hovered then
+			root.hovered = nil
+		end
+	end
+
+	return state
 end
 
 ---@param elem FOXStencil.Element?
@@ -85,14 +88,13 @@ local function do_press(elem, root, state)
 	local pressed = root.pressed
 	if pressed and not state then
 		pressed.events.press(pressed, false)
+		root.pressed = nil
 	end
 
 	-- Press current element
 
-	if not elem then return false end
-
-	if state and elem.events.press and not elem.events.press(elem, true) then
-		elem.root.pressed = elem
+	if elem and state and elem.events.press and not elem.events.press(elem, true) then
+		root.pressed = elem
 		return true
 	end
 
@@ -100,22 +102,27 @@ local function do_press(elem, root, state)
 end
 
 ---Recursively gets the tree of elements being hovered over
----@param elem FOXStencil.Element
----@param rel_pos Vector2
 ---@param list FOXStencil.Element[]
+---@param elem FOXStencil.Element
+---@param elem_pos Vector2
+---@param root_pos Vector2
+---@param wrld_pos Vector3
 ---@return boolean
-local function get_hovered(elem, rel_pos, list)
+local function get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
 	local pos = elem.state.pos
 	local size = elem.state.size
 
-	if not (pos <= rel_pos and rel_pos <= pos + size and elem.props.visible) then return false end
+	if not (pos <= elem_pos and elem_pos <= pos + size and elem.props.visible) then return false end
 
 	list[#list + 1] = elem
-	rel_pos = rel_pos - pos
+	elem_pos = elem_pos - pos
+
+	elem.pointer.elem_pos = elem_pos
+	elem.pointer.root_pos = root_pos
+	elem.pointer.wrld_pos = wrld_pos
 
 	for i = #elem.chld, 1, -1 do
-		local chld = elem.chld[i]
-		if get_hovered(chld, rel_pos, list) then break end
+		if get_hovered(list, elem.chld[i], elem_pos, root_pos, wrld_pos) then break end
 	end
 
 	return true
@@ -125,19 +132,23 @@ end
 ---@param elem FOXStencil.Element
 ---@param press_state boolean
 ---@param press_changed boolean
----@param rel_pos Vector2
----@param true_pos Vector2
----@param sound_pos Vector3
-function lib.relative_hover(elem, press_state, press_changed, rel_pos, true_pos, sound_pos)
+---@param elem_pos Vector2
+---@param root_pos Vector2
+---@param wrld_pos Vector3
+function lib.relative_hover(elem, press_state, press_changed, elem_pos, root_pos, wrld_pos)
 	local root = elem.root
+
+	root.pointer.elem_pos = elem_pos
+	root.pointer.root_pos = root_pos
+	root.pointer.wrld_pos = wrld_pos
 
 	---@type FOXStencil.Element[]
 	local list = {}
 
-	get_hovered(elem, rel_pos, list)
+	get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
 
 	for i = 1, #list do
-		if do_hover(list[i], root) then break end
+		if do_hover(list[i], root, i == #list) then break end
 	end
 
 	if press_changed then
@@ -151,13 +162,15 @@ end
 
 ---@param root FOXStencil.Screen
 function lib.reset(root)
-	do_hover(nil, root)
+	do_hover(nil, root, true)
 	do_press(nil, root, was_pressed)
 end
 
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Hover ♡˚
 --==============================================================================================================================
+
+-- TODO Why is each child of a screen recalculating the root hover position?
 
 -- Written by 4P5 ★
 
@@ -191,8 +204,8 @@ end
 function lib.screen_hover(elem)
 	local press_state, press_changed = get_screen_press()
 
-	local true_pos = client.getMousePos() / client.getGuiScale()
-	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, client.getCameraPos())
+	local root_pos = client.getMousePos() / client.getGuiScale()
+	return lib.relative_hover(elem, press_state, press_changed, root_pos, root_pos, client.getCameraPos())
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -210,8 +223,8 @@ function lib.world_hover(elem)
 	local hit = intersect_plane(mat)
 	if not hit then return false end
 
-	local true_pos = mat:inverted():apply(hit).xy * vec(1, -1)
-	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, hit)
+	local root_pos = mat:inverted():apply(hit).xy * vec(1, -1)
+	return lib.relative_hover(elem, press_state, press_changed, root_pos, root_pos, hit)
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -244,8 +257,8 @@ function lib.skull_hover(elem, block)
 	local hit = intersect_plane(mat)
 	if not hit then return false end
 
-	local true_pos = -mat:inverted():apply(hit).xy
-	return lib.relative_hover(elem, press_state, press_changed, true_pos, true_pos, hit)
+	local root_pos = -mat:inverted():apply(hit).xy
+	return lib.relative_hover(elem, press_state, press_changed, root_pos, root_pos, hit)
 end
 
 return lib

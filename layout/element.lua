@@ -68,17 +68,21 @@ local default_state = {
 	elem_axis = { 1, 2 },
 	---Precalculated element padding priority order
 	elem_pad = { { 0, 0 }, { 0, 0 } },
-
-	---Position on this element that was hovered
-	hover_pos = vec(0, 0),
-
-	screen_pos = vec(0, 0),
-	world_pos = vec(0, 0, 0),
 }
 
----Called on mouse click, swing, or item use action
+---@class FOXStencil.Pointer
+local default_pointer = {
+	---Position on this element being hovered
+	elem_pos = vec(0, 0),
+	---Position on the screen being hovered
+	root_pos = vec(0, 0),
+	---Position in the world being hovered
+	wrld_pos = vec(0, 0, 0)
+}
+
+---Called on press and release
 ---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, state: boolean): boolean?
----Called on moused over
+---Called while hovered over
 ---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, state: boolean): boolean?
 ---Called twice while this element is wrapping
 ---
@@ -114,6 +118,9 @@ local function new(name, part, root, parn, sibl)
 		---@package
 		---@type table
 		widg = {},
+
+		---@type FOXStencil.Pointer
+		pointer = setmetatable({}, { __index = default_pointer }),
 
 		---@type FOXStencil.Element.Props
 		props = setmetatable({}, { __index = default_props }),

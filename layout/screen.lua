@@ -12,6 +12,16 @@ function class:__index(k)
 	return class[k] or self:getElement(k)
 end
 
+---@class FOXStencil.Pointer
+local default_pointer = {
+	---Position on this element being hovered
+	elem_pos = vec(0, 0),
+	---Position on the screen being hovered
+	root_pos = vec(0, 0),
+	---Position in the world being hovered
+	wrld_pos = vec(0, 0, 0)
+}
+
 local map = require("./types/map")
 
 ---@param part ModelPart
@@ -35,6 +45,9 @@ local function new(part)
 		---@package
 		---@type FOXStencil.Element?
 		hovered = nil,
+
+		---@type FOXStencil.Pointer
+		pointer = setmetatable({}, { __index = default_pointer }),
 	}
 	---@package
 	---@type FOXStencil.Screen

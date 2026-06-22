@@ -78,6 +78,8 @@ end
 local function press(elem, state)
 	local widg = elem.widg
 
+	sounds:playSound("minecraft:block.lava.pop", elem.pointer.wrld_pos, 0.5, state and 8 or 9)
+
 	widg.extend = state and 0 or 2
 	widg.pressed = state
 	draw(elem)
