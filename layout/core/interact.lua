@@ -38,7 +38,8 @@ end
 ---@return boolean state
 ---@return boolean change
 local function get_world_press(viewer)
-	local is_pressed = viewer:isSwingingArm() or viewer:isUsingItem()
+	local swing_time = viewer:getSwingTime()
+	local is_pressed = 0 < swing_time and swing_time < 3 or viewer:isUsingItem()
 	if was_pressed == is_pressed then return is_pressed, false end
 
 	was_pressed = is_pressed
