@@ -56,10 +56,10 @@ function class:render(mode, block)
 	-- Interact with screen elements
 
 	local len = #self.chld
+	local hovered
 	for i = len, 1, -1 do
 		local elem = self.chld[i]
 
-		local hovered
 		if mode == "GUI" then
 			hovered = interact.screen_hover(elem)
 		elseif mode == "MODEL" then
@@ -69,6 +69,10 @@ function class:render(mode, block)
 		end
 
 		if hovered then break end
+	end
+
+	if not hovered then
+		interact.reset(self)
 	end
 
 	-- Draw screen elements
