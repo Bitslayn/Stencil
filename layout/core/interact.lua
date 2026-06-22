@@ -177,15 +177,12 @@ end
 local EPSILON = 2.2204460492503131e-16
 local dot = vectors.vec3().dot
 
----@param mat Matrix4
+---@param ray_pos Vector3
+---@param ray_dir Vector3
+---@param plane_pos Vector3
+---@param plane_normal Vector3
 ---@return Vector3? intersection_point
-local function intersect_plane(mat)
-	local ray_pos = client.getCameraPos()
-	local ray_dir = client.getCameraDir()
-
-	local plane_pos = mat:apply()
-	local plane_normal = mat:applyDir(0, 0, -1)
-
+local function intersect_plane(ray_pos, ray_dir, plane_pos, plane_normal)
 	local denom = dot(plane_normal, ray_dir)
 	if -denom < EPSILON then return end
 	local d = plane_pos - ray_pos
@@ -220,7 +217,7 @@ function lib.world_hover(elem)
 
 	local press_state, press_changed = get_world_press()
 
-	local hit = intersect_plane(mat)
+	local hit = intersect_plane(client.getCameraPos(), client.getCameraDir(), mat:apply(), mat:applyDir(0, 0, -1))
 	if not hit then return false end
 
 	local root_pos = mat:inverted():apply(hit).xy * vec(1, -1)
@@ -254,7 +251,7 @@ function lib.skull_hover(elem, block)
 
 	local press_state, press_changed = get_world_press()
 
-	local hit = intersect_plane(mat)
+	local hit = intersect_plane(client.getCameraPos(), client.getCameraDir(), mat:apply(), mat:applyDir(0, 0, -1))
 	if not hit then return false end
 
 	local root_pos = -mat:inverted():apply(hit).xy
