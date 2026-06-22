@@ -75,7 +75,7 @@ local function draw(elem)
 end
 
 ---@type FOXStencil.Element.Events.Press
-local function press(elem, state, _)
+local function press(elem, state)
 	local widg = elem.widg
 
 	widg.extend = state and 0 or 2
@@ -90,7 +90,7 @@ local function press(elem, state, _)
 end
 
 ---@type FOXStencil.Element.Events.Hover
-local function hover(elem, state, _)
+local function hover(elem, state)
 	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		visible = state,

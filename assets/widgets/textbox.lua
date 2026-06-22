@@ -132,7 +132,7 @@ local function press(elem, state)
 end
 
 ---@type FOXStencil.Element.Events.Hover
-local function hover(elem, _, state)
+local function hover(elem, state)
 	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 	outline:setStyles({
 		visible = state,

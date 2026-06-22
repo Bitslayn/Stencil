@@ -54,19 +54,19 @@ end
 ---@param elem FOXStencil.Element?
 ---@param root FOXStencil.Screen
 ---@return boolean
-local function hover(elem, root)
+local function do_hover(elem, root)
 	-- Leave last element
 
 	local hovered = root.hovered
 	if hovered and hovered ~= elem then
-		hovered.events.hover(hovered, false, nil)
+		hovered.events.hover(hovered, false)
 	end
 
 	-- Enter current element
 
 	if not elem then return false end
 
-	if elem.events.hover and not elem.events.hover(elem, true, nil) then
+	if elem.events.hover and not elem.events.hover(elem, true) then
 		elem.root.hovered = elem
 		return true
 	end
@@ -78,19 +78,19 @@ end
 ---@param root FOXStencil.Screen
 ---@param state boolean
 ---@return boolean
-local function press(elem, root, state)
+local function do_press(elem, root, state)
 	-- Release last element
 
 	local pressed = root.pressed
 	if pressed and not state then
-		pressed.events.press(pressed, false, nil)
+		pressed.events.press(pressed, false)
 	end
-	
+
 	-- Press current element
 
 	if not elem then return false end
 
-	if state and elem.events.press and not elem.events.press(elem, true, nil) then
+	if state and elem.events.press and not elem.events.press(elem, true) then
 		elem.root.pressed = elem
 		return true
 	end
@@ -103,7 +103,7 @@ end
 ---@param rel_pos Vector2
 ---@param list FOXStencil.Element[]
 ---@return boolean
-local function get_hovered_list(elem, rel_pos, list)
+local function get_hovered(elem, rel_pos, list)
 	local pos = elem.state.pos
 	local size = elem.state.size
 
@@ -114,7 +114,7 @@ local function get_hovered_list(elem, rel_pos, list)
 
 	for i = #elem.chld, 1, -1 do
 		local chld = elem.chld[i]
-		if get_hovered_list(chld, rel_pos, list) then break end
+		if get_hovered(chld, rel_pos, list) then break end
 	end
 
 	return true
@@ -133,15 +133,15 @@ function lib.relative_hover(elem, press_state, press_changed, rel_pos, true_pos,
 	---@type FOXStencil.Element[]
 	local list = {}
 
-	get_hovered_list(elem, rel_pos, list)
+	get_hovered(elem, rel_pos, list)
 
 	for i = 1, #list do
-		if hover(list[i], root) then break end
+		if do_hover(list[i], root) then break end
 	end
 
 	if press_changed then
 		for i = 1, #list do
-			if press(list[i], root, press_state) then break end
+			if do_press(list[i], root, press_state) then break end
 		end
 	end
 
@@ -150,8 +150,8 @@ end
 
 ---@param root FOXStencil.Screen
 function lib.reset(root)
-	hover(nil, root)
-	press(nil, root, was_pressed)
+	do_hover(nil, root)
+	do_press(nil, root, was_pressed)
 end
 
 --#ENDREGION --=================================================================================================================

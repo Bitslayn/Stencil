@@ -77,9 +77,9 @@ local default_state = {
 }
 
 ---Called on mouse click, swing, or item use action
----@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean?
+---@alias FOXStencil.Element.Events.Press fun(elem: FOXStencil.Element, state: boolean): boolean?
 ---Called on moused over
----@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, state: boolean, pos: Vector2): boolean?
+---@alias FOXStencil.Element.Events.Hover fun(elem: FOXStencil.Element, state: boolean): boolean?
 ---Called twice while this element is wrapping
 ---
 ---The returned vector will be used as the size of this element
