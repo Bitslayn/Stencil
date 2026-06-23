@@ -31,7 +31,7 @@ local default = {
 	uv_size = vec(1, 1),
 
 	---@type boolean
-	visible = true
+	visible = true,
 }
 
 ---Redraws this label
@@ -39,7 +39,7 @@ local default = {
 local function draw(self)
 	local styles = self.styles
 	if not styles.texture then return end
-	
+
 	local dim = styles.texture:getDimensions()
 
 	local visible = 0 < styles.size:length() and styles.visible
