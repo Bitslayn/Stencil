@@ -59,10 +59,9 @@ end
 local function do_press(elem, root, state)
 	-- Release last element
 
-	local pressed = root.pressed
-	if pressed and not state then
-		pressed.events.press(pressed, false)
-		pressed.pressed = false
+	if root.pressed and not state then
+		root.pressed.events.press(root.pressed, false)
+		root.pressed.pressed = false
 		root.pressed = nil
 	end
 
@@ -85,7 +84,7 @@ local function do_hover(elem, root, state)
 	local hovered = root.hovered
 
 	-- Enter current element
-	
+
 	if elem and elem.events.hover and not elem.events.hover(elem, true) then
 		elem.hovered = true
 		root.hovered = elem
@@ -116,14 +115,16 @@ local function get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
 	local pos = elem.state.pos
 	local size = elem.state.size
 
+	elem.pointer.elem_pos = elem_pos - pos
+	elem.pointer.move_pos = root_pos - elem.pointer.root_pos
+	elem.pointer.root_pos = root_pos:copy()
+	elem.pointer.wrld_pos = wrld_pos:copy()
+
 	if not (pos <= elem_pos and elem_pos <= pos + size and elem.props.visible) then return false end
 
 	list[#list + 1] = elem
 	elem_pos = elem_pos - pos
 
-	elem.pointer.elem_pos = elem_pos
-	elem.pointer.root_pos = root_pos
-	elem.pointer.wrld_pos = wrld_pos
 
 	for i = #elem.chld, 1, -1 do
 		if get_hovered(list, elem.chld[i], elem_pos, root_pos, wrld_pos) then break end
@@ -142,14 +143,19 @@ end
 function lib.relative_hover(elem, press_state, press_changed, elem_pos, root_pos, wrld_pos)
 	local root = elem.root
 
-	root.pointer.elem_pos = elem_pos
-	root.pointer.root_pos = root_pos
-	root.pointer.wrld_pos = wrld_pos
+	root.pointer.elem_pos = elem_pos:copy()
+	root.pointer.move_pos = root_pos - root.pointer.root_pos
+	root.pointer.root_pos = root_pos:copy()
+	root.pointer.wrld_pos = wrld_pos:copy()
 
 	---@type FOXStencil.Element[]
 	local list = {}
 
 	get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
+
+	if root.pressed and root.pressed.events.drag then
+		root.pressed.events.drag(root.pressed, root.pressed.pointer.move_pos)
+	end
 
 	for i = 1, #list do
 		if do_hover(list[i], root, i == #list) then break end

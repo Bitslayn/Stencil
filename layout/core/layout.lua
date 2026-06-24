@@ -250,8 +250,14 @@ function lib.draw(elem, lace, dist)
 
 	elem.queued = false
 	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.props.visible)
-	if diff and elem.events.draw then
-		elem.events.draw(elem)
+
+	if diff then
+		-- Call element draw event
+		if elem.events.draw then
+			elem.events.draw(elem)
+		end
+
+		-- Redraw element layers
 		for _, layer in pairs(elem.layers) do
 			layer:draw()
 		end

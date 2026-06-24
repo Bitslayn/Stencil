@@ -44,13 +44,16 @@ local function pulse(part, pos, size)
 end
 
 function class.draw(elem, ...)
-	local part = elem.part
-	
-	local state = elem.state
+	if elem.queued then
+		local part = elem.part
 
-	local pos = vec(0, 0)
-	local size = state.size
+		local state = elem.state
 
-	pulse(part, pos, size)
+		local pos = vec(0, 0)
+		local size = state.size
+
+		pulse(part, pos, size)
+	end
+
 	draw(elem, ...)
 end

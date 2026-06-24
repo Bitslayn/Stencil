@@ -74,6 +74,8 @@ local default_state = {
 local default_pointer = {
 	---Position on this element being hovered
 	elem_pos = vec(0, 0),
+	---Velocity on this element of a moving pointer
+	move_pos = vec(0, 0),
 	---Position on the screen being hovered
 	root_pos = vec(0, 0),
 	---Position in the world being hovered
@@ -90,12 +92,15 @@ local default_pointer = {
 ---@alias FOXStencil.Element.Events.Wrap fun(elem: FOXStencil.Element, width: number): Vector2?
 ---Called whenever this element changes shape
 ---@alias FOXStencil.Element.Events.Draw fun(elem: FOXStencil.Element)
+---Called while this element is being dragged
+---@alias FOXStencil.Element.Events.Drag fun(elem: FOXStencil.Element, offset: Vector2)
 
 ---@class FOXStencil.Element.Events
 ---@field press FOXStencil.Element.Events.Press?
 ---@field hover FOXStencil.Element.Events.Hover?
 ---@field wrap FOXStencil.Element.Events.Wrap?
 ---@field draw FOXStencil.Element.Events.Draw?
+---@field drag FOXStencil.Element.Events.Drag?
 
 local map = require("./types/map")
 

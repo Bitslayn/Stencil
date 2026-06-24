@@ -22,8 +22,8 @@ local default = {
 	size = 9,
 	---@type number
 	width = 0,
-	---@type "CENTER"|"LEFT"|"RIGHT"
-	align = "LEFT",
+	---@type Vector2
+	align = vec(0, 0),
 
 	---@type Vector3
 	outline = vectors.intToRGB(0x202020),
@@ -40,7 +40,10 @@ local default = {
 function obj:draw()
 	local styles = self.styles
 
+	-- Calculate sizing
+
 	local size = styles.size / 9
+	local pos = styles.pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, styles.width / size))
 
 	local visible = styles.text ~= "" and styles.visible
 
@@ -48,9 +51,8 @@ function obj:draw()
 		self.task
 			:text(styles.text)
 			:width(styles.width / size)
-			:alignment(styles.align)
 
-			:pos(-styles.pos:augmented(1 / 16))
+			:pos(-pos:augmented(1 / 16))
 			:scale(size)
 
 			:setOutline(styles.outline_state)

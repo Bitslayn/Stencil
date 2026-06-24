@@ -16,10 +16,12 @@ end
 local default_pointer = {
 	---Position on this element being hovered
 	elem_pos = vec(0, 0),
+	---Velocity on the screen of a moving pointer
+	move_pos = vec(0, 0),
 	---Position on the screen being hovered
 	root_pos = vec(0, 0),
 	---Position in the world being hovered
-	wrld_pos = vec(0, 0, 0)
+	wrld_pos = vec(0, 0, 0),
 }
 
 local map = require("./types/map")
