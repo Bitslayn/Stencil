@@ -23,14 +23,10 @@ end
 ---@return boolean state
 ---@return boolean change
 local function get_screen_press()
-	local mouse_visible = host:isChatOpen() or action_wheel:isEnabled() or host:isCursorUnlocked()
+	if was_pressed == mouse_press then return mouse_press, false end
+	was_pressed = mouse_press
 
-	local is_pressed = mouse_visible and mouse_press
-	if was_pressed == is_pressed then return is_pressed, false end
-
-	was_pressed = is_pressed
-
-	return is_pressed, true
+	return mouse_press, true
 end
 
 ---Returns if the viewer started swinging or using an item
@@ -42,7 +38,6 @@ local function get_world_press()
 	local swing_time = viewer:getSwingTime()
 	local is_pressed = 0 < swing_time and swing_time < 3 or viewer:isUsingItem()
 	if was_pressed == is_pressed then return is_pressed, false end
-
 	was_pressed = is_pressed
 
 	return is_pressed, true
@@ -209,6 +204,9 @@ end
 ---@param elem FOXStencil.Element
 ---@return boolean
 function lib.screen_hover(elem)
+	local mouse_visible = host:isChatOpen() or host:isCursorUnlocked()
+	if not mouse_visible then return false end
+
 	local press_state, press_changed = get_screen_press()
 
 	local root_pos = client.getMousePos() / client.getGuiScale()
