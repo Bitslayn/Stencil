@@ -1,7 +1,7 @@
 ---Generates a border layer
 ---
 ---Call :setStyles() with a table to change the styles
----@alias FOXStencil.Border.Generator fun(part: ModelPart): FOXStencil.Border
+---@alias FOXStencil.Border.Generator fun(part: ModelPart, elem: FOXStencil.Element): FOXStencil.Border
 
 ---@class FOXStencil.Layers
 ---@field border FOXStencil.Border.Generator
@@ -17,9 +17,13 @@ local default = {
 	color = vec(1, 1, 1, 1),
 
 	---@type Vector2
-	pos = vec(0, 0),
+	anchor_pos = vec(0, 0),
 	---@type Vector2
-	size = vec(0, 0),
+	anchor_size = vec(1, 1),
+	---@type Vector2
+	offset_pos = vec(0, 0),
+	---@type Vector2
+	offset_size = vec(0, 0),
 	---@type number
 	weight = 1,
 
@@ -31,15 +35,19 @@ local text_offset = matrices.scale4(1, 1 / 10, 1)
 	* matrices.translate4(-1, -1, 0)
 
 ---Redraws this label
----@param self FOXStencil.Border
-local function draw(self)
+function obj:draw()
 	local styles = self.styles
+
+	-- Calculate sizing
+
+	local pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
+	local size = styles.anchor_size * self.elem.state.size + styles.offset_size
 
 	local weight = styles.weight
 
 	local w_t, w_r, w_b, w_l = weight, weight, weight, weight
 
-	local w, h = styles.size:unpack()
+	local w, h = size:unpack()
 
 	local mats = {
 		-- Top
@@ -64,7 +72,7 @@ local function draw(self)
 
 		if visible then
 			self.tasks[i]
-				:matrix(matrices.translate4(-styles.pos:augmented(1)) * mats[i] * text_offset)
+				:matrix(matrices.translate4(-pos:augmented(1)) * mats[i] * text_offset)
 				:backgroundColor(styles.color)
 		end
 
@@ -79,7 +87,7 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@return self
 function obj:setStyles(styles)
 	if parser.copy(styles, self.styles) then
-		draw(self)
+		self:draw()
 	end
 
 	return self
@@ -95,13 +103,15 @@ function obj:remove()
 end
 
 ---@param part ModelPart
-return function(part)
+---@param elem FOXStencil.Element
+return function(part, elem)
 	---@type TextTask[]
 	local tasks = {}
 	---@class FOXStencil.Border
 	local self = {
 		tasks = tasks,
 		styles = setmetatable({}, { __index = default }),
+		elem = elem,
 	}
 
 	for i = 1, 4 do

@@ -77,7 +77,7 @@ local default_pointer = {
 	---Position on the screen being hovered
 	root_pos = vec(0, 0),
 	---Position in the world being hovered
-	wrld_pos = vec(0, 0, 0)
+	wrld_pos = vec(0, 0, 0),
 }
 
 ---Called on press and release
@@ -170,6 +170,16 @@ function class:setProps(props)
 
 	self:queue()
 
+	return self
+end
+
+---@param theme FOXStencil.Theme
+---@return self
+function class:applyTheme(theme)
+	for name, styles in pairs(theme) do
+		local layer = self:getLayer(name)
+		if layer then layer:setStyles(styles) end
+	end
 	return self
 end
 
@@ -279,10 +289,10 @@ end
 
 ---@generic FOXStencil.Layer
 ---@param name string
----@param fun fun(part: ModelPart): FOXStencil.Layer
+---@param fun fun(part: ModelPart, elem: FOXStencil.Element): FOXStencil.Layer
 ---@return FOXStencil.Layer
 function class:newLayer(name, fun)
-	local layer = fun(self.part)
+	local layer = fun(self.part, self)
 
 	if self.layers[name] then
 		self.layers[name]:remove()

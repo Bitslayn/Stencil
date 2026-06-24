@@ -1,7 +1,7 @@
 ---Generates a slice layer
 ---
 ---Call :setStyles() with a table to change the styles
----@alias FOXStencil.Slice.Generator fun(part: ModelPart): FOXStencil.Slice
+---@alias FOXStencil.Slice.Generator fun(part: ModelPart, elem: FOXStencil.Element): FOXStencil.Slice
 
 ---@class FOXStencil.Layers
 ---@field slice FOXStencil.Slice.Generator
@@ -17,6 +17,15 @@ local default = {
 	texture = nil,
 	---@type Vector3|Vector4
 	color = vec(1, 1, 1, 1),
+
+	---@type Vector2
+	anchor_pos = vec(0, 0),
+	---@type Vector2
+	anchor_size = vec(1, 1),
+	---@type Vector2
+	offset_pos = vec(0, 0),
+	---@type Vector2
+	offset_size = vec(0, 0),
 
 	pos = vec(0, 0),
 	size = vec(0, 0),
@@ -82,15 +91,19 @@ local function slice(atlas_len, model_len, slice_l, slice_r, clip_l, clip_r)
 end
 
 ---Redraws this slice
----@param self FOXStencil.Slice
-local function draw(self)
+function obj:draw()
 	local styles = self.styles
 	if not styles.texture then return end
+
+	-- Calculate sizing
+
+	local pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
+	local size = styles.anchor_size * self.elem.state.size + styles.offset_size
 
 	-- Calculate slices
 
 	local atlas_w, atlas_h = styles.uv_size:unpack()
-	local model_w, model_h = styles.size:unpack()
+	local model_w, model_h = size:unpack()
 
 	local slice_t, slice_r, slice_b, slice_l = styles.slice:unpack()
 
@@ -104,7 +117,7 @@ local function draw(self)
 
 	local dim = styles.texture:getDimensions()
 
-	self.pivot:pos(-styles.pos.xy_)
+	self.pivot:pos(-pos.xy_)
 
 	for y = 1, 3 do
 		for x = 1, 3 do
@@ -138,7 +151,7 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@return self
 function obj:setStyles(styles)
 	if parser.copy(styles, self.styles) then
-		draw(self)
+		self:draw()
 	end
 
 	return self
@@ -156,7 +169,8 @@ function obj:remove()
 end
 
 ---@param part ModelPart
-return function(part)
+---@param elem FOXStencil.Element
+return function(part, elem)
 	local pivot = part:newPart("slice")
 	---@type SpriteTask[][]
 	local cells = {}
@@ -165,6 +179,7 @@ return function(part)
 		pivot = pivot,
 		cells = cells,
 		styles = setmetatable({}, { __index = default }),
+		elem = elem,
 	}
 
 	for y = 1, 3 do

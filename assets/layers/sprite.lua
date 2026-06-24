@@ -1,7 +1,7 @@
 ---Generates a label layer
 ---
 ---Call :setStyles() with a table to change the styles
----@alias FOXStencil.Sprite.Generator fun(part: ModelPart): FOXStencil.Sprite
+---@alias FOXStencil.Sprite.Generator fun(part: ModelPart, elem: FOXStencil.Element): FOXStencil.Sprite
 
 ---@class FOXStencil.Layers
 ---@field sprite FOXStencil.Sprite.Generator
@@ -21,9 +21,13 @@ local default = {
 	grid = false,
 
 	---@type Vector2
-	pos = vec(0, 0),
+	anchor_pos = vec(0, 0),
 	---@type Vector2
-	size = vec(0, 0),
+	anchor_size = vec(1, 1),
+	---@type Vector2
+	offset_pos = vec(0, 0),
+	---@type Vector2
+	offset_size = vec(0, 0),
 
 	---@type Vector2
 	uv_pos = vec(0, 0),
@@ -35,23 +39,26 @@ local default = {
 }
 
 ---Redraws this label
----@param self FOXStencil.Sprite
-local function draw(self)
+function obj:draw()
 	local styles = self.styles
 	if not styles.texture then return end
 
+	-- Calculate sizing
+
+	local pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
+	local size = styles.anchor_size * self.elem.state.size + styles.offset_size
+
 	local dim = styles.texture:getDimensions()
 
-	local visible = 0 < styles.size:length() and styles.visible
-	local size = styles.grid and styles.size or styles.uv_size
+	local visible = 0 < size:length() and styles.visible
 
 	if visible then
 		self.task
 			:uv(styles.uv_pos / dim)
-			:region(size * 1000)
+			:region((styles.grid and size or styles.uv_size) * 1000)
 
-			:pos(-styles.pos:augmented(0))
-			:scale(styles.size:augmented())
+			:pos(-pos:augmented(0))
+			:scale(size:augmented())
 
 			:dimensions(dim * 1000)
 			:texture(styles.texture)
@@ -68,7 +75,7 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@return self
 function obj:setStyles(styles)
 	if parser.copy(styles, self.styles) then
-		draw(self)
+		self:draw()
 	end
 
 	return self
@@ -82,13 +89,15 @@ function obj:remove()
 end
 
 ---@param part ModelPart
-return function(part)
+---@param elem FOXStencil.Element
+return function(part, elem)
 	---@class FOXStencil.Sprite
 	local self = {
 		task = part:newSprite("sprite-" .. math.random())
 			:size(1, 1)
 			:renderType("CUTOUT_EMISSIVE_SOLID"),
 		styles = setmetatable({}, { __index = default }),
+		elem = elem,
 	}
 
 	return setmetatable(self, obj)

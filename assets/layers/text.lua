@@ -1,7 +1,7 @@
 ---Generates a text layer
 ---
 ---Call :setStyles() with a table to change the styles
----@alias FOXStencil.Text.Generator fun(part: ModelPart): FOXStencil.Text
+---@alias FOXStencil.Text.Generator fun(part: ModelPart, elem: FOXStencil.Element): FOXStencil.Text
 
 ---@class FOXStencil.Layers
 ---@field text FOXStencil.Text.Generator
@@ -33,12 +33,11 @@ local default = {
 	shadow = false,
 
 	---@type boolean
-	visible = true
+	visible = true,
 }
 
 ---Redraws this text
----@param self FOXStencil.Text
-local function draw(self)
+function obj:draw()
 	local styles = self.styles
 
 	local size = styles.size / 9
@@ -69,7 +68,7 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---@return self
 function obj:setStyles(styles)
 	if parser.copy(styles, self.styles) then
-		draw(self)
+		self:draw()
 	end
 
 	return self
@@ -83,11 +82,13 @@ function obj:remove()
 end
 
 ---@param part ModelPart
-return function(part)
+---@param elem FOXStencil.Element
+return function(part, elem)
 	---@class FOXStencil.Text
 	local self = {
 		task = part:newText("text-" .. math.random()):light(15),
 		styles = setmetatable({}, { __index = default }),
+		elem = elem,
 	}
 
 	return setmetatable(self, obj)

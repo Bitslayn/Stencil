@@ -252,6 +252,9 @@ function lib.draw(elem, lace, dist)
 	elem.part:pos(-elem.state.pos:augmented(lace)):visible(elem.props.visible)
 	if diff and elem.events.draw then
 		elem.events.draw(elem)
+		for _, layer in pairs(elem.layers) do
+			layer:draw()
+		end
 	end
 end
 
