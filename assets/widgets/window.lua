@@ -76,6 +76,8 @@ return function(parent, name, assets)
 	---@class FOXStencil.Window.Styles
 	---@field background FOXStencil.Slice.Styles?
 	---@field toolbar FOXStencil.Slice.Styles?
+	---@field title FOXStencil.Text.Styles?
+	---@field icon FOXStencil.Text.Styles?
 
 	elem:newLayer("background", assets.layers.slice)
 	elem:newLayer("toolbar", assets.layers.slice)
