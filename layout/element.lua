@@ -152,6 +152,11 @@ local function new(name, part, root, parn, sibl)
 		---@package
 		---@type boolean
 		queued = true,
+
+		---@type boolean
+		pressed = false,
+		---@type boolean
+		hovered = false,
 	}, class)
 
 	return self
@@ -173,14 +178,21 @@ function class:setProps(props)
 	return self
 end
 
----@param theme FOXStencil.Theme
+---@generic FOXStencil.Styles
+---@param styles FOXStencil.Styles
 ---@return self
-function class:applyTheme(theme)
-	for name, styles in pairs(theme) do
+---@return boolean changed
+function class:setStyles(styles)
+	local changed = false
+
+	for name, style in pairs(styles) do
 		local layer = self:getLayer(name)
-		if layer then layer:setStyles(styles) end
+		if layer and select(2, layer:setStyles(style)) then
+			changed = true
+		end
 	end
-	return self
+
+	return self, changed
 end
 
 ---@return self

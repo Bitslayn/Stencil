@@ -12,65 +12,35 @@ yFhcwQUAmJVDEzzGSxcAAAAASUVORK5CYII=]], "%s", ""))
 local theme = {
 	texture = texture,
 
+	---@type FOXStencil.Button.Theme
 	button = {
-		---@type FOXStencil.Button.LayeredTheme
-		generic = {
-			normal = {
-				outline = {
-					visible = false,
+		-- Standard appearance
+		normal = {
+			outline = { visible = false, offset_pos = vec(0, -2), offset_size = vec(0, 2) },
+			background = { texture = texture, uv_pos = vec(0, 0), uv_size = vec(5, 7), slice = vec(2, 2, 4, 2), offset_pos = vec(0, -2), offset_size = vec(0, 2) },
+			label = { text = "Button", pos = vec(3, 1) },
+		},
 
-					offset_pos = vec(0, -2),
-					offset_size = vec(0, 2),
-				},
-				background = {
-					texture = texture,
+		-- Show outline on hover over
+		enter = {
+			outline = { visible = true },
+		},
+		-- Hide outline on hover away
+		leave = {
+			outline = { visible = false },
+		},
 
-					uv_pos = vec(0, 0),
-					uv_size = vec(5, 7),
-					slice = vec(2, 2, 4, 2),
-
-					offset_pos = vec(0, -2),
-					offset_size = vec(0, 2),
-				},
-				label = {
-					text = "Button",
-					pos = vec(3, 1),
-				},
-			},
-
-			enter = { outline = { visible = true } },
-			leave = { outline = { visible = false } },
-
-			press = {
-				outline = {
-					offset_pos = vec(0, 0),
-					offset_size = vec(0, 0),
-				},
-				background = {
-					uv_pos = vec(4, 0),
-					uv_size = vec(5, 5),
-					slice = vec(2, 2, 2, 2),
-
-					offset_pos = vec(0, 0),
-					offset_size = vec(0, 0),
-				},
-				label = { pos = vec(3, 3) },
-			},
-			release = {
-				outline = {
-					offset_pos = vec(0, -2),
-					offset_size = vec(0, 2),
-				},
-				background = {
-					uv_pos = vec(0, 0),
-					uv_size = vec(5, 7),
-					slice = vec(2, 2, 4, 2),
-
-					offset_pos = vec(0, -2),
-					offset_size = vec(0, 2),
-				},
-				label = { pos = vec(3, 1) },
-			},
+		-- Change UV and decrease height by 2 pixels on press
+		press = {
+			outline = { offset_pos = vec(0, 0), offset_size = vec(0, 0) },
+			background = { uv_pos = vec(4, 0), uv_size = vec(5, 5), slice = vec(2, 2, 2, 2), offset_pos = vec(0, 0), offset_size = vec(0, 0) },
+			label = { pos = vec(3, 3) },
+		},
+		-- Change UV and increase height by 2 pixels on release
+		release = {
+			outline = { offset_pos = vec(0, -2), offset_size = vec(0, 2) },
+			background = { uv_pos = vec(0, 0), uv_size = vec(5, 7), slice = vec(2, 2, 4, 2), offset_pos = vec(0, -2), offset_size = vec(0, 2) },
+			label = { pos = vec(3, 1) },
 		},
 	},
 }

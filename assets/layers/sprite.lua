@@ -73,12 +73,14 @@ local parser = require("./../../layout/core/parser") --[[@as FOXStencil.Core.Par
 ---Sets the given styles
 ---@param styles FOXStencil.Sprite.Styles
 ---@return self
+---@return boolean changed
 function obj:setStyles(styles)
 	if parser.copy(styles, self.styles) then
 		self:draw()
+		return self, true
 	end
 
-	return self
+	return self, false
 end
 
 ---Removes this layer from its parent

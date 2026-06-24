@@ -1,7 +1,5 @@
 ---@diagnostic disable: missing-fields
 
----@alias FOXStencil.Theme table<string, table>
-
 ---@class FOXStencil.Layer
 ---@field setStyles function
 ---@field draw function

@@ -56,12 +56,38 @@ end
 ---@param root FOXStencil.Screen
 ---@param state boolean
 ---@return boolean
+local function do_press(elem, root, state)
+	-- Release last element
+
+	local pressed = root.pressed
+	if pressed and not state then
+		pressed.events.press(pressed, false)
+		pressed.pressed = false
+		root.pressed = nil
+	end
+
+	-- Press current element
+
+	if elem and state and elem.events.press and not elem.events.press(elem, true) then
+		elem.pressed = true
+		root.pressed = elem
+		return true
+	end
+
+	return false
+end
+
+---@param elem FOXStencil.Element?
+---@param root FOXStencil.Screen
+---@param state boolean
+---@return boolean
 local function do_hover(elem, root, state)
 	local hovered = root.hovered
 
 	-- Enter current element
 	
 	if elem and elem.events.hover and not elem.events.hover(elem, true) then
+		elem.hovered = true
 		root.hovered = elem
 		state = true
 	end
@@ -71,34 +97,12 @@ local function do_hover(elem, root, state)
 	if hovered and state and elem ~= hovered then
 		hovered.events.hover(hovered, false)
 		if hovered == root.hovered then
+			hovered.hovered = false
 			root.hovered = nil
 		end
 	end
 
 	return state
-end
-
----@param elem FOXStencil.Element?
----@param root FOXStencil.Screen
----@param state boolean
----@return boolean
-local function do_press(elem, root, state)
-	-- Release last element
-
-	local pressed = root.pressed
-	if pressed and not state then
-		pressed.events.press(pressed, false)
-		root.pressed = nil
-	end
-
-	-- Press current element
-
-	if elem and state and elem.events.press and not elem.events.press(elem, true) then
-		root.pressed = elem
-		return true
-	end
-
-	return false
 end
 
 ---Recursively gets the tree of elements being hovered over
