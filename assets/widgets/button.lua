@@ -12,18 +12,6 @@
 ---@class FOXStencil.Widgets
 ---@field button FOXStencil.Button.Generator
 
----@class FOXStencil.Button.Theme
----@field normal FOXStencil.Button.Styles?
----@field enter FOXStencil.Button.Styles?
----@field leave FOXStencil.Button.Styles?
----@field press FOXStencil.Button.Styles?
----@field release FOXStencil.Button.Styles?
-
----@class FOXStencil.Button.Styles
----@field background FOXStencil.Slice.Styles?
----@field label FOXStencil.Text.Styles?
----@field outline FOXStencil.Border.Styles?
-
 ---@alias FOXStencil.Button.Press fun(widg: FOXStencil.Button)
 ---@alias FOXStencil.Button.Release fun(widg: FOXStencil.Button)
 
@@ -131,6 +119,18 @@ return function(parent, name, assets)
 		release = function() end,
 	}
 	elem.widg = widg
+
+	---@class FOXStencil.Button.Theme
+	---@field normal FOXStencil.Button.Styles?
+	---@field enter FOXStencil.Button.Styles?
+	---@field leave FOXStencil.Button.Styles?
+	---@field press FOXStencil.Button.Styles?
+	---@field release FOXStencil.Button.Styles?
+
+	---@class FOXStencil.Button.Styles
+	---@field background FOXStencil.Slice.Styles?
+	---@field label FOXStencil.Text.Styles?
+	---@field outline FOXStencil.Border.Styles?
 
 	elem:newLayer("background", assets.layers.slice)
 	elem:newLayer("label", assets.layers.text)

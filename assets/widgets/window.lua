@@ -12,13 +12,6 @@
 ---@class FOXStencil.Widgets
 ---@field window FOXStencil.Window.Generator
 
----@class FOXStencil.Window.Theme
----@field normal FOXStencil.Window.Styles?
-
----@class FOXStencil.Window.Styles
----@field background FOXStencil.Slice.Styles?
----@field toolbar FOXStencil.Slice.Styles?
-
 ---@class FOXStencil.Window
 local obj = {}
 ---@package
@@ -77,9 +70,17 @@ return function(parent, name, assets)
 	}
 	elem.widg = widg
 
+	---@class FOXStencil.Window.Theme
+	---@field normal FOXStencil.Window.Styles?
+
+	---@class FOXStencil.Window.Styles
+	---@field background FOXStencil.Slice.Styles?
+	---@field toolbar FOXStencil.Slice.Styles?
+
 	elem:newLayer("background", assets.layers.slice)
 	elem:newLayer("toolbar", assets.layers.slice)
 	elem:newLayer("title", assets.layers.text)
+	elem:newLayer("icon", assets.layers.text)
 	elem:setStyles(widg.theme.normal)
 
 	elem.events = { press = press, drag = drag }
