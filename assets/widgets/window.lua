@@ -42,7 +42,7 @@ local function draw(elem)
 	local icon = elem:getLayer("icon") --[[@as FOXStencil.Text]]
 	local icon_size = icon.styles.size / 9
 
-	elem:setProps({ size_min = vec(client.getTextWidth(icon.styles.text) * icon_size + client.getTextWidth(title.styles.text) * title_size + 6, 0) })
+	elem:setProps({ size = vec(client.getTextWidth(icon.styles.text) * icon_size + client.getTextWidth(title.styles.text) * title_size + 6, 0) })
 end
 
 --#ENDREGION --=================================================================================================================
