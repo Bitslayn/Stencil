@@ -12,9 +12,6 @@
 ---@class FOXStencil.Widgets
 ---@field button FOXStencil.Button.Generator
 
----@alias FOXStencil.Button.Press fun(widg: FOXStencil.Button)
----@alias FOXStencil.Button.Release fun(widg: FOXStencil.Button)
-
 ---@class FOXStencil.Button
 local obj = {}
 ---@package
@@ -111,12 +108,17 @@ end
 return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({ size = vec(-1, -1) })
 
+	---@alias FOXStencil.Button.Press fun(widg: FOXStencil.Button)
+	---@alias FOXStencil.Button.Release fun(widg: FOXStencil.Button)
+
 	---@class FOXStencil.Button
 	local widg = {
 		elem = elem,
 		theme = assets.themes.default.button,
 
+		---@type FOXStencil.Button.Press
 		press = function() end,
+		---@type FOXStencil.Button.Release
 		release = function() end,
 	}
 	elem.widg = widg

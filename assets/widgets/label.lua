@@ -12,9 +12,6 @@
 ---@class FOXStencil.Widgets
 ---@field label FOXStencil.Label.Generator
 
----@alias FOXStencil.Label.Press fun(widg: FOXStencil.Label)
----@alias FOXStencil.Label.Release fun(widg: FOXStencil.Label)
-
 ---@class FOXStencil.Label
 local obj = {}
 ---@package
