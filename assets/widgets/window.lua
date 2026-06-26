@@ -39,6 +39,10 @@ function obj:newElement(...)
 	return self.elem:newElement(...)
 end
 
+function obj:newWidget(...)
+	return self.elem:newWidget(...)
+end
+
 ---@param styles FOXStencil.Window.Styles
 ---@return self
 function obj:setStyles(styles)

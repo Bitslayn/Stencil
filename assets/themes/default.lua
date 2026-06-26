@@ -90,9 +90,15 @@ local theme = {
 		},
 	},
 
+	---@type FOXStencil.Label.Theme
+	label = {
+		normal = {
+			label = { text = "Label" },
+		},
+	},
+
 	---@type FOXStencil.Window.Theme
 	window = {
-		-- Standard appearance
 		normal = {
 			background = { color = vec(0.3, 0.3, 0.3, 1), texture = texture, uv_pos = vec(4, 0), uv_size = vec(5, 5), slice = vec(2, 2, 2, 2), offset_pos = vec(0, 12), offset_size = vec(0, -12) },
 			toolbar = { color = vec(0.3, 0.3, 0.3, 1), texture = texture, uv_pos = vec(4, 0), uv_size = vec(5, 5), slice = vec(2, 2, 2, 2), anchor_size = vec(1, 0), offset_size = vec(0, 13) },
