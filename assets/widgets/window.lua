@@ -21,6 +21,8 @@ obj.__index = obj
 --#REGION ˚♡ Events ♡˚
 --==============================================================================================================================
 
+-- Window dragging
+
 ---@type FOXStencil.Element.Events.Press
 local function press(elem)
 	return elem.pointer.elem_pos.y > 13
@@ -29,6 +31,18 @@ end
 ---@type FOXStencil.Element.Events.Drag
 local function drag(elem, move)
 	elem:setProps({ pos = elem.props.pos + move })
+end
+
+-- Text wrapping
+
+---@type FOXStencil.Element.Events.Draw
+local function draw(elem)
+	local title = elem:getLayer("title") --[[@as FOXStencil.Text]]
+	local title_size = title.styles.size / 9
+	local icon = elem:getLayer("icon") --[[@as FOXStencil.Text]]
+	local icon_size = icon.styles.size / 9
+
+	elem:setProps({ size_min = vec(client.getTextWidth(icon.styles.text) * icon_size + client.getTextWidth(title.styles.text) * title_size + 6, 0) })
 end
 
 --#ENDREGION --=================================================================================================================
@@ -89,7 +103,7 @@ return function(parent, name, assets)
 	elem:newLayer("icon", assets.layers.text)
 	elem:setStyles(widg.theme.normal)
 
-	elem.events = { press = press, drag = drag }
+	elem.events = { press = press, drag = drag, draw = draw }
 
 	return setmetatable(widg, obj)
 end
