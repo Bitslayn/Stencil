@@ -25,6 +25,7 @@ obj.__index = obj
 
 ---@type FOXStencil.Element.Events.Press
 local function press(elem)
+	elem:setIndex(-1)
 	return elem.pointer.elem_pos.y > 13
 end
 

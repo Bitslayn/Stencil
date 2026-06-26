@@ -16,8 +16,6 @@ end
 local default_pointer = {
 	---Position on this element being hovered
 	elem_pos = vec(0, 0),
-	---Velocity on the screen of a moving pointer
-	move_pos = vec(0, 0),
 	---Position on the screen being hovered
 	root_pos = vec(0, 0),
 	---Position in the world being hovered
@@ -58,6 +56,42 @@ local function new(part)
 end
 
 --#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Press ♡˚
+--==============================================================================================================================
+
+local was_pressed = false
+
+---@type boolean
+local mouse_press
+function events.mouse_press(_, state)
+	mouse_press = state ~= 0 or false
+end
+
+---Returns if the host is pressing the screen
+---@return boolean state
+---@return boolean change
+local function get_screen_press()
+	if was_pressed == mouse_press then return mouse_press, false end
+	was_pressed = mouse_press
+
+	return mouse_press, true
+end
+
+---Returns if the viewer started swinging or using an item
+---@return boolean state
+---@return boolean change
+local function get_world_press()
+	local viewer = client.getViewer()
+
+	local swing_time = viewer:getSwingTime()
+	local is_pressed = 0 < swing_time and swing_time < 3 or viewer:isUsingItem()
+	if was_pressed == is_pressed then return is_pressed, false end
+	was_pressed = is_pressed
+
+	return is_pressed, true
+end
+
+--#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Self ♡˚
 --==============================================================================================================================
 
@@ -70,29 +104,33 @@ local layout = require("./core/layout")
 function class:render(mode, block)
 	-- Interact with screen elements
 
-	local len = #self.chld
+	local hover, press_state, press_changed
+	if mode == "GUI" then
+		hover = interact.screen_hover
+		press_state, press_changed = get_screen_press()
+	elseif mode == "WORLD" then
+		hover = interact.world_hover
+		press_state, press_changed = get_world_press()
+	elseif mode == "SKULL" then
+		hover = interact.skull_hover
+		press_state, press_changed = get_world_press()
+	end
+
 	local hovered
-	for i = len, 1, -1 do
+	for i = #self.chld, 1, -1 do
 		local elem = self.chld[i]
-
-		if mode == "GUI" then
-			hovered = interact.screen_hover(elem)
-		elseif mode == "WORLD" then
-			hovered = interact.world_hover(elem)
-		elseif mode == "SKULL" and block then
-			hovered = interact.skull_hover(elem, block)
-		end
-
+		---@diagnostic disable-next-line: param-type-mismatch
+		hovered = hover(elem, press_state, press_changed, block)
 		if hovered then break end
 	end
 
 	if not hovered then
-		interact.reset(self)
+		interact.reset(self, was_pressed)
 	end
 
 	-- Draw screen elements
 
-	for i = 1, len do
+	for i = 1, #self.chld do
 		local elem = self.chld[i]
 		layout.restore(elem)
 
@@ -102,7 +140,7 @@ function class:render(mode, block)
 		layout.grow(elem, 2)
 		layout.position(elem)
 
-		layout.draw(elem, (i - 1) * 2, 1 / len)
+		layout.draw(elem, (i - 1) * 2, 1 / #self.chld)
 	end
 
 	return self

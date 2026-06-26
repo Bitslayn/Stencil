@@ -74,8 +74,6 @@ local default_state = {
 local default_pointer = {
 	---Position on this element being hovered
 	elem_pos = vec(0, 0),
-	---Velocity on this element of a moving pointer
-	move_pos = vec(0, 0),
 	---Position on the screen being hovered
 	root_pos = vec(0, 0),
 	---Position in the world being hovered
@@ -354,10 +352,10 @@ function class:setIndex(index)
 	-- Removes the element, then inserts at the desired position
 
 	self:queue()
-
+	
+	index = math.clamp(index, - #self.sibl, #self.sibl) % (#self.sibl + 1)
 	local key = self.sibl:getKey(self) --[[@as integer]]
 	local val = self.sibl:remove(key) --[[@as FOXStencil.Element]]
-	index = math.clamp(index, - #self.sibl, #self.sibl) % (#self.sibl + 1)
 	self.sibl:insert(index, val)
 
 	return self
