@@ -12,32 +12,80 @@ yFhcwQUAmJVDEzzGSxcAAAAASUVORK5CYII=]], "%s", ""))
 local theme = {
 	---@type FOXStencil.Button.Theme
 	button = {
-		-- Standard appearance
 		normal = {
-			outline = { visible = false, offset_pos = vec(0, -2), offset_size = vec(0, 0) },
-			background = { texture = texture, uv_pos = vec(0, 0), uv_size = vec(5, 7), slice = vec(2, 2, 4, 2), offset_pos = vec(0, -2), offset_size = vec(0, 2) },
-			label = { text = "Button", pos = vec(3, 1) },
+			outline = {
+				-- Outline visible only when hovered over
+				visible = false,
+
+				-- Outline extends vertically when unpressed
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
+			},
+			background = {
+				-- Default background texture
+				texture = texture,
+
+				-- Unpressed button UV
+				uv_pos = vec(0, 0),
+				uv_size = vec(5, 7),
+				slice = vec(2, 2, 4, 2),
+
+				-- Background extends vertically when unpressed
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 2),
+			},
+			label = {
+				-- Default label text
+				text = "Button",
+
+				-- Label positioned (3, 3) shifting when background extends
+				pos = vec(3, 1),
+
+				-- Label is 6 pixel thinner than element
+				offset_width = -6,
+			},
 		},
 
-		-- Show outline on hover over
-		enter = {
-			outline = { visible = true },
-		},
-		-- Hide outline on hover away
-		leave = {
-			outline = { visible = false },
-		},
+		-- Outline visible only when hovered over
+		enter = { outline = { visible = true } },
 
-		-- Change UV and decrease height by 2 pixels on press
+		-- Outline visible only when hovered over
+		leave = { outline = { visible = false } },
+
 		press = {
+			-- Outline extends vertically when unpressed
 			outline = { offset_pos = vec(0, 0), offset_size = vec(0, -2) },
-			background = { uv_pos = vec(4, 0), uv_size = vec(5, 5), slice = vec(2, 2, 2, 2), offset_pos = vec(0, 0), offset_size = vec(0, 0) },
+
+			background = {
+				-- Pressed button UV
+				uv_pos = vec(4, 0),
+				uv_size = vec(5, 5),
+				slice = vec(2, 2, 2, 2),
+
+				-- Background extends vertically when unpressed
+				offset_pos = vec(0, 0),
+				offset_size = vec(0, 0),
+			},
+
+			-- Label positioned (3, 3) shifting when background extends
 			label = { pos = vec(3, 3) },
 		},
-		-- Change UV and increase height by 2 pixels on release
 		release = {
+			-- Outline extends vertically when unpressed
 			outline = { offset_pos = vec(0, -2), offset_size = vec(0, 0) },
-			background = { uv_pos = vec(0, 0), uv_size = vec(5, 7), slice = vec(2, 2, 4, 2), offset_pos = vec(0, -2), offset_size = vec(0, 2) },
+
+			background = {
+				-- Pressed button UV
+				uv_pos = vec(0, 0),
+				uv_size = vec(5, 7),
+				slice = vec(2, 2, 4, 2),
+
+				-- Background extends vertically when unpressed
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 2),
+			},
+
+			-- Label positioned (3, 3) shifting when background extends
 			label = { pos = vec(3, 1) },
 		},
 	},

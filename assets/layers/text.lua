@@ -21,7 +21,7 @@ local default = {
 	---@type number
 	size = 9,
 	---@type number
-	width = 0,
+	offset_width = 0,
 	---@type Vector2
 	align = vec(0, 0),
 
@@ -42,15 +42,16 @@ function obj:draw()
 
 	-- Calculate sizing
 
+	local width = self.elem.state.size.x + styles.offset_width
 	local size = styles.size / 9
-	local pos = styles.pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, styles.width / size))
+	local pos = styles.pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, width / size))
 
 	local visible = styles.text ~= "" and styles.visible
 
 	if visible then
 		self.task
 			:text(styles.text)
-			:width(styles.width / size)
+			:width(width / size)
 
 			:pos(-pos:augmented(1 / 16))
 			:scale(size)
