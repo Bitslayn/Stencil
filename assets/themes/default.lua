@@ -289,22 +289,29 @@ local theme = {
 		},
 	},
 
-	---Checkbox or radio toggle.
-	---@type FOXStencil.Checkbox.Theme
-	checkbox = {
+	---@type FOXStencil.Textbox.Theme
+	textbox = {
 		-- Styles applied upon creation, same as unhovered + released
 		normal = {
 			background = {
+				-- Default Color
+				color = vectors.hexToRGB("#3B3B3B"),
+
 				-- Default texture
 				texture = texture,
 
-				-- Unpressed button UV
-				uv_pos = sprites.normal.pos,
-				uv_size = sprites.normal.size,
-				slice = sprites.normal.slice,
+				-- Background UV
+				uv_pos = sprites.simple.pos,
+				uv_size = sprites.simple.size,
+				slice = sprites.simple.slice,
 			},
-			label = { text = ":mcb_stone:", pos = vec(3, 4) },
-			outline = { visible = false },
+			label = {
+				offset_pos = vec(3, 3),
+			},
+			outline = {
+				-- Hide outline when not hovered
+				visible = false,
+			},
 		},
 
 		-- Hover styles

@@ -1,3 +1,5 @@
+-- DEPRECATION NOTICE
+
 ---@class FOXStencil.String
 local lib = {}
 
