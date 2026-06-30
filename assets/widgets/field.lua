@@ -61,7 +61,7 @@ local function focus(widg)
 		[65] = function(mod) -- Select All
 			if bit32.band(mod, 2) ~= 2 then return end
 
-			widg:setPos(0, math.huge, true)
+			widg:setPos(0, math.huge)
 		end,
 
 		[67] = function(mod) -- Copy
@@ -95,10 +95,23 @@ local function focus(widg)
 			widg:setPos(widg.pos)
 		end,
 
-		[262] = function() widg:setPos(widg.pos + 1) end, -- Right
-		[263] = function() widg:setPos(widg.pos - 1) end, -- Left
-		[268] = function() widg:setPos(0) end,      -- Home
-		[269] = function() widg:setPos(math.huge) end, -- End
+		[262] = function(mod) -- Right
+			-- if bit32.band(mod, 1) == 1 then
+			-- 	widg:setPos(widg.pos, widg.sel + 1)
+			-- else
+			-- 	widg:setPos(widg.pos + math.max(widg.sel, 1))
+			-- end
+			widg:setPos(widg.pos + 1)
+		end,
+		[263] = function(mod) -- Left
+			widg:setPos(widg.pos - 1)
+		end,
+		[268] = function(mod) -- Home
+			widg:setPos(0)
+		end,
+		[269] = function(mod) -- End
+			widg:setPos(math.huge)
+		end,
 	}
 
 	events.key_press:register(function(key, state, mod)
@@ -158,17 +171,13 @@ end
 
 ---@param pos integer
 ---@param sel integer?
----@param right boolean?
 ---@return self
-function obj:setPos(pos, sel, right)
+function obj:setPos(pos, sel)
 	self.pos = math.clamp(pos, 0, #self.text)
 	self.sel = math.clamp(sel or 0, 0, #self.text + 1)
 
 	local caret = self:getLayer("caret") --[[@as FOXStencil.Sprite]]
-	caret:setStyles({
-		offset_pos = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(1, right and self.sel or self.pos)), 0)
-			+ self.theme.normal.caret.offset_pos,
-	})
+	caret:setStyles({ offset_pos = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(1, self.pos)), 0) + self.theme.normal.caret.offset_pos })
 
 	local select = self:getLayer("select") --[[@as FOXStencil.Sprite]]
 	select:setStyles({
