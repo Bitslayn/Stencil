@@ -7,8 +7,6 @@
 -- WIP!!!
 
 ---Generates a textbox widget
----
----Call :setConfigs() with a table to change the configs
 ---@alias FOXStencil.Textbox.Generator fun(parent: FOXStencil.Element|FOXStencil.Screen, name: string, assets: FOXStencil.Assets): FOXStencil.Textbox
 
 ---@class FOXStencil.Widgets

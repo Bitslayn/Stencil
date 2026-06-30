@@ -1,6 +1,4 @@
 ---Generates a text layer
----
----Call :setStyles() with a table to change the styles
 ---@alias FOXStencil.Text.Generator fun(part: ModelPart, elem: FOXStencil.Element): FOXStencil.Text
 
 ---@class FOXStencil.Layers

@@ -5,8 +5,6 @@
 ---@diagnostic disable: invisible
 
 ---Generates a window widget
----
----Call :setConfigs() with a table to change the configs
 ---@alias FOXStencil.Window.Generator fun(parent: FOXStencil.Element|FOXStencil.Screen, name: string, assets: FOXStencil.Assets): FOXStencil.Window
 
 ---@class FOXStencil.Widgets
