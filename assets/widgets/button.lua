@@ -27,7 +27,12 @@ local function press(elem, state)
 
 	local widg = elem.widg --[[@as FOXStencil.Button]]
 	elem:setStyles(widg.theme[key])
-	widg[key](widg) -- Call user-defined function
+
+	-- Call user-defined function
+
+	if state == false and widg[key] then
+		widg[key](widg)
+	end
 
 	sounds:playSound("minecraft:block.lava.pop", elem.pointer.wrld_pos, 0.5, state and 8 or 9)
 end
@@ -62,17 +67,8 @@ end
 ---@param func FOXStencil.Button.Press
 ---@return self
 function obj:onPress(func)
-	if type(func) ~= "function" then error("Expected a function but found " .. type(func), 2) end
+	if func ~= nil and type(func) ~= "function" then error("Expected a function but found " .. type(func), 2) end
 	self.press = func
-	return self
-end
-
----Sets the function to run when the button is released
----@param func FOXStencil.Button.Release
----@return self
-function obj:onRelease(func)
-	if type(func) ~= "function" then error("Expected a function but found " .. type(func), 2) end
-	self.release = func
 	return self
 end
 
@@ -109,15 +105,11 @@ return function(parent, name, assets)
 	---@alias FOXStencil.Button.Press fun(widg: FOXStencil.Button)
 	---@alias FOXStencil.Button.Release fun(widg: FOXStencil.Button)
 
-	---@class FOXStencil.Button
+	---@class FOXStencil.Button: FOXStencil.Element
+	---@field press FOXStencil.Button.Press
 	local widg = {
 		elem = elem,
 		theme = assets.themes.default.button,
-
-		---@type FOXStencil.Button.Press
-		press = function() end,
-		---@type FOXStencil.Button.Release
-		release = function() end,
 	}
 	elem.widg = widg
 
