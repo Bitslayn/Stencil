@@ -19,8 +19,8 @@ local sprites = {
 	simple = { pos = vec(2, 6), size = vec(3, 3), slice = vec(1, 1, 1, 1) },
 	---UV typically used for scrollbars. It may not have a solid black border like the other sprites, but it sure knows its way around.
 	scroll = { pos = vec(0, 7), size = vec(2, 2), slice = vec(0, 0, 0, 0) },
-	---UV that is just a white pixel.
-	white = { pos = vec(3, 7), size = vec(1, 1), slice = vec(0, 0, 0, 0) },
+	---UV that is just a solid white pixel.
+	solid = { pos = vec(3, 7), size = vec(1, 1), slice = vec(0, 0, 0, 0) },
 }
 
 ---@class FOXStencil.Themes.Default
@@ -138,7 +138,7 @@ local theme = {
 		-- Styles applied upon creation
 		normal = {
 			background = {
-				-- Default Color
+				-- Default color
 				color = vectors.hexToRGB("#3B3B3B"),
 
 				-- Default texture
@@ -154,7 +154,7 @@ local theme = {
 				offset_size = vec(0, -12),
 			},
 			toolbar = {
-				-- Default Color
+				-- Default color
 				color = vectors.hexToRGB("#555555"),
 
 				-- Default texture
@@ -283,13 +283,13 @@ local theme = {
 		},
 	},
 
-	---@type FOXStencil.Textbox.Theme
-	textbox = {
+	---@type FOXStencil.Field.Theme
+	field = {
 		-- Styles applied upon creation, same as unhovered + released
 		normal = {
 			background = {
-				-- Default Color
-				color = vectors.hexToRGB("#3B3B3B"),
+				-- Default color
+				color = vectors.hexToRGB("#202020"),
 
 				-- Default texture
 				texture = texture,
@@ -299,12 +299,59 @@ local theme = {
 				uv_size = sprites.simple.size,
 				slice = sprites.simple.slice,
 			},
-			label = {
+			hint = {
+				-- Default label text
+				text = "§8Textbox",
+
+				-- Label is 6 pixels thinner than element
+				offset_width = -6,
+
+				-- Center label
+				offset_pos = vec(3, 3),
+			},
+			text = {
+				-- Label is 6 pixels thinner than element
+				offset_width = -6,
+
+				-- Center label
 				offset_pos = vec(3, 3),
 			},
 			outline = {
 				-- Hide outline when not hovered
 				visible = false,
+			},
+			caret = {
+				-- Default texture
+				texture = texture,
+
+				-- Caret UV
+				uv_pos = sprites.solid.pos,
+				uv_size = sprites.solid.size,
+
+				-- Caret size and position
+				depth = 2,
+				offset_pos = vec(3, 3),
+				anchor_size = vec(0, 0),
+				offset_size = vec(1, 9),
+
+				-- Hide caret when not focused
+				visible = false,
+			},
+			select = {
+				-- Default color
+				color = vectors.hexToRGB("blue"):augmented(0.3),
+
+				-- Default texture
+				texture = texture,
+
+				-- Select UV
+				uv_pos = sprites.solid.pos,
+				uv_size = sprites.solid.size,
+
+				-- Select size and position
+				depth = 1,
+				offset_pos = vec(3, 2),
+				anchor_size = vec(0, 0),
 			},
 		},
 
@@ -317,10 +364,6 @@ local theme = {
 			-- Hide outline when hovered away
 			outline = { visible = false },
 		},
-
-		-- Press styles
-		press = {},
-		release = {},
 	},
 
 	-- ---Checkbox or radio toggle.
