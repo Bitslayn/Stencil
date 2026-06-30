@@ -24,6 +24,9 @@ local default = {
 	---@type Vector2
 	align = vec(0, 0),
 
+	---@type number
+	depth = 1 / 16,
+
 	---@type Vector3
 	outline = vectors.intToRGB(0x202020),
 	---@type boolean
@@ -52,7 +55,7 @@ function obj:draw()
 			:text(styles.text)
 			:width(width / size)
 
-			:pos(-pos:augmented(1 / 16))
+			:pos(-pos:augmented(styles.depth))
 			:scale(size)
 
 			:setOutline(styles.outline_state)

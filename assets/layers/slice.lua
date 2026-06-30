@@ -27,14 +27,24 @@ local default = {
 	---@type Vector2
 	offset_size = vec(0, 0),
 
+	---@type number
+	depth = 0,
+
+	---@type Vector2
 	pos = vec(0, 0),
+	---@type Vector2
 	size = vec(0, 0),
+	---@type Vector4
 	slice = vec(0, 0, 0, 0),
 
+	---@type Vector2
 	uv_pos = vec(0, 0),
+	---@type Vector2
 	uv_size = vec(0, 0),
 
+	---@type Vector2
 	clip_pos = vec(0, 0),
+	---@type Vector2
 	clip_size = vec(0, 0),
 
 	---@type boolean
@@ -117,7 +127,7 @@ function obj:draw()
 
 	local dim = styles.texture:getDimensions()
 
-	self.pivot:pos(-pos.xy_)
+	self.pivot:pos(-pos:augmented(styles.depth))
 
 	for y = 1, 3 do
 		for x = 1, 3 do

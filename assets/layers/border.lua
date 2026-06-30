@@ -27,6 +27,9 @@ local default = {
 	---@type number
 	weight = 1,
 
+	---@type number
+	depth = 1,
+
 	---@type boolean
 	visible = true,
 }
@@ -72,7 +75,7 @@ function obj:draw()
 
 		if visible then
 			self.tasks[i]
-				:matrix(matrices.translate4(-pos:augmented(1)) * mats[i] * text_offset)
+				:matrix(matrices.translate4(-pos:augmented(styles.depth)) * mats[i] * text_offset)
 				:backgroundColor(styles.color)
 		end
 

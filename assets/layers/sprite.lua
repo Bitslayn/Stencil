@@ -29,6 +29,9 @@ local default = {
 	---@type Vector2
 	offset_size = vec(0, 0),
 
+	---@type number
+	depth = 0,
+
 	---@type Vector2
 	uv_pos = vec(0, 0),
 	---@type Vector2
@@ -57,7 +60,7 @@ function obj:draw()
 			:uv(styles.uv_pos / dim)
 			:region((styles.grid and size or styles.uv_size) * 1000)
 
-			:pos(-pos:augmented(0))
+			:pos(-pos:augmented(styles.depth))
 			:scale(size:augmented())
 
 			:dimensions(dim * 1000)
