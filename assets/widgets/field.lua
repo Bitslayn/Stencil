@@ -58,10 +58,10 @@ local function focus(widg)
 	-- Grab input
 
 	local keys = {
-		[65] = function(mod) -- Select all
+		[65] = function(mod) -- Select All
 			if bit32.band(mod, 2) ~= 2 then return end
 
-			widg:setPos(0, #widg.text + 1)
+			widg:setPos(0, math.huge, true)
 		end,
 
 		[67] = function(mod) -- Copy
@@ -76,6 +76,8 @@ local function focus(widg)
 			widg:setPos(widg.pos + #host:getClipboard())
 		end,
 		[88] = function(mod) -- Cut
+			if bit32.band(mod, 2) ~= 2 then return end
+
 			host:clipboard(widg.text:sub(widg.pos, widg.sel))
 			widg:setText(widg.text:sub(1, widg.pos) .. widg.text:sub(widg.sel + 2, -1))
 			widg:setPos(widg.pos)
@@ -96,7 +98,7 @@ local function focus(widg)
 		[262] = function() widg:setPos(widg.pos + 1) end, -- Right
 		[263] = function() widg:setPos(widg.pos - 1) end, -- Left
 		[268] = function() widg:setPos(0) end,      -- Home
-		[269] = function() widg:setPos(#widg.text) end, -- End
+		[269] = function() widg:setPos(math.huge) end, -- End
 	}
 
 	events.key_press:register(function(key, state, mod)
@@ -108,7 +110,7 @@ local function focus(widg)
 	end, "field")
 
 	events.char_typed:register(function(char)
-		widg:setText(widg.text:sub(1, widg.pos) .. char .. widg.text:sub(widg.pos + 1, -1))
+		widg:setText(widg.text:sub(1, widg.pos) .. char .. widg.text:sub(widg.pos + widg.sel + 1, -1))
 		widg:setPos(widg.pos + 1)
 	end, "field")
 end
@@ -156,18 +158,22 @@ end
 
 ---@param pos integer
 ---@param sel integer?
+---@param right boolean?
 ---@return self
-function obj:setPos(pos, sel)
+function obj:setPos(pos, sel, right)
 	self.pos = math.clamp(pos, 0, #self.text)
 	self.sel = math.clamp(sel or 0, 0, #self.text + 1)
 
 	local caret = self:getLayer("caret") --[[@as FOXStencil.Sprite]]
-	caret:setStyles({ offset_pos = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(1, self.pos)), 0) + self.theme.normal.caret.offset_pos })
+	caret:setStyles({
+		offset_pos = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(1, right and self.sel or self.pos)), 0)
+			+ self.theme.normal.caret.offset_pos,
+	})
 
 	local select = self:getLayer("select") --[[@as FOXStencil.Sprite]]
 	select:setStyles({
 		offset_pos = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(1, self.pos)), 0) + self.theme.normal.select.offset_pos,
-		offset_size = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(self.pos, self.pos + self.sel - 1)), 11),
+		offset_size = vec(client.getTextWidth(self.text:gsub("%s", '"'):sub(self.pos, math.max(self.pos + self.sel - 1, 0))), 11),
 	})
 
 	return self
