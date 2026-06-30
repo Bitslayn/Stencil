@@ -63,7 +63,7 @@ end
 ---@param parent FOXStencil.Element|FOXStencil.Screen
 ---@param assets FOXStencil.Assets
 return function(parent, name, assets)
-	local elem = parent:newElement(name):setProps({ padding = vec(15, 3, 3, 3) })
+	local elem = parent:newElement(name):setProps({ padding = vec(15, 3, 3, 3), direction = "VERTICAL" })
 
 	---@class FOXStencil.Window: FOXStencil.Element
 	local widg = {
