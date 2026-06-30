@@ -189,6 +189,138 @@ local theme = {
 			},
 		},
 	},
+
+	---Button that extends 2 pixels vertically upwards. Contracts when
+	---pressed and has an outline when hovered over.
+	---@type FOXStencil.Toggle.Theme
+	toggle = {
+		-- Styles applied upon creation, same as unhovered + released
+		normal = {
+			outline = {
+				-- Hide outline when not hovered
+				visible = false,
+
+				-- Outline shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
+			},
+			background = {
+				-- Default texture
+				texture = texture,
+
+				-- Unpressed button UV
+				uv_pos = sprites.raised.pos,
+				uv_size = sprites.raised.size,
+				slice = sprites.raised.slice,
+
+				-- Background shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 2),
+			},
+			label = {
+				-- Default label text
+				text = "Toggle",
+
+				-- Label is 6 pixels thinner than element
+				offset_width = -6,
+
+				-- Center label and raise to match background extension
+				align = vec(0.5, 0.5),
+				offset_pos = vec(0, -2),
+			},
+		},
+
+		-- Hover styles
+		enter = {
+			-- Show outline when hovered
+			outline = { visible = true },
+		},
+		leave = {
+			-- Hide outline when hovered away
+			outline = { visible = false },
+		},
+
+		-- Press styles
+		press = {
+			outline = {
+				-- Outline shifted vertically, contract bottom by same amount
+				offset_pos = vec(0, 0),
+				offset_size = vec(0, -2),
+			},
+
+			background = {
+				-- Pressed button UV
+				uv_pos = sprites.normal.pos,
+				uv_size = sprites.normal.size,
+				slice = sprites.normal.slice,
+
+				-- Background shifted vertically, contract bottom by same amount
+				offset_pos = vec(0, 0),
+				offset_size = vec(0, 0),
+			},
+
+			label = {
+				-- Center label and lower to match background contraction
+				offset_pos = vec(0, 0),
+			},
+		},
+		release = {
+			outline = {
+				-- Outline shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
+			},
+
+			background = {
+				-- Unpressed button UV
+				uv_pos = sprites.raised.pos,
+				uv_size = sprites.raised.size,
+				slice = sprites.raised.slice,
+
+				-- Background shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 2),
+			},
+
+			label = {
+				-- Center label and raise to match background extension
+				offset_pos = vec(0, -2),
+			},
+		},
+	},
+
+	---Checkbox or radio toggle.
+	---@type FOXStencil.Checkbox.Theme
+	checkbox = {
+		-- Styles applied upon creation, same as unhovered + released
+		normal = {
+			background = {
+				-- Default texture
+				texture = texture,
+
+				-- Unpressed button UV
+				uv_pos = sprites.normal.pos,
+				uv_size = sprites.normal.size,
+				slice = sprites.normal.slice,
+			},
+			label = { text = ":mcb_stone:", pos = vec(3, 4) },
+			outline = { visible = false },
+		},
+
+		-- Hover styles
+		enter = {
+			-- Show outline when hovered
+			outline = { visible = true },
+		},
+		leave = {
+			-- Hide outline when hovered away
+			outline = { visible = false },
+		},
+
+		-- Press styles
+		press = {},
+		release = {},
+	},
 }
 
 return theme
