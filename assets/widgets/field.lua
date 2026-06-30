@@ -57,6 +57,12 @@ local function focus(widg)
 
 	-- Grab input
 
+	--[[TODO
+	Ctrl + Left or Right: Next or previous word
+	Ctrl + Del or Backspace: Deletes whole word
+	Shift + <movement>: Select while moving
+	]]
+
 	local keys = {
 		[65] = function(mod) -- Select All
 			if bit32.band(mod, 2) ~= 2 then return end
@@ -115,7 +121,7 @@ local function focus(widg)
 	}
 
 	events.key_press:register(function(key, state, mod)
-		if state == 0 or not keys[key] then return end
+		if state == 0 or not keys[key] then return true end
 
 		keys[key](mod)
 
