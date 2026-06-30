@@ -30,8 +30,8 @@ local function press(elem, state)
 
 	-- Call user-defined function
 
-	if state == false and widg[key] then
-		widg[key](widg)
+	if state == false and widg.press then
+		widg.press(widg)
 	end
 
 	sounds:playSound("minecraft:block.lava.pop", elem.pointer.wrld_pos, 0.5, state and 8 or 9)
