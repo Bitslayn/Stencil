@@ -25,7 +25,7 @@ local focused
 ---@param widg FOXStencil.Field
 local function unfocus(widg)
 	local caret = widg:getLayer("caret") --[[@as FOXStencil.Sprite]]
-	caret:setStyles({ visible = false, offset_pos = widg.theme.normal.caret.offset_pos })
+	caret:setStyles({ visible = false })
 
 	widg.elem.part.midRender = nil
 	events.key_press:remove("field")
