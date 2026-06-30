@@ -15,11 +15,12 @@ local default = {
 	text = "",
 
 	---@type Vector2
-	pos = vec(0, 0),
-	---@type number
-	size = 9,
+	offset_pos = vec(0, 0),
 	---@type number
 	offset_width = 0,
+
+	---@type number
+	size = 9,
 	---@type Vector2
 	align = vec(0, 0),
 
@@ -42,7 +43,7 @@ function obj:draw()
 
 	local width = self.elem.state.size.x + styles.offset_width
 	local size = styles.size / 9
-	local pos = styles.pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, width / size))
+	local pos = styles.offset_pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, width / size))
 
 	local visible = styles.text ~= "" and styles.visible
 

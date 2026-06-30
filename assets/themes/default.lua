@@ -58,7 +58,8 @@ local theme = {
 				offset_width = -6,
 
 				-- Center label and raise to match background extension
-				pos = vec(3, 1),
+				align = vec(0.5, 0.5),
+				offset_pos = vec(0, -2),
 			},
 		},
 
@@ -93,7 +94,7 @@ local theme = {
 
 			label = {
 				-- Center label and lower to match background contraction
-				pos = vec(3, 3),
+				offset_pos = vec(0, 0),
 			},
 		},
 		release = {
@@ -116,7 +117,7 @@ local theme = {
 
 			label = {
 				-- Center label and raise to match background extension
-				pos = vec(3, 1),
+				offset_pos = vec(0, -2),
 			},
 		},
 	},
@@ -175,7 +176,7 @@ local theme = {
 				text = "Window",
 
 				---Center align
-				pos = vec(0, 3),
+				offset_pos = vec(0, 3),
 				align = vec(0.5, 0),
 			},
 			icon = {
@@ -183,7 +184,7 @@ local theme = {
 				text = ":paper:",
 
 				-- Left align
-				pos = vec(3, 3),
+				offset_pos = vec(3, 3),
 				align = vec(0, 0),
 			},
 		},
