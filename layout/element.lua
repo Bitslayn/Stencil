@@ -119,8 +119,8 @@ local function new(name, part, root, parn, sibl)
 		part = part,
 
 		---@package
-		---@type table
-		widg = {},
+		---@type table?
+		widg = nil,
 
 		---@type FOXStencil.Pointer
 		pointer = setmetatable({}, { __index = default_pointer }),
@@ -262,7 +262,7 @@ end
 ---@return FOXStencil.Element?
 function class:getElement(name)
 	if not self.chld_dict[name] then return end
-	return self.chld_dict[name][1]
+	return self.chld_dict[name][1].widg or self.chld_dict[name][1]
 end
 
 ---@generic FOXStencil.Layer
