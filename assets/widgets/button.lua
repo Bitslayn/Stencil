@@ -113,6 +113,10 @@ return function(parent, name, assets)
 	}
 	elem.widg = widg
 
+	function widg:__index(k)
+		return obj[k] or elem[k]
+	end
+
 	---@class FOXStencil.Button.Theme
 	---@field normal FOXStencil.Button.Styles?
 	---@field enter FOXStencil.Button.Styles?
@@ -133,7 +137,7 @@ return function(parent, name, assets)
 	elem.events = { press = press, hover = hover, draw = draw, wrap = wrap }
 	draw(elem)
 
-	return setmetatable(widg, obj)
+	return setmetatable(widg, widg)
 end
 
 --#ENDREGION

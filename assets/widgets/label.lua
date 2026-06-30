@@ -37,13 +37,6 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
----@param styles FOXStencil.Label.Styles
----@return self
-function obj:setStyles(styles)
-	self.elem:setStyles(styles)
-	return self
-end
-
 ---@param theme FOXStencil.Label.Theme
 ---@return self
 function obj:setTheme(theme)
@@ -61,12 +54,16 @@ end
 return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({ size = vec(-1, -1) })
 
-	---@class FOXStencil.Label
+	---@class FOXStencil.Label: FOXStencil.Element
 	local widg = {
 		elem = elem,
 		theme = assets.themes.default.label,
 	}
 	elem.widg = widg
+
+	function widg:__index(k)
+		return obj[k] or elem[k]
+	end
 
 	---@class FOXStencil.Label.Theme
 	---@field normal FOXStencil.Label.Styles?
@@ -80,7 +77,7 @@ return function(parent, name, assets)
 	elem.events = { draw = draw, wrap = wrap }
 	draw(elem)
 
-	return setmetatable(widg, obj)
+	return setmetatable(widg, widg)
 end
 
 --#ENDREGION

@@ -48,21 +48,6 @@ end
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
 
-function obj:newElement(...)
-	return self.elem:newElement(...)
-end
-
-function obj:newWidget(...)
-	return self.elem:newWidget(...)
-end
-
----@param styles FOXStencil.Window.Styles
----@return self
-function obj:setStyles(styles)
-	self.elem:setStyles(styles)
-	return self
-end
-
 ---@param theme FOXStencil.Window.Theme
 ---@return self
 function obj:setTheme(theme)
@@ -80,12 +65,16 @@ end
 return function(parent, name, assets)
 	local elem = parent:newElement(name):setProps({ padding = vec(15, 3, 3, 3) })
 
-	---@class FOXStencil.Window
+	---@class FOXStencil.Window: FOXStencil.Element
 	local widg = {
 		elem = elem,
 		theme = assets.themes.default.window,
 	}
 	elem.widg = widg
+
+	function widg:__index(k)
+		return obj[k] or elem[k]
+	end
 
 	---@class FOXStencil.Window.Theme
 	---@field normal FOXStencil.Window.Styles?
@@ -104,7 +93,7 @@ return function(parent, name, assets)
 
 	elem.events = { press = press, drag = drag, draw = draw }
 
-	return setmetatable(widg, obj)
+	return setmetatable(widg, widg)
 end
 
 --#ENDREGION
