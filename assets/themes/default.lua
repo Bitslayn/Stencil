@@ -19,6 +19,8 @@ local sprites = {
 	simple = { pos = vec(2, 6), size = vec(3, 3), slice = vec(1, 1, 1, 1) },
 	---UV typically used for scrollbars. It may not have a solid black border like the other sprites, but it sure knows its way around.
 	scroll = { pos = vec(0, 7), size = vec(2, 2), slice = vec(0, 0, 0, 0) },
+	---UV that is just a white pixel.
+	white = { pos = vec(3, 7), size = vec(1, 1), slice = vec(0, 0, 0, 0) },
 }
 
 ---@class FOXStencil.Themes.Default
@@ -29,14 +31,6 @@ local theme = {
 	button = {
 		-- Styles applied upon creation, same as unhovered + released
 		normal = {
-			outline = {
-				-- Hide outline when not hovered
-				visible = false,
-
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 0),
-			},
 			background = {
 				-- Default texture
 				texture = texture,
@@ -61,6 +55,14 @@ local theme = {
 				align = vec(0.5, 0.5),
 				offset_pos = vec(0, -2),
 			},
+			outline = {
+				-- Hide outline when not hovered
+				visible = false,
+
+				-- Outline shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
+			},
 		},
 
 		-- Hover styles
@@ -75,12 +77,6 @@ local theme = {
 
 		-- Press styles
 		press = {
-			outline = {
-				-- Outline shifted vertically, contract bottom by same amount
-				offset_pos = vec(0, 0),
-				offset_size = vec(0, -2),
-			},
-
 			background = {
 				-- Pressed button UV
 				uv_pos = sprites.normal.pos,
@@ -91,19 +87,17 @@ local theme = {
 				offset_pos = vec(0, 0),
 				offset_size = vec(0, 0),
 			},
-
 			label = {
 				-- Center label and lower to match background contraction
 				offset_pos = vec(0, 0),
 			},
+			outline = {
+				-- Outline shifted vertically, contract bottom by same amount
+				offset_pos = vec(0, 0),
+				offset_size = vec(0, -2),
+			},
 		},
 		release = {
-			outline = {
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 0),
-			},
-
 			background = {
 				-- Unpressed button UV
 				uv_pos = sprites.raised.pos,
@@ -114,10 +108,14 @@ local theme = {
 				offset_pos = vec(0, -2),
 				offset_size = vec(0, 2),
 			},
-
 			label = {
 				-- Center label and raise to match background extension
 				offset_pos = vec(0, -2),
+			},
+			outline = {
+				-- Outline shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
 			},
 		},
 	},
@@ -196,14 +194,6 @@ local theme = {
 	toggle = {
 		-- Styles applied upon creation, same as unhovered + released
 		normal = {
-			outline = {
-				-- Hide outline when not hovered
-				visible = false,
-
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 0),
-			},
 			background = {
 				-- Default texture
 				texture = texture,
@@ -228,6 +218,14 @@ local theme = {
 				align = vec(0.5, 0.5),
 				offset_pos = vec(0, -2),
 			},
+			outline = {
+				-- Hide outline when not hovered
+				visible = false,
+
+				-- Outline shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
+			},
 		},
 
 		-- Hover styles
@@ -242,12 +240,6 @@ local theme = {
 
 		-- Press styles
 		press = {
-			outline = {
-				-- Outline shifted vertically, contract bottom by same amount
-				offset_pos = vec(0, 0),
-				offset_size = vec(0, -2),
-			},
-
 			background = {
 				-- Pressed button UV
 				uv_pos = sprites.normal.pos,
@@ -258,19 +250,17 @@ local theme = {
 				offset_pos = vec(0, 0),
 				offset_size = vec(0, 0),
 			},
-
 			label = {
 				-- Center label and lower to match background contraction
 				offset_pos = vec(0, 0),
 			},
+			outline = {
+				-- Outline shifted vertically, contract bottom by same amount
+				offset_pos = vec(0, 0),
+				offset_size = vec(0, -2),
+			},
 		},
 		release = {
-			outline = {
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 0),
-			},
-
 			background = {
 				-- Unpressed button UV
 				uv_pos = sprites.raised.pos,
@@ -281,10 +271,14 @@ local theme = {
 				offset_pos = vec(0, -2),
 				offset_size = vec(0, 2),
 			},
-
 			label = {
 				-- Center label and raise to match background extension
 				offset_pos = vec(0, -2),
+			},
+			outline = {
+				-- Outline shifted vertically, extend bottom by same amount
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 0),
 			},
 		},
 	},
@@ -328,6 +322,39 @@ local theme = {
 		press = {},
 		release = {},
 	},
+
+	-- ---Checkbox or radio toggle.
+	-- ---@type FOXStencil.Checkbox.Theme
+	-- checkbox = {
+	-- 	-- Styles applied upon creation, same as unhovered + released
+	-- 	normal = {
+	-- 		background = {
+	-- 			-- Default texture
+	-- 			texture = texture,
+
+	-- 			-- Unpressed button UV
+	-- 			uv_pos = sprites.normal.pos,
+	-- 			uv_size = sprites.normal.size,
+	-- 			slice = sprites.normal.slice,
+	-- 		},
+	-- 		label = { text = ":mcb_stone:", pos = vec(3, 4) },
+	-- 		outline = { visible = false },
+	-- 	},
+
+	-- 	-- Hover styles
+	-- 	enter = {
+	-- 		-- Show outline when hovered
+	-- 		outline = { visible = true },
+	-- 	},
+	-- 	leave = {
+	-- 		-- Hide outline when hovered away
+	-- 		outline = { visible = false },
+	-- 	},
+
+	-- 	-- Press styles
+	-- 	press = {},
+	-- 	release = {},
+	-- },
 }
 
 return theme
