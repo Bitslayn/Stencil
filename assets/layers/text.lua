@@ -20,7 +20,7 @@ local default = {
 	offset_width = 0,
 
 	---@type number
-	size = 9,
+	size = 1,
 	---@type Vector2
 	align = vec(0, 0),
 
@@ -45,7 +45,6 @@ function obj:draw()
 	-- Calculate sizing
 
 	local width = self.elem.state.size.x + styles.offset_width
-	local size = styles.size / 9
 	local pos = styles.offset_pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, width / size))
 
 	local visible = styles.text ~= "" and styles.visible

@@ -45,14 +45,14 @@ end
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
 	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
-	local size = label.styles.size / 9
+	local size = label.styles.size
 	elem:setProps({ size_min = vec(client.getTextDimensions(string.gsub(label.styles.text, "%s", "\n"), 0).x * size + 6, 0) })
 end
 
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
 	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
-	local size = label.styles.size / 9
+	local size = label.styles.size
 	return client.getTextDimensions(label.styles.text, (width - 6) / size) * size + vec(6, 6)
 end
 

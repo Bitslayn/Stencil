@@ -37,9 +37,9 @@ end
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
 	local title = elem:getLayer("title") --[[@as FOXStencil.Text]]
-	local title_size = title.styles.size / 9
+	local title_size = title.styles.size
 	local icon = elem:getLayer("icon") --[[@as FOXStencil.Text]]
-	local icon_size = icon.styles.size / 9
+	local icon_size = icon.styles.size
 
 	elem:setProps({ size = vec(client.getTextWidth(icon.styles.text) * icon_size + client.getTextWidth(title.styles.text) * title_size + 6, 0) })
 end
