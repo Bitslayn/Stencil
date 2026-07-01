@@ -19,6 +19,8 @@ obj.__index = obj
 --#REGION ˚♡ Logic ♡˚
 --==============================================================================================================================
 
+-- Text wrapping
+
 ---@type FOXStencil.Element.Events.Draw
 local function draw(elem)
 	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
@@ -36,6 +38,16 @@ end
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Methods ♡˚
 --==============================================================================================================================
+
+---@param styles FOXStencil.Label.Styles
+---@return self
+function obj:setStyles(styles)
+	if select(2, self.elem:setStyles(styles)) then
+		draw(self.elem)
+	end
+
+	return self
+end
 
 ---@param theme FOXStencil.Label.Theme
 ---@return self
