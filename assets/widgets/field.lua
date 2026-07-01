@@ -153,7 +153,7 @@ end
 ---@param state boolean?
 ---@return self
 function obj:setFocus(state)
-	if state then
+	if state and host:isHost() then
 		focus(self)
 	else
 		unfocus(self)
