@@ -110,14 +110,19 @@ function lib.relative_hover(elem, press_state, press_changed, elem_pos, root_pos
 	---@type FOXStencil.Element[]
 	local list = {}
 
-	get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
+	if root.pressed and root.pressed.events.drag then
+		root.pressed.pointer.elem_pos = root.pressed.pointer.elem_pos + move_pos
+		root.pressed.pointer.root_pos = root_pos:copy()
+		root.pressed.pointer.wrld_pos = wrld_pos:copy()
+
+		list = { root.pressed }
+		root.pressed.events.drag(root.pressed, move_pos)
+	else
+		get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
+	end
 
 	for i = 1, #list do
 		if do_hover(list[i], root, i == #list) then break end
-	end
-
-	if root.pressed and root.pressed.events.drag then
-		root.pressed.events.drag(root.pressed, move_pos)
 	end
 
 	if press_changed then
