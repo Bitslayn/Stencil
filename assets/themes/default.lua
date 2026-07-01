@@ -414,13 +414,15 @@ local theme = {
 				offset_pos = vec(0, -2),
 				offset_size = vec(15, 2),
 
-				depth = 2,
+				depth = 1,
 			},
 			outline = {
 				visible = false,
 
 				offset_pos = vec(1, 1),
 				offset_size = vec(-2, -2),
+
+				depth = 0.5,
 			},
 		},
 
