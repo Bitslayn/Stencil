@@ -366,38 +366,83 @@ local theme = {
 		},
 	},
 
-	-- ---Checkbox or radio toggle.
-	-- ---@type FOXStencil.Checkbox.Theme
-	-- checkbox = {
-	-- 	-- Styles applied upon creation, same as unhovered + released
-	-- 	normal = {
-	-- 		background = {
-	-- 			-- Default texture
-	-- 			texture = texture,
+	---@type FOXStencil.Tooltip.Theme
+	tooltip = {
+		-- Styles applied upon creation
+		normal = {
+			background = {
+				-- Default texture
+				texture = texture,
 
-	-- 			-- Unpressed button UV
-	-- 			uv_pos = sprites.normal.pos,
-	-- 			uv_size = sprites.normal.size,
-	-- 			slice = sprites.normal.slice,
-	-- 		},
-	-- 		label = { text = ":mcb_stone:", pos = vec(3, 4) },
-	-- 		outline = { visible = false },
-	-- 	},
+				-- Unpressed button UV
+				uv_pos = sprites.raised.pos,
+				uv_size = sprites.raised.size,
+				slice = sprites.raised.slice,
+			},
+		},
+	},
 
-	-- 	-- Hover styles
-	-- 	enter = {
-	-- 		-- Show outline when hovered
-	-- 		outline = { visible = true },
-	-- 	},
-	-- 	leave = {
-	-- 		-- Hide outline when hovered away
-	-- 		outline = { visible = false },
-	-- 	},
+	---@type FOXStencil.Slider.Theme
+	slider = {
+		-- Styles applied upon creation
+		normal = {
+			background = {
+				-- Default color
+				color = vectors.hexToRGB("#202020"),
 
-	-- 	-- Press styles
-	-- 	press = {},
-	-- 	release = {},
-	-- },
+				-- Default texture
+				texture = texture,
+
+				-- Unpressed button UV
+				uv_pos = sprites.invert.pos,
+				uv_size = sprites.invert.size,
+				slice = sprites.invert.slice,
+
+				offset_pos = vec(1, 1),
+				offset_size = vec(-2, -2),
+			},
+			thumb = {
+				-- Default texture
+				texture = texture,
+
+				-- Unpressed button UV
+				uv_pos = sprites.raised.pos,
+				uv_size = sprites.raised.size,
+				slice = sprites.raised.slice,
+
+				anchor_size = vec(0.25, 1),
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 2),
+
+				depth = 2,
+			},
+			outline = {
+				visible = false,
+
+				offset_pos = vec(1, 1),
+				offset_size = vec(-2, -2),
+			},
+			thumb_outline = {
+				visible = false,
+
+				anchor_size = vec(0.25, 1),
+				offset_pos = vec(0, -2),
+				offset_size = vec(0, 2),
+
+				depth = 2,
+			}
+		},
+
+		-- Hover styles
+		enter = {
+			-- Show outline when hovered
+			outline = { visible = true },
+		},
+		leave = {
+			-- Hide outline when hovered away
+			outline = { visible = false },
+		},
+	},
 }
 
 return theme
