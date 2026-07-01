@@ -1,5 +1,6 @@
----@class FOXStencil.Themes
----@field default FOXStencil.Themes.Default
+--==============================================================================================================================
+--#REGION ˚♡ Texture ♡˚
+--==============================================================================================================================
 
 local texture = textures:read("ui", string.gsub([[
 iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAA
@@ -23,420 +24,491 @@ local sprites = {
 	solid = { pos = vec(3, 7), size = vec(1, 1), slice = vec(0, 0, 0, 0) },
 }
 
----@class FOXStencil.Themes.Default
-local theme = {
-	---Button that extends 2 pixels vertically upwards. Contracts when
-	---pressed and has an outline when hovered over.
-	---@type FOXStencil.Button.Theme
-	button = {
-		-- Styles applied upon creation, same as unhovered + released
-		normal = {
-			background = {
-				-- Default texture
-				texture = texture,
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Generic ♡˚
+--==============================================================================================================================
 
-				-- Unpressed button UV
-				uv_pos = sprites.raised.pos,
-				uv_size = sprites.raised.size,
-				slice = sprites.raised.slice,
+------------------------------------------------------------------------------------------------
+--#REGION ˚♡ Generic > Label ♡˚
+------------------------------------------------------------------------------------------------
 
-				-- Background shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-			},
-			label = {
-				-- Default label text
-				text = "Button",
-
-				-- Label is 6 pixels thinner than element
-				offset_width = -6,
-
-				-- Center label and raise to match background extension
-				align = vec(0.5, 0.5),
-				offset_pos = vec(0, -2),
-			},
-			outline = {
-				-- Hide outline when not hovered
-				visible = false,
-
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-			},
-		},
-
-		-- Hover styles
-		enter = {
-			-- Show outline when hovered
-			outline = { visible = true },
-		},
-		leave = {
-			-- Hide outline when hovered away
-			outline = { visible = false },
-		},
-
-		-- Press styles
-		press = {
-			background = {
-				-- Pressed button UV
-				uv_pos = sprites.normal.pos,
-				uv_size = sprites.normal.size,
-				slice = sprites.normal.slice,
-
-				-- Background shifted vertically, contract bottom by same amount
-				offset_pos = vec(0, 0),
-				offset_size = vec(0, 0),
-			},
-			label = {
-				-- Center label and lower to match background contraction
-				offset_pos = vec(0, 0),
-			},
-			outline = {
-				-- Outline shifted vertically, contract bottom by same amount
-				offset_pos = vec(0, 0),
-				offset_size = vec(0, 0),
-			},
-		},
-		release = {
-			background = {
-				-- Unpressed button UV
-				uv_pos = sprites.raised.pos,
-				uv_size = sprites.raised.size,
-				slice = sprites.raised.slice,
-
-				-- Background shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-			},
-			label = {
-				-- Center label and raise to match background extension
-				offset_pos = vec(0, -2),
-			},
-			outline = {
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-			},
-		},
-	},
-
-	---Just a label.
-	---@type FOXStencil.Label.Theme
-	label = {
-		-- Styles applied upon creation
-		normal = {
-			label = {
-				-- Default text
-				text = "Label",
-			},
-		},
-	},
-
-	---Container with a title and icon.
-	---@type FOXStencil.Window.Theme
-	window = {
-		-- Styles applied upon creation
-		normal = {
-			background = {
-				-- Default color
-				color = vectors.hexToRGB("#3B3B3B"),
-
-				-- Default texture
-				texture = texture,
-
-				-- Container UV
-				uv_pos = sprites.invert.pos,
-				uv_size = sprites.invert.size,
-				slice = sprites.invert.slice,
-
-				-- Align to bottom and size to container height, overlapping toolbar by 1 pixel
-				offset_pos = vec(0, 12),
-				offset_size = vec(0, -12),
-			},
-			toolbar = {
-				-- Default color
-				color = vectors.hexToRGB("#555555"),
-
-				-- Default texture
-				texture = texture,
-
-				-- Normal UV
-				uv_pos = sprites.normal.pos,
-				uv_size = sprites.normal.size,
-				slice = sprites.normal.slice,
-
-				-- Align to top and size to 13 pixels
-				anchor_size = vec(1, 0),
-				offset_size = vec(0, 13),
-			},
-			title = {
-				-- Default title text
-				text = "Window",
-
-				---Center align
-				offset_pos = vec(0, 3),
-				align = vec(0.5, 0),
-			},
-			icon = {
-				-- Default icon emoji
-				text = ":paper:",
-
-				-- Left align
-				offset_pos = vec(3, 3),
-				align = vec(0, 0),
-			},
-		},
-	},
-
-	---Button that extends 2 pixels vertically upwards. Contracts when
-	---pressed and has an outline when hovered over.
-	---@type FOXStencil.Toggle.Theme
-	toggle = {
-		-- Styles applied upon creation, same as unhovered + released
-		normal = {
-			background = {
-				-- Default texture
-				texture = texture,
-
-				-- Unpressed button UV
-				uv_pos = sprites.raised.pos,
-				uv_size = sprites.raised.size,
-				slice = sprites.raised.slice,
-
-				-- Background shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-			},
-			label = {
-				-- Default label text
-				text = "Toggle",
-
-				-- Label is 6 pixels thinner than element
-				offset_width = -6,
-
-				-- Center label and raise to match background extension
-				align = vec(0.5, 0.5),
-				offset_pos = vec(0, -2),
-			},
-			outline = {
-				-- Hide outline when not hovered
-				visible = false,
-
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 0),
-			},
-		},
-
-		-- Hover styles
-		enter = {
-			-- Show outline when hovered
-			outline = { visible = true },
-		},
-		leave = {
-			-- Hide outline when hovered away
-			outline = { visible = false },
-		},
-
-		-- Press styles
-		press = {
-			background = {
-				-- Pressed button UV
-				uv_pos = sprites.normal.pos,
-				uv_size = sprites.normal.size,
-				slice = sprites.normal.slice,
-
-				-- Background shifted vertically, contract bottom by same amount
-				offset_pos = vec(0, 0),
-				offset_size = vec(0, 0),
-			},
-			label = {
-				-- Center label and lower to match background contraction
-				offset_pos = vec(0, 0),
-			},
-			outline = {
-				-- Outline shifted vertically, contract bottom by same amount
-				offset_pos = vec(0, 0),
-				offset_size = vec(0, -2),
-			},
-		},
-		release = {
-			background = {
-				-- Unpressed button UV
-				uv_pos = sprites.raised.pos,
-				uv_size = sprites.raised.size,
-				slice = sprites.raised.slice,
-
-				-- Background shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-			},
-			label = {
-				-- Center label and raise to match background extension
-				offset_pos = vec(0, -2),
-			},
-			outline = {
-				-- Outline shifted vertically, extend bottom by same amount
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 0),
-			},
-		},
-	},
-
-	---@type FOXStencil.Field.Theme
-	field = {
-		-- Styles applied upon creation, same as unhovered + released
-		normal = {
-			background = {
-				-- Default color
-				color = vectors.hexToRGB("#202020"),
-
-				-- Default texture
-				texture = texture,
-
-				-- Background UV
-				uv_pos = sprites.simple.pos,
-				uv_size = sprites.simple.size,
-				slice = sprites.simple.slice,
-			},
-			hint = {
-				-- Default label text
-				text = "§8Textbox",
-
-				-- Label is 6 pixels thinner than element
-				offset_width = -6,
-
-				-- Center label
-				offset_pos = vec(3, 3),
-			},
-			text = {
-				-- Label is 6 pixels thinner than element
-				offset_width = -6,
-
-				-- Center label
-				offset_pos = vec(3, 3),
-			},
-			outline = {
-				-- Hide outline when not hovered
-				visible = false,
-			},
-			caret = {
-				-- Default texture
-				texture = texture,
-
-				-- Caret UV
-				uv_pos = sprites.solid.pos,
-				uv_size = sprites.solid.size,
-
-				-- Caret size and position
-				depth = 2,
-				offset_pos = vec(3, 3),
-				anchor_size = vec(0, 0),
-				offset_size = vec(1, 9),
-
-				-- Hide caret when not focused
-				visible = false,
-			},
-			select = {
-				-- Default color
-				color = vectors.hexToRGB("blue"):augmented(0.3),
-
-				-- Default texture
-				texture = texture,
-
-				-- Select UV
-				uv_pos = sprites.solid.pos,
-				uv_size = sprites.solid.size,
-
-				-- Select size and position
-				depth = 1,
-				offset_pos = vec(3, 2),
-				anchor_size = vec(0, 0),
-			},
-		},
-
-		-- Hover styles
-		enter = {
-			-- Show outline when hovered
-			outline = { visible = true },
-		},
-		leave = {
-			-- Hide outline when hovered away
-			outline = { visible = false },
-		},
-	},
-
-	---@type FOXStencil.Tooltip.Theme
-	tooltip = {
-		-- Styles applied upon creation
-		normal = {
-			background = {
-				-- Default texture
-				texture = texture,
-
-				-- Unpressed button UV
-				uv_pos = sprites.raised.pos,
-				uv_size = sprites.raised.size,
-				slice = sprites.raised.slice,
-			},
-		},
-	},
-
-	---@type FOXStencil.Slider.Theme
-	slider = {
-		-- Styles applied upon creation
-		normal = {
-			background = {
-				-- Default color
-				color = vectors.hexToRGB("#202020"),
-
-				-- Default texture
-				texture = texture,
-
-				-- Unpressed button UV
-				uv_pos = sprites.invert.pos,
-				uv_size = sprites.invert.size,
-				slice = sprites.invert.slice,
-
-				offset_pos = vec(1, 1),
-				offset_size = vec(-2, -2),
-			},
-			thumb = {
-				-- Default texture
-				texture = texture,
-
-				-- Unpressed button UV
-				uv_pos = sprites.raised.pos,
-				uv_size = sprites.raised.size,
-				slice = sprites.raised.slice,
-
-				anchor_size = vec(0, 1),
-				offset_pos = vec(0, -2),
-				offset_size = vec(10, 2),
-
-				depth = 1,
-			},
-			outline = {
-				visible = false,
-
-				anchor_size = vec(0, 1),
-				offset_pos = vec(0, -2),
-				offset_size = vec(10, 2),
-
-				depth = 0.5,
-			},
-		},
-
-		-- Hover styles
-		enter = {
-			-- Show outline when hovered
-			outline = { visible = true },
-		},
-		leave = {
-			-- Hide outline when hovered away
-			outline = { visible = false },
+---Just a label.
+---@type FOXStencil.Label.Theme
+local label = {
+	-- Styles applied upon creation
+	normal = {
+		label = {
+			-- Default text
+			text = "Label",
 		},
 	},
 }
 
+--#ENDREGION
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Input ♡˚
+--==============================================================================================================================
+
+------------------------------------------------------------------------------------------------
+--#REGION ˚♡ Input > Button ♡˚
+------------------------------------------------------------------------------------------------
+
+---Button that extends 2 pixels vertically upwards. Contracts when
+---pressed and has an outline when hovered over.
+---@type FOXStencil.Button.Theme
+local button = {
+	-- Styles applied upon creation, same as unhovered + released
+	normal = {
+		background = {
+			-- Default texture
+			texture = texture,
+
+			-- Unpressed button UV
+			uv_pos = sprites.raised.pos,
+			uv_size = sprites.raised.size,
+			slice = sprites.raised.slice,
+
+			-- Background shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+		label = {
+			-- Default label text
+			text = "Button",
+
+			-- Label is 6 pixels thinner than element
+			offset_width = -6,
+
+			-- Center label and raise to match background extension
+			align = vec(0.5, 0.5),
+			offset_pos = vec(0, -2),
+		},
+		outline = {
+			-- Hide outline when not hovered
+			visible = false,
+
+			-- Outline shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+	},
+
+	-- Hover styles
+	enter = {
+		-- Show outline when hovered
+		outline = { visible = true },
+	},
+	leave = {
+		-- Hide outline when hovered away
+		outline = { visible = false },
+	},
+
+	-- Press styles
+	press = {
+		background = {
+			-- Pressed button UV
+			uv_pos = sprites.normal.pos,
+			uv_size = sprites.normal.size,
+			slice = sprites.normal.slice,
+
+			-- Background shifted vertically, contract bottom by same amount
+			offset_pos = vec(0, 0),
+			offset_size = vec(0, 0),
+		},
+		label = {
+			-- Center label and lower to match background contraction
+			offset_pos = vec(0, 0),
+		},
+		outline = {
+			-- Outline shifted vertically, contract bottom by same amount
+			offset_pos = vec(0, 0),
+			offset_size = vec(0, 0),
+		},
+	},
+	release = {
+		background = {
+			-- Unpressed button UV
+			uv_pos = sprites.raised.pos,
+			uv_size = sprites.raised.size,
+			slice = sprites.raised.slice,
+
+			-- Background shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+		label = {
+			-- Center label and raise to match background extension
+			offset_pos = vec(0, -2),
+		},
+		outline = {
+			-- Outline shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+	},
+}
+
+--#ENDREGION -----------------------------------------------------------------------------------
+--#REGION ˚♡ Input > Field ♡˚
+------------------------------------------------------------------------------------------------
+
+---@type FOXStencil.Field.Theme
+local field = {
+	-- Styles applied upon creation, same as unhovered + released
+	normal = {
+		background = {
+			-- Default color
+			color = vectors.hexToRGB("#202020"),
+
+			-- Default texture
+			texture = texture,
+
+			-- Background UV
+			uv_pos = sprites.simple.pos,
+			uv_size = sprites.simple.size,
+			slice = sprites.simple.slice,
+		},
+		hint = {
+			-- Default label text
+			text = "§8Textbox",
+
+			-- Label is 6 pixels thinner than element
+			offset_width = -6,
+
+			-- Center label
+			offset_pos = vec(3, 3),
+		},
+		text = {
+			-- Label is 6 pixels thinner than element
+			offset_width = -6,
+
+			-- Center label
+			offset_pos = vec(3, 3),
+		},
+		outline = {
+			-- Hide outline when not hovered
+			visible = false,
+		},
+		caret = {
+			-- Default texture
+			texture = texture,
+
+			-- Caret UV
+			uv_pos = sprites.solid.pos,
+			uv_size = sprites.solid.size,
+
+			-- Caret size and position
+			depth = 2,
+			offset_pos = vec(3, 3),
+			anchor_size = vec(0, 0),
+			offset_size = vec(1, 9),
+
+			-- Hide caret when not focused
+			visible = false,
+		},
+		select = {
+			-- Default color
+			color = vectors.hexToRGB("blue"):augmented(0.3),
+
+			-- Default texture
+			texture = texture,
+
+			-- Select UV
+			uv_pos = sprites.solid.pos,
+			uv_size = sprites.solid.size,
+
+			-- Select size and position
+			depth = 1,
+			offset_pos = vec(3, 2),
+			anchor_size = vec(0, 0),
+		},
+	},
+
+	-- Hover styles
+	enter = {
+		-- Show outline when hovered
+		outline = { visible = true },
+	},
+	leave = {
+		-- Hide outline when hovered away
+		outline = { visible = false },
+	},
+}
+
+--#ENDREGION -----------------------------------------------------------------------------------
+--#REGION ˚♡ Input > Slider ♡˚
+------------------------------------------------------------------------------------------------
+
+---@type FOXStencil.Slider.Theme
+local slider = {
+	-- Styles applied upon creation
+	normal = {
+		background = {
+			-- Default color
+			color = vectors.hexToRGB("#202020"),
+
+			-- Default texture
+			texture = texture,
+
+			-- Unpressed button UV
+			uv_pos = sprites.invert.pos,
+			uv_size = sprites.invert.size,
+			slice = sprites.invert.slice,
+
+			offset_pos = vec(1, 1),
+			offset_size = vec(-2, -2),
+		},
+		thumb = {
+			-- Default texture
+			texture = texture,
+
+			-- Unpressed button UV
+			uv_pos = sprites.raised.pos,
+			uv_size = sprites.raised.size,
+			slice = sprites.raised.slice,
+
+			anchor_size = vec(0, 1),
+			offset_pos = vec(0, -2),
+			offset_size = vec(10, 2),
+
+			depth = 1,
+		},
+		outline = {
+			visible = false,
+
+			anchor_size = vec(0, 1),
+			offset_pos = vec(0, -2),
+			offset_size = vec(10, 2),
+
+			depth = 0.5,
+		},
+	},
+
+	-- Hover styles
+	enter = {
+		-- Show outline when hovered
+		outline = { visible = true },
+	},
+	leave = {
+		-- Hide outline when hovered away
+		outline = { visible = false },
+	},
+}
+
+--#ENDREGION -----------------------------------------------------------------------------------
+--#REGION ˚♡ Input > Toggle ♡˚
+------------------------------------------------------------------------------------------------
+
+---Button that extends 2 pixels vertically upwards. Contracts when
+---pressed and has an outline when hovered over.
+---@type FOXStencil.Toggle.Theme
+local toggle = {
+	-- Styles applied upon creation, same as unhovered + released
+	normal = {
+		background = {
+			-- Default texture
+			texture = texture,
+
+			-- Unpressed button UV
+			uv_pos = sprites.raised.pos,
+			uv_size = sprites.raised.size,
+			slice = sprites.raised.slice,
+
+			-- Background shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+		label = {
+			-- Default label text
+			text = "Toggle",
+
+			-- Label is 6 pixels thinner than element
+			offset_width = -6,
+
+			-- Center label and raise to match background extension
+			align = vec(0.5, 0.5),
+			offset_pos = vec(0, -2),
+		},
+		outline = {
+			-- Hide outline when not hovered
+			visible = false,
+
+			-- Outline shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+	},
+
+	-- Hover styles
+	enter = {
+		-- Show outline when hovered
+		outline = { visible = true },
+	},
+	leave = {
+		-- Hide outline when hovered away
+		outline = { visible = false },
+	},
+
+	-- Press styles
+	press = {
+		background = {
+			-- Pressed button UV
+			uv_pos = sprites.normal.pos,
+			uv_size = sprites.normal.size,
+			slice = sprites.normal.slice,
+
+			-- Background shifted vertically, contract bottom by same amount
+			offset_pos = vec(0, 0),
+			offset_size = vec(0, 0),
+		},
+		label = {
+			-- Center label and lower to match background contraction
+			offset_pos = vec(0, 0),
+		},
+		outline = {
+			-- Outline shifted vertically, contract bottom by same amount
+			offset_pos = vec(0, 0),
+			offset_size = vec(0, 0),
+		},
+	},
+	release = {
+		background = {
+			-- Unpressed button UV
+			uv_pos = sprites.raised.pos,
+			uv_size = sprites.raised.size,
+			slice = sprites.raised.slice,
+
+			-- Background shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+		label = {
+			-- Center label and raise to match background extension
+			offset_pos = vec(0, -2),
+		},
+		outline = {
+			-- Outline shifted vertically, extend bottom by same amount
+			offset_pos = vec(0, -2),
+			offset_size = vec(0, 2),
+		},
+	},
+}
+
+--#ENDREGION
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Layout ♡˚
+--==============================================================================================================================
+
+------------------------------------------------------------------------------------------------
+--#REGION ˚♡ Layout > Tooltip ♡˚
+------------------------------------------------------------------------------------------------
+
+---@type FOXStencil.Tooltip.Theme
+local tooltip = {
+	-- Styles applied upon creation
+	normal = {
+		background = {
+			-- Default texture
+			texture = texture,
+
+			-- Unpressed button UV
+			uv_pos = sprites.raised.pos,
+			uv_size = sprites.raised.size,
+			slice = sprites.raised.slice,
+		},
+	},
+}
+
+--#ENDREGION -----------------------------------------------------------------------------------
+--#REGION ˚♡ Layout > Window ♡˚
+------------------------------------------------------------------------------------------------
+
+---Container with a title and icon.
+---@type FOXStencil.Window.Theme
+local window = {
+	-- Styles applied upon creation
+	normal = {
+		background = {
+			-- Default color
+			color = vectors.hexToRGB("#3B3B3B"),
+
+			-- Default texture
+			texture = texture,
+
+			-- Container UV
+			uv_pos = sprites.invert.pos,
+			uv_size = sprites.invert.size,
+			slice = sprites.invert.slice,
+
+			-- Align to bottom and size to container height, overlapping toolbar by 1 pixel
+			offset_pos = vec(0, 12),
+			offset_size = vec(0, -12),
+		},
+		toolbar = {
+			-- Default color
+			color = vectors.hexToRGB("#555555"),
+
+			-- Default texture
+			texture = texture,
+
+			-- Normal UV
+			uv_pos = sprites.normal.pos,
+			uv_size = sprites.normal.size,
+			slice = sprites.normal.slice,
+
+			-- Align to top and size to 13 pixels
+			anchor_size = vec(1, 0),
+			offset_size = vec(0, 13),
+		},
+		title = {
+			-- Default title text
+			text = "Window",
+
+			---Center align
+			offset_pos = vec(0, 3),
+			align = vec(0.5, 0),
+		},
+		icon = {
+			-- Default icon emoji
+			text = ":paper:",
+
+			-- Left align
+			offset_pos = vec(3, 3),
+			align = vec(0, 0),
+		},
+	},
+}
+
+--#ENDREGION
+
+--#ENDREGION --=================================================================================================================
+--#REGION ˚♡ Class ♡˚
+--==============================================================================================================================
+
+---@class FOXStencil.Themes
+---@field default FOXStencil.Themes.Default
+
+---@class FOXStencil.Themes.Default
+local theme = {
+	-- Generic
+
+	label = label,
+
+	-- Input
+
+	button = button,
+	field = field,
+	slider = slider,
+	toggle = toggle,
+
+	-- Layout
+
+	tooltip = tooltip,
+	window = window,
+}
+
 return theme
+
+--#ENDREGION
