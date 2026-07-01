@@ -12,7 +12,7 @@ local obj = {}
 obj.__index = obj
 
 ---@class FOXStencil.Slice.Styles
-local default = {
+local default_styles = {
 	---@type Texture
 	texture = nil,
 	---@type Vector3|Vector4
@@ -49,6 +49,14 @@ local default = {
 
 	---@type boolean
 	visible = true,
+}
+
+---@class FOXStencil.Slice.State
+local default_state = {
+	---@type Vector2
+	pos = vec(0, 0),
+	---@type Vector2
+	size = vec(0, 0),
 }
 
 ---@param atlas_len number
@@ -107,13 +115,14 @@ function obj:draw()
 
 	-- Calculate sizing
 
-	local pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
-	local size = styles.anchor_size * self.elem.state.size + styles.offset_size
+	local state = self.state
+	state.pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
+	state.size = styles.anchor_size * self.elem.state.size + styles.offset_size
 
 	-- Calculate slices
 
 	local atlas_w, atlas_h = styles.uv_size:unpack()
-	local model_w, model_h = size:unpack()
+	local model_w, model_h = state.size:unpack()
 
 	local slice_t, slice_r, slice_b, slice_l = styles.slice:unpack()
 
@@ -127,7 +136,7 @@ function obj:draw()
 
 	local dim = styles.texture:getDimensions()
 
-	self.pivot:pos(-pos:augmented(styles.depth))
+	self.pivot:pos(-state.pos:augmented(styles.depth))
 
 	for y = 1, 3 do
 		for x = 1, 3 do
@@ -190,7 +199,8 @@ return function(part, elem)
 	local self = {
 		pivot = pivot,
 		cells = cells,
-		styles = setmetatable({}, { __index = default }),
+		styles = setmetatable({}, { __index = default_styles }),
+		state = setmetatable({}, { __index = default_state }),
 		elem = elem,
 	}
 

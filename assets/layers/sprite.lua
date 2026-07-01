@@ -12,7 +12,7 @@ local obj = {}
 obj.__index = obj
 
 ---@class FOXStencil.Sprite.Styles
-local default = {
+local default_styles = {
 	---@type Texture
 	texture = nil,
 	---@type Vector3|Vector4
@@ -41,6 +41,14 @@ local default = {
 	visible = true,
 }
 
+---@class FOXStencil.Sprite.State
+local default_state = {
+	---@type Vector2
+	pos = vec(0, 0),
+	---@type Vector2
+	size = vec(0, 0),
+}
+
 ---Redraws this label
 function obj:draw()
 	local styles = self.styles
@@ -48,20 +56,21 @@ function obj:draw()
 
 	-- Calculate sizing
 
-	local pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
-	local size = styles.anchor_size * self.elem.state.size + styles.offset_size
+	local state = self.state
+	state.pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
+	state.size = styles.anchor_size * self.elem.state.size + styles.offset_size
 
 	local dim = styles.texture:getDimensions()
 
-	local visible = 0 < size:length() and styles.visible
+	local visible = 0 < state.size:length() and styles.visible
 
 	if visible then
 		self.task
 			:uv(styles.uv_pos / dim)
-			:region((styles.grid and size or styles.uv_size) * 1000)
+			:region((styles.grid and state.size or styles.uv_size) * 1000)
 
-			:pos(-pos:augmented(styles.depth))
-			:scale(size:augmented())
+			:pos(-state.pos:augmented(styles.depth))
+			:scale(state.size:augmented())
 
 			:dimensions(dim * 1000)
 			:texture(styles.texture)
@@ -101,7 +110,8 @@ return function(part, elem)
 		task = part:newSprite("sprite-" .. math.random())
 			:size(1, 1)
 			:renderType("CUTOUT_EMISSIVE_SOLID"),
-		styles = setmetatable({}, { __index = default }),
+		styles = setmetatable({}, { __index = default_styles }),
+		state = setmetatable({}, { __index = default_state }),
 		elem = elem,
 	}
 

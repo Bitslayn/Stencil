@@ -12,7 +12,7 @@ local obj = {}
 obj.__index = obj
 
 ---@class FOXStencil.Border.Styles
-local default = {
+local default_styles = {
 	---@type Vector3|Vector4
 	color = vec(1, 1, 1, 1),
 
@@ -34,6 +34,14 @@ local default = {
 	visible = true,
 }
 
+---@class FOXStencil.Border.State
+local default_state = {
+	---@type Vector2
+	pos = vec(0, 0),
+	---@type Vector2
+	size = vec(0, 0)
+}
+
 local text_offset = matrices.scale4(1, 1 / 10, 1)
 	* matrices.translate4(-1, -1, 0)
 
@@ -43,14 +51,15 @@ function obj:draw()
 
 	-- Calculate sizing
 
-	local pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
-	local size = styles.anchor_size * self.elem.state.size + styles.offset_size
+	local state = self.state
+	state.pos = styles.anchor_pos * self.elem.state.size + styles.offset_pos
+	state.size = styles.anchor_size * self.elem.state.size + styles.offset_size
 
 	local weight = styles.weight
 
 	local w_t, w_r, w_b, w_l = weight, weight, weight, weight
 
-	local w, h = size:unpack()
+	local w, h = state.size:unpack()
 
 	local mats = {
 		-- Top
@@ -75,7 +84,7 @@ function obj:draw()
 
 		if visible then
 			self.tasks[i]
-				:matrix(matrices.translate4(-pos:augmented(styles.depth)) * mats[i] * text_offset)
+				:matrix(matrices.translate4(-state.pos:augmented(styles.depth)) * mats[i] * text_offset)
 				:backgroundColor(styles.color)
 		end
 
@@ -115,7 +124,8 @@ return function(part, elem)
 	---@class FOXStencil.Border
 	local self = {
 		tasks = tasks,
-		styles = setmetatable({}, { __index = default }),
+		styles = setmetatable({}, { __index = default_styles }),
+		state = setmetatable({}, { __index = default_state }),
 		elem = elem,
 	}
 

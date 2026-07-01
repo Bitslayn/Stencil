@@ -10,7 +10,7 @@ local obj = {}
 obj.__index = obj
 
 ---@class FOXStencil.Text.Styles
-local default = {
+local default_styles = {
 	---@type string
 	text = "",
 
@@ -38,24 +38,33 @@ local default = {
 	visible = true,
 }
 
+---@class FOXStencil.Text.State
+local default_state = {
+	---@type Vector2
+	pos = vec(0, 0),
+	---@type number
+	width = 0,
+}
+
 ---Redraws this text
 function obj:draw()
 	local styles = self.styles
 
 	-- Calculate sizing
 
-	local width = self.elem.state.size.x + styles.offset_width
-	local pos = styles.offset_pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, width / size))
+	local state = self.state
+	state.width = self.elem.state.size.x + styles.offset_width
+	state.pos = styles.offset_pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, state.width / styles.size))
 
 	local visible = styles.text ~= "" and styles.visible
 
 	if visible then
 		self.task
 			:text(styles.text)
-			:width(width / size)
+			:width(state.width / styles.size)
 
-			:pos(-pos:augmented(styles.depth))
-			:scale(size)
+			:pos(-state.pos:augmented(styles.depth))
+			:scale(styles.size)
 
 			:setOutline(styles.outline_state)
 			:outlineColor(styles.outline)
@@ -93,7 +102,8 @@ return function(part, elem)
 	---@class FOXStencil.Text
 	local self = {
 		task = part:newText("text-" .. math.random()):light(15),
-		styles = setmetatable({}, { __index = default }),
+		styles = setmetatable({}, { __index = default_styles }),
+		state = setmetatable({}, { __index = default_state }),
 		elem = elem,
 	}
 
