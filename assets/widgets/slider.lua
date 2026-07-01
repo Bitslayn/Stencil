@@ -37,12 +37,7 @@ local function drag(elem)
 	local thumb = elem:getLayer("thumb") --[[@as FOXStencil.Slice]]
 
 	local pos = (elem.pointer.elem_pos / elem.state.size).x - thumb.styles.anchor_size.x / 2
-	pos = math.clamp(pos, 0, 1 - thumb.styles.anchor_size.x)
-	local progress = pos / (1 - thumb.styles.anchor_size.x)
-
-	host:actionbar(tostring(progress))
-
-	thumb:setStyles({ anchor_pos = vec(pos, 0) })
+	thumb:setStyles({ anchor_pos = vec(math.clamp(pos, 0, 1 - thumb.styles.anchor_size.x), 0) })
 end
 
 --#ENDREGION --=================================================================================================================
@@ -55,6 +50,14 @@ function obj:setTheme(theme)
 	self.theme = theme
 	self.elem:setStyles(theme.normal)
 	return self
+end
+
+---@return number
+function obj:getProgress()
+	local thumb = self.elem:getLayer("thumb") --[[@as FOXStencil.Slice]]
+
+	return thumb.styles.anchor_pos.x / (1 - thumb.styles.anchor_size.x)
+
 end
 
 --#ENDREGION --=================================================================================================================
