@@ -1,3 +1,5 @@
+require("./layout/misc/patches")
+
 local assets = require("./assets/assets") --[[@as FOXStencil.Assets]]
 
 ---@class FOXStencil
