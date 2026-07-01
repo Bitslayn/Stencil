@@ -54,7 +54,9 @@ function obj:draw()
 
 	local state = self.state
 	state.width = self.elem.state.size.x + styles.offset_width
-	state.pos = styles.offset_pos + styles.align * (self.elem.state.size - client.getTextDimensions(styles.text, state.width / styles.size))
+	state.pos = styles.offset_pos
+		+ styles.align
+		* (self.elem.state.size - client.getTextDimensions(styles.text, state.width / styles.size) * styles.size)
 
 	local visible = styles.text ~= "" and styles.visible
 
