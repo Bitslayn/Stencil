@@ -42,7 +42,7 @@ local theme = {
 
 				-- Background shifted vertically, extend bottom by same amount
 				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
+				offset_size = vec(0, 0),
 			},
 			label = {
 				-- Default label text
@@ -85,7 +85,7 @@ local theme = {
 
 				-- Background shifted vertically, contract bottom by same amount
 				offset_pos = vec(0, 0),
-				offset_size = vec(0, 0),
+				offset_size = vec(0, -2),
 			},
 			label = {
 				-- Center label and lower to match background contraction
@@ -106,7 +106,7 @@ local theme = {
 
 				-- Background shifted vertically, extend bottom by same amount
 				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
+				offset_size = vec(0, 0),
 			},
 			label = {
 				-- Center label and raise to match background extension
@@ -412,15 +412,16 @@ local theme = {
 
 				anchor_size = vec(0, 1),
 				offset_pos = vec(0, -2),
-				offset_size = vec(15, 2),
+				offset_size = vec(10, 2),
 
 				depth = 1,
 			},
 			outline = {
 				visible = false,
 
-				offset_pos = vec(1, 1),
-				offset_size = vec(-2, -2),
+				anchor_size = vec(0, 1),
+				offset_pos = vec(0, -2),
+				offset_size = vec(10, 2),
 
 				depth = 0.5,
 			},

@@ -36,6 +36,7 @@ local function press() end
 local function drag(elem)
 	local widg = elem.widg --[[@as FOXStencil.Slider]]
 	local thumb = elem:getLayer("thumb") --[[@as FOXStencil.Slice]]
+	local outline = elem:getLayer("outline") --[[@as FOXStencil.Border]]
 
 	local pointer_pos = elem.pointer.elem_pos.x
 	local gutter_size = elem.state.size.x
@@ -50,6 +51,7 @@ local function drag(elem)
 
 	pos = pos * (1 - thumb_size)
 	thumb:setStyles({ anchor_pos = vec(pos, 0) })
+	outline:setStyles({ anchor_pos = vec(pos, 0) })
 end
 
 --#ENDREGION --=================================================================================================================
