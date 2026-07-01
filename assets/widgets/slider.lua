@@ -34,10 +34,22 @@ local function press() end
 
 ---@type FOXStencil.Element.Events.Drag
 local function drag(elem)
+	local widg = elem.widg --[[@as FOXStencil.Slider]]
 	local thumb = elem:getLayer("thumb") --[[@as FOXStencil.Slice]]
 
-	local pos = (elem.pointer.elem_pos / elem.state.size).x - thumb.styles.anchor_size.x / 2
-	thumb:setStyles({ anchor_pos = vec(math.clamp(pos, 0, 1 - thumb.styles.anchor_size.x), 0) })
+	local pointer_pos = elem.pointer.elem_pos.x
+	local gutter_size = elem.state.size.x
+	local thumb_size = thumb.state.size.x / gutter_size
+	local steps = widg.steps - 1
+
+	local pos = pointer_pos / gutter_size - thumb_size / 2
+	pos = pos / (1 - thumb_size)
+
+	pos = math.round(pos * steps) / steps
+	pos = math.clamp(pos, 0, 1)
+
+	pos = pos * (1 - thumb_size)
+	thumb:setStyles({ anchor_pos = vec(pos, 0) })
 end
 
 --#ENDREGION --=================================================================================================================
@@ -57,7 +69,6 @@ function obj:getProgress()
 	local thumb = self.elem:getLayer("thumb") --[[@as FOXStencil.Slice]]
 
 	return thumb.styles.anchor_pos.x / (1 - thumb.styles.anchor_size.x)
-
 end
 
 --#ENDREGION --=================================================================================================================
@@ -73,6 +84,7 @@ return function(parent, name, assets)
 	local widg = {
 		elem = elem,
 		theme = assets.themes.default.slider,
+		steps = 3
 	}
 	elem.widg = widg
 

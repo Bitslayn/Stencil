@@ -410,9 +410,9 @@ local theme = {
 				uv_size = sprites.raised.size,
 				slice = sprites.raised.slice,
 
-				anchor_size = vec(0.25, 1),
+				anchor_size = vec(0, 1),
 				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
+				offset_size = vec(15, 2),
 
 				depth = 2,
 			},
@@ -422,15 +422,6 @@ local theme = {
 				offset_pos = vec(1, 1),
 				offset_size = vec(-2, -2),
 			},
-			thumb_outline = {
-				visible = false,
-
-				anchor_size = vec(0.25, 1),
-				offset_pos = vec(0, -2),
-				offset_size = vec(0, 2),
-
-				depth = 2,
-			}
 		},
 
 		-- Hover styles
