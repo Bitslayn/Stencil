@@ -1,5 +1,5 @@
 --==============================================================================================================================
---#REGION ˚♡ Texture ♡˚
+--#REGION ˚♡ Shared ♡˚
 --==============================================================================================================================
 
 local texture = textures:read("ui", string.gsub([[
@@ -9,7 +9,7 @@ BBK8ePEiigJ0PthNjo6OcBP279+P4UIWbG6eOHEiXDg/P58B
 rAibbn9/fwaQtSDVTA8ePGAAORrEAbFhRsAUgPiMGzZsAIcT
 yFhcwQUAmJVDEzzGSxcAAAAASUVORK5CYII=]], "%s", ""))
 
-local sprites = {
+local uv = {
 	---UV typically used for pressed buttons. Considers itself average compared to the other sprites.
 	normal = { pos = vec(4, 0), size = vec(5, 5), slice = vec(2, 2, 2, 2) },
 	---UV typically used for unpressed buttons. It stands there proudly waiting to be pressed.
@@ -23,6 +23,10 @@ local sprites = {
 	---UV that is just a solid white pixel.
 	solid = { pos = vec(3, 7), size = vec(1, 1), slice = vec(0, 0, 0, 0) },
 }
+
+local button_extend = vec(0, 2)
+local label_gutter = 3
+local label_margin = vec(3, 3)
 
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Generic ♡˚
@@ -65,32 +69,32 @@ local button = {
 			texture = texture,
 
 			-- Unpressed button UV
-			uv_pos = sprites.raised.pos,
-			uv_size = sprites.raised.size,
-			slice = sprites.raised.slice,
+			uv_pos = uv.raised.pos,
+			uv_size = uv.raised.size,
+			slice = uv.raised.slice,
 
 			-- Background shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 		label = {
 			-- Default label text
 			text = "Button",
 
 			-- Label is 6 pixels thinner than element
-			offset_width = -6,
+			offset_width = -label_gutter * 2,
 
 			-- Center label and raise to match background extension
 			align = vec(0.5, 0.5),
-			offset_pos = vec(0, -2),
+			offset_pos = -button_extend,
 		},
 		outline = {
 			-- Hide outline when not hovered
 			visible = false,
 
 			-- Outline shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 	},
 
@@ -108,9 +112,9 @@ local button = {
 	press = {
 		background = {
 			-- Pressed button UV
-			uv_pos = sprites.normal.pos,
-			uv_size = sprites.normal.size,
-			slice = sprites.normal.slice,
+			uv_pos = uv.normal.pos,
+			uv_size = uv.normal.size,
+			slice = uv.normal.slice,
 
 			-- Background shifted vertically, contract bottom by same amount
 			offset_pos = vec(0, 0),
@@ -129,22 +133,22 @@ local button = {
 	release = {
 		background = {
 			-- Unpressed button UV
-			uv_pos = sprites.raised.pos,
-			uv_size = sprites.raised.size,
-			slice = sprites.raised.slice,
+			uv_pos = uv.raised.pos,
+			uv_size = uv.raised.size,
+			slice = uv.raised.slice,
 
 			-- Background shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 		label = {
 			-- Center label and raise to match background extension
-			offset_pos = vec(0, -2),
+			offset_pos = -button_extend,
 		},
 		outline = {
 			-- Outline shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 	},
 }
@@ -165,26 +169,26 @@ local field = {
 			texture = texture,
 
 			-- Background UV
-			uv_pos = sprites.simple.pos,
-			uv_size = sprites.simple.size,
-			slice = sprites.simple.slice,
+			uv_pos = uv.simple.pos,
+			uv_size = uv.simple.size,
+			slice = uv.simple.slice,
 		},
 		hint = {
 			-- Default label text
 			text = "§8Textbox",
 
 			-- Label is 6 pixels thinner than element
-			offset_width = -6,
+			offset_width = -label_gutter * 2,
 
 			-- Center label
-			offset_pos = vec(3, 3),
+			offset_pos = label_margin,
 		},
 		text = {
 			-- Label is 6 pixels thinner than element
-			offset_width = -6,
+			offset_width = -label_gutter * 2,
 
 			-- Center label
-			offset_pos = vec(3, 3),
+			offset_pos = label_margin,
 		},
 		outline = {
 			-- Hide outline when not hovered
@@ -195,12 +199,12 @@ local field = {
 			texture = texture,
 
 			-- Caret UV
-			uv_pos = sprites.solid.pos,
-			uv_size = sprites.solid.size,
+			uv_pos = uv.solid.pos,
+			uv_size = uv.solid.size,
 
 			-- Caret size and position
-			depth = 2,
-			offset_pos = vec(3, 3),
+			depth = 1,
+			offset_pos = label_margin,
 			anchor_size = vec(0, 0),
 			offset_size = vec(1, 9),
 
@@ -215,12 +219,12 @@ local field = {
 			texture = texture,
 
 			-- Select UV
-			uv_pos = sprites.solid.pos,
-			uv_size = sprites.solid.size,
+			uv_pos = uv.solid.pos,
+			uv_size = uv.solid.size,
 
 			-- Select size and position
-			depth = 1,
-			offset_pos = vec(3, 2),
+			depth = 0.5,
+			offset_pos = label_margin - vec(0, 1),
 			anchor_size = vec(0, 0),
 		},
 	},
@@ -252,9 +256,9 @@ local slider = {
 			texture = texture,
 
 			-- Unpressed button UV
-			uv_pos = sprites.invert.pos,
-			uv_size = sprites.invert.size,
-			slice = sprites.invert.slice,
+			uv_pos = uv.invert.pos,
+			uv_size = uv.invert.size,
+			slice = uv.invert.slice,
 
 			offset_pos = vec(1, 1),
 			offset_size = vec(-2, -2),
@@ -264,13 +268,13 @@ local slider = {
 			texture = texture,
 
 			-- Unpressed button UV
-			uv_pos = sprites.raised.pos,
-			uv_size = sprites.raised.size,
-			slice = sprites.raised.slice,
+			uv_pos = uv.raised.pos,
+			uv_size = uv.raised.size,
+			slice = uv.raised.slice,
 
 			anchor_size = vec(0, 1),
-			offset_pos = vec(0, -2),
-			offset_size = vec(10, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend + vec(10, 0),
 
 			depth = 1,
 		},
@@ -278,8 +282,8 @@ local slider = {
 			visible = false,
 
 			anchor_size = vec(0, 1),
-			offset_pos = vec(0, -2),
-			offset_size = vec(10, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend + vec(10, 0),
 
 			depth = 0.5,
 		},
@@ -311,32 +315,32 @@ local toggle = {
 			texture = texture,
 
 			-- Unpressed button UV
-			uv_pos = sprites.raised.pos,
-			uv_size = sprites.raised.size,
-			slice = sprites.raised.slice,
+			uv_pos = uv.raised.pos,
+			uv_size = uv.raised.size,
+			slice = uv.raised.slice,
 
 			-- Background shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 		label = {
 			-- Default label text
 			text = "Toggle",
 
 			-- Label is 6 pixels thinner than element
-			offset_width = -6,
+			offset_width = -label_gutter * 2,
 
 			-- Center label and raise to match background extension
 			align = vec(0.5, 0.5),
-			offset_pos = vec(0, -2),
+			offset_pos = -button_extend,
 		},
 		outline = {
 			-- Hide outline when not hovered
 			visible = false,
 
 			-- Outline shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 	},
 
@@ -354,9 +358,9 @@ local toggle = {
 	press = {
 		background = {
 			-- Pressed button UV
-			uv_pos = sprites.normal.pos,
-			uv_size = sprites.normal.size,
-			slice = sprites.normal.slice,
+			uv_pos = uv.normal.pos,
+			uv_size = uv.normal.size,
+			slice = uv.normal.slice,
 
 			-- Background shifted vertically, contract bottom by same amount
 			offset_pos = vec(0, 0),
@@ -375,22 +379,22 @@ local toggle = {
 	release = {
 		background = {
 			-- Unpressed button UV
-			uv_pos = sprites.raised.pos,
-			uv_size = sprites.raised.size,
-			slice = sprites.raised.slice,
+			uv_pos = uv.raised.pos,
+			uv_size = uv.raised.size,
+			slice = uv.raised.slice,
 
 			-- Background shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 		label = {
 			-- Center label and raise to match background extension
-			offset_pos = vec(0, -2),
+			offset_pos = -button_extend,
 		},
 		outline = {
 			-- Outline shifted vertically, extend bottom by same amount
-			offset_pos = vec(0, -2),
-			offset_size = vec(0, 2),
+			offset_pos = -button_extend,
+			offset_size = button_extend,
 		},
 	},
 }
@@ -414,9 +418,9 @@ local tooltip = {
 			texture = texture,
 
 			-- Unpressed button UV
-			uv_pos = sprites.raised.pos,
-			uv_size = sprites.raised.size,
-			slice = sprites.raised.slice,
+			uv_pos = uv.raised.pos,
+			uv_size = uv.raised.size,
+			slice = uv.raised.slice,
 		},
 	},
 }
@@ -438,9 +442,9 @@ local window = {
 			texture = texture,
 
 			-- Container UV
-			uv_pos = sprites.invert.pos,
-			uv_size = sprites.invert.size,
-			slice = sprites.invert.slice,
+			uv_pos = uv.invert.pos,
+			uv_size = uv.invert.size,
+			slice = uv.invert.slice,
 
 			-- Align to bottom and size to container height, overlapping toolbar by 1 pixel
 			offset_pos = vec(0, 12),
@@ -454,9 +458,9 @@ local window = {
 			texture = texture,
 
 			-- Normal UV
-			uv_pos = sprites.normal.pos,
-			uv_size = sprites.normal.size,
-			slice = sprites.normal.slice,
+			uv_pos = uv.normal.pos,
+			uv_size = uv.normal.size,
+			slice = uv.normal.slice,
 
 			-- Align to top and size to 13 pixels
 			anchor_size = vec(1, 0),
