@@ -157,12 +157,20 @@ local hovered_screen
 ---@type {depth: number, screen: FOXStencil.Screen}[]
 local hovering = {}
 
-function events.post_render()
-	table.sort(hovering, function(a, b)
-		return a.depth < b.depth
-	end)
-	if not hovering[1] then return end
-	hovered_screen = hovering[1].screen
+function events.post_render(_, ctx)
+	if ctx == "PAPERDOLL" then return end
+
+	local min = math.huge
+	local screen
+	for i = 1, #hovering do
+		if hovering[i].depth < min then
+			min = hovering[i].depth
+			screen = hovering[i].screen
+		end
+	end
+
+	if not screen then return end
+	hovered_screen = screen
 	hovering = {}
 end
 
