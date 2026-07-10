@@ -5,7 +5,8 @@
 ---@diagnostic disable: invisible
 
 ---@class FOXStencil.Core.Interact
-local lib = {}
+local hover = {}
+local press = {}
 
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Interact ♡˚
@@ -191,7 +192,7 @@ local function screen_hover(screen, press_consumer, elem_pos, root_pos, wrld_pos
 	end
 
 	if not elem then return false end
-	
+
 	hovering[#hovering + 1] = { depth = depth, screen = screen }
 	if hovered_screen ~= screen then return false end
 
@@ -200,17 +201,16 @@ local function screen_hover(screen, press_consumer, elem_pos, root_pos, wrld_pos
 end
 
 ---@param root FOXStencil.Screen
----@param was_pressed boolean
-function lib.reset(root, was_pressed)
+function hover.reset(root)
 	call_hover(nil, root, true)
-	call_press(nil, root, was_pressed)
+	call_press(nil, root, press.was_pressed)
 end
 
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Press ♡˚
 --==============================================================================================================================
 
-local was_pressed = false
+press.was_pressed = false
 
 ---@type boolean
 local mouse_press
@@ -221,9 +221,9 @@ end
 ---Returns if the host is pressing the screen
 ---@return boolean state
 ---@return boolean change
-local function get_gui_press()
-	if was_pressed == mouse_press then return mouse_press, false end
-	was_pressed = mouse_press
+function press.gui_press()
+	if press.was_pressed == mouse_press then return mouse_press, false end
+	press.was_pressed = mouse_press
 
 	return mouse_press, true
 end
@@ -231,13 +231,13 @@ end
 ---Returns if the viewer started swinging or using an item
 ---@return boolean state
 ---@return boolean change
-local function get_world_press()
+function press.world_press()
 	local viewer = client.getViewer()
 
 	local swing_time = viewer:getSwingTime()
 	local is_pressed = 0 < swing_time and swing_time < 3 or viewer:isUsingItem()
-	if was_pressed == is_pressed then return is_pressed, false end
-	was_pressed = is_pressed
+	if press.was_pressed == is_pressed then return is_pressed, false end
+	press.was_pressed = is_pressed
 
 	return is_pressed, true
 end
@@ -274,15 +274,14 @@ end
 ---Recursively gets the element hovered over
 ---@param screen FOXStencil.Screen
 ---@return boolean is_hovered
----@return boolean was_pressed
-function lib.gui_hover(screen)
+function hover.gui_hover(screen)
 	local mouse_visible = host:isChatOpen() or host:isCursorUnlocked()
-	if not mouse_visible then return false, was_pressed end
+	if not mouse_visible then return false end
 
 	local root_pos = client.getMousePos() / client.getGuiScale()
 
-	local is_hovered = screen_hover(screen, get_gui_press, root_pos, root_pos, client.getCameraPos(), 0)
-	return is_hovered, was_pressed
+	local is_hovered = screen_hover(screen, press.gui_press, root_pos, root_pos, client.getCameraPos(), 0)
+	return is_hovered
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -292,17 +291,16 @@ end
 ---Recursively gets the element hovered over
 ---@param screen FOXStencil.Screen
 ---@return boolean is_hovered
----@return boolean was_pressed
-function lib.world_hover(screen)
+function hover.world_hover(screen)
 	local mat = screen.part:partToWorldMatrix()
 
 	local hit, depth = intersect_plane(client.getCameraPos(), client.getCameraDir(), mat:apply(), mat:applyDir(0, 0, -1))
-	if not hit then return false, was_pressed end
+	if not hit then return false end
 
 	local root_pos = mat:inverted():apply(hit).xy * vec(-1, -1)
 
-	local is_hovered = screen_hover(screen, get_world_press, root_pos, root_pos, hit, depth --[[@as number]])
-	return is_hovered, was_pressed
+	local is_hovered = screen_hover(screen, press.world_press, root_pos, root_pos, hit, depth --[[@as number]])
+	return is_hovered
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -320,8 +318,7 @@ local face = {
 ---@param screen FOXStencil.Screen
 ---@param block BlockState
 ---@return boolean is_hovered
----@return boolean was_pressed
-function lib.skull_hover(screen, block)
+function hover.skull_hover(screen, block)
 	local pos = block.id:find("wall") and vec(0, -0.25, 0.25) or vec(0, -0.5, 0)
 	local rot = tonumber(block.properties.rotation) or face[block.properties.facing]
 
@@ -332,16 +329,16 @@ function lib.skull_hover(screen, block)
 		* screen.part:getParent():getPositionMatrixRaw()
 
 	local hit, depth = intersect_plane(client.getCameraPos(), client.getCameraDir(), mat:apply(), mat:applyDir(0, 0, -1))
-	if not hit then return false, was_pressed end
+	if not hit then return false end
 
 	local root_pos = -mat:inverted():apply(hit).xy
 
-	local is_hovered = screen_hover(screen, get_world_press, root_pos, root_pos, hit, depth --[[@as number]])
-	return is_hovered, was_pressed
+	local is_hovered = screen_hover(screen, press.world_press, root_pos, root_pos, hit, depth --[[@as number]])
+	return is_hovered
 end
 
-return lib
-
 --#ENDREGION
 
 --#ENDREGION
+
+return hover

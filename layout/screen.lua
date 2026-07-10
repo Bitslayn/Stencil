@@ -78,10 +78,10 @@ function class:render(mode, block)
 	end
 
 	---@diagnostic disable-next-line: param-type-mismatch
-	local is_hovered, was_pressed = hover(self, block)
+	local is_hovered = hover(self, block)
 
 	if not is_hovered then
-		interact.reset(self, was_pressed)
+		interact.reset(self)
 	end
 
 	-- Draw screen elements
