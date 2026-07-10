@@ -15,7 +15,7 @@ local lib = {}
 ---@param root FOXStencil.Screen
 ---@param state boolean
 ---@return boolean
-local function do_press(elem, root, state)
+local function call_press(elem, root, state)
 	-- Release last element
 
 	if root.pressed and not state then
@@ -39,7 +39,7 @@ end
 ---@param root FOXStencil.Screen
 ---@param state boolean
 ---@return boolean
-local function do_hover(elem, root, state)
+local function call_hover(elem, root, state)
 	local hovered = root.hovered
 
 	-- Enter current element
@@ -70,7 +70,7 @@ end
 ---@param root_pos Vector2
 ---@param wrld_pos Vector3
 ---@return boolean
-local function get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
+local function get_hovered_elem(list, elem, elem_pos, root_pos, wrld_pos)
 	local pos = elem.state.pos
 	local size = elem.state.size
 
@@ -85,12 +85,19 @@ local function get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
 
 
 	for i = #elem.chld, 1, -1 do
-		if get_hovered(list, elem.chld[i], elem_pos, root_pos, wrld_pos) then break end
+		if get_hovered_elem(list, elem.chld[i], elem_pos, root_pos, wrld_pos) then break end
 	end
 
 	return true
 end
 
+---Recursively gets the element hovered over
+---@param elem FOXStencil.Element
+---@param press_state boolean
+---@param press_changed boolean
+---@param elem_pos Vector2
+---@param root_pos Vector2
+---@param wrld_pos Vector3
 local function elem_hover(elem, press_state, press_changed, elem_pos, root_pos, wrld_pos)
 	local root = elem.root
 
@@ -111,44 +118,84 @@ local function elem_hover(elem, press_state, press_changed, elem_pos, root_pos, 
 		list = { root.pressed }
 		root.pressed.events.drag(root.pressed, move_pos)
 	else
-		get_hovered(list, elem, elem_pos, root_pos, wrld_pos)
+		get_hovered_elem(list, elem, elem_pos, root_pos, wrld_pos)
 	end
 
 	for i = 1, #list do
-		if do_hover(list[i], root, i == #list) then break end
+		if call_hover(list[i], root, i == #list) then break end
 	end
 
 	if press_changed then
 		for i = 1, #list do
-			if do_press(list[i], root, press_state) then break end
+			if call_press(list[i], root, press_state) then break end
 		end
 	end
 
 	return #list > 0
 end
 
----Recursively gets the element hovered over
+---Finds the hovered window and calls elem_hover
 ---@param screen FOXStencil.Screen
----@param press_state boolean
----@param press_changed boolean
 ---@param elem_pos Vector2
----@param root_pos Vector2
----@param wrld_pos Vector3
-function lib.relative_hover(screen, press_state, press_changed, elem_pos, root_pos, wrld_pos)
+---@return FOXStencil.Element? elem
+local function get_hovered_window(screen, elem_pos)
 	for i = #screen.chld, 1, -1 do
 		local elem = screen.chld[i]
 
-		if root_pos <= elem_pos and elem_pos <= root_pos and elem.props.visible then
-			return elem_hover(elem, press_state, press_changed, elem_pos, root_pos, wrld_pos)
+		local pos = elem.state.pos
+		local size = elem.state.size
+
+		if pos <= elem_pos and elem_pos <= pos + size and elem.props.visible then
+			return elem
 		end
 	end
+end
+
+---@type FOXStencil.Screen
+local hovered_screen
+
+---@type {depth: number, screen: FOXStencil.Screen}[]
+local hovering = {}
+
+function events.post_render()
+	table.sort(hovering, function(a, b)
+		return a.depth < b.depth
+	end)
+	if not hovering[1] then return end
+	hovered_screen = hovering[1].screen
+	hovering = {}
+end
+
+---@param screen FOXStencil.Screen
+---@param press_consumer function
+---@param elem_pos Vector2
+---@param root_pos Vector2
+---@param wrld_pos Vector3
+---@param depth number
+---@return boolean
+local function screen_hover(screen, press_consumer, elem_pos, root_pos, wrld_pos, depth)
+	local focused = screen.pressed and screen.pressed.events.drag ~= nil
+
+	local elem = get_hovered_window(screen, elem_pos)
+	if focused then
+		depth = 0
+		elem = screen.pressed
+	end
+
+	if not elem then return false end
+	
+	hovering[#hovering + 1] = { depth = depth, screen = screen }
+	if hovered_screen ~= screen then return false end
+
+	local press_state, press_changed = press_consumer()
+	return elem_hover(elem, press_state, press_changed, elem_pos, root_pos, wrld_pos)
 end
 
 ---@param root FOXStencil.Screen
 ---@param was_pressed boolean
 function lib.reset(root, was_pressed)
-	do_hover(nil, root, true)
-	do_press(nil, root, was_pressed)
+	call_hover(nil, root, true)
+	call_press(nil, root, was_pressed)
 end
 
 --#ENDREGION --=================================================================================================================
@@ -166,7 +213,7 @@ end
 ---Returns if the host is pressing the screen
 ---@return boolean state
 ---@return boolean change
-local function get_screen_press()
+local function get_gui_press()
 	if was_pressed == mouse_press then return mouse_press, false end
 	was_pressed = mouse_press
 
@@ -190,8 +237,6 @@ end
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Hover ♡˚
 --==============================================================================================================================
-
--- TODO Sort hovers
 
 -- Written by 4P5 ★
 
@@ -220,15 +265,16 @@ end
 
 ---Recursively gets the element hovered over
 ---@param screen FOXStencil.Screen
----@return boolean hit
+---@return boolean is_hovered
 ---@return boolean was_pressed
-function lib.screen_hover(screen)
+function lib.gui_hover(screen)
 	local mouse_visible = host:isChatOpen() or host:isCursorUnlocked()
 	if not mouse_visible then return false, was_pressed end
 
 	local root_pos = client.getMousePos() / client.getGuiScale()
-	local press_state, press_changed = get_screen_press()
-	return lib.relative_hover(screen, press_state, press_changed, root_pos, root_pos, client.getCameraPos()), was_pressed
+
+	local is_hovered = screen_hover(screen, get_gui_press, root_pos, root_pos, client.getCameraPos(), 0)
+	return is_hovered, was_pressed
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -237,7 +283,7 @@ end
 
 ---Recursively gets the element hovered over
 ---@param screen FOXStencil.Screen
----@return boolean hit
+---@return boolean is_hovered
 ---@return boolean was_pressed
 function lib.world_hover(screen)
 	local mat = screen.part:partToWorldMatrix()
@@ -246,8 +292,9 @@ function lib.world_hover(screen)
 	if not hit then return false, was_pressed end
 
 	local root_pos = mat:inverted():apply(hit).xy * vec(-1, -1)
-	local press_state, press_changed = get_world_press()
-	return lib.relative_hover(screen, press_state, press_changed, root_pos, root_pos, hit), was_pressed
+
+	local is_hovered = screen_hover(screen, get_world_press, root_pos, root_pos, hit, depth --[[@as number]])
+	return is_hovered, was_pressed
 end
 
 --#ENDREGION -----------------------------------------------------------------------------------
@@ -264,7 +311,7 @@ local face = {
 ---Recursively gets the element hovered over
 ---@param screen FOXStencil.Screen
 ---@param block BlockState
----@return boolean hit
+---@return boolean is_hovered
 ---@return boolean was_pressed
 function lib.skull_hover(screen, block)
 	local pos = block.id:find("wall") and vec(0, -0.25, 0.25) or vec(0, -0.5, 0)
@@ -280,8 +327,9 @@ function lib.skull_hover(screen, block)
 	if not hit then return false, was_pressed end
 
 	local root_pos = -mat:inverted():apply(hit).xy
-	local press_state, press_changed = get_world_press()
-	return lib.relative_hover(screen, press_state, press_changed, root_pos, root_pos, hit), was_pressed
+
+	local is_hovered = screen_hover(screen, get_world_press, root_pos, root_pos, hit, depth --[[@as number]])
+	return is_hovered, was_pressed
 end
 
 return lib

@@ -70,16 +70,17 @@ function class:render(mode, block)
 
 	local hover
 	if mode == "GUI" then
-		hover = interact.screen_hover
+		hover = interact.gui_hover
 	elseif mode == "WORLD" then
 		hover = interact.world_hover
 	elseif mode == "SKULL" then
 		hover = interact.skull_hover
 	end
 
-	local hovered, was_pressed = hover(self, block)
+	---@diagnostic disable-next-line: param-type-mismatch
+	local is_hovered, was_pressed = hover(self, block)
 
-	if not hovered then
+	if not is_hovered then
 		interact.reset(self, was_pressed)
 	end
 
