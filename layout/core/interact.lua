@@ -170,7 +170,13 @@ function events.post_render(_, ctx)
 		end
 	end
 
-	if not screen then return end
+	if not screen then
+		local press_state, press_changed = press.world_press()
+		if press_changed then
+			hover.reset(hovered_screen)
+		end
+		return
+	end
 	hovered_screen = screen
 	hovering = {}
 end
