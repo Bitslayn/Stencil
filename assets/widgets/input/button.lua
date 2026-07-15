@@ -67,7 +67,9 @@ end
 ---@param styles FOXStencil.Button.Styles
 ---@return self
 function obj:setStyles(styles)
-	self.elem:setStyles(styles)
+	if select(2, self.elem:setStyles(styles)) then
+		self.elem:queue()
+	end
 
 	return self
 end
