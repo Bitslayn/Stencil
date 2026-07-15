@@ -35,6 +35,9 @@ local default_styles = {
 	shadow = false,
 
 	---@type boolean
+	wrap = true,
+
+	---@type boolean
 	visible = true,
 }
 
@@ -63,7 +66,7 @@ function obj:draw()
 	if visible then
 		self.task
 			:text(styles.text)
-			:width(state.width / styles.size)
+			:width(styles.wrap and state.width / styles.size or nil)
 
 			:pos(-state.pos:augmented(styles.depth))
 			:scale(styles.size)
