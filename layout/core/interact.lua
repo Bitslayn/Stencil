@@ -6,7 +6,7 @@
 
 ---@class FOXStencil.Core.Interact
 local hover = {}
-local press = {}
+local press = { was_pressed = false }
 
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Interact ♡˚
@@ -74,6 +74,8 @@ end
 local function get_hovered_elem(list, elem, elem_pos, root_pos, wrld_pos)
 	local pos = elem.state.pos
 	local size = elem.state.size
+
+	-- Store pointer
 
 	elem.pointer.elem_pos = elem_pos - pos
 	elem.pointer.root_pos = root_pos:copy()
@@ -173,25 +175,25 @@ function events.post_render(_, ctx)
 	if not screen then
 		if not hovered_screen then return end
 
-		local press_state, press_changed = press.world_press()
+		local press_state, press_changed = hovered_screen.press_consumer()
 		if press_changed then
 			hover.reset(hovered_screen)
 		end
 
 		return
 	end
+
 	hovered_screen = screen
 	hovering = {}
 end
 
 ---@param screen FOXStencil.Screen
----@param press_consumer function
 ---@param elem_pos Vector2
 ---@param root_pos Vector2
 ---@param wrld_pos Vector3
 ---@param depth number
 ---@return boolean
-local function screen_hover(screen, press_consumer, elem_pos, root_pos, wrld_pos, depth)
+local function screen_hover(screen, elem_pos, root_pos, wrld_pos, depth)
 	local focused = screen.pressed and screen.pressed.events.drag ~= nil
 
 	local elem = get_hovered_window(screen, elem_pos)
@@ -205,7 +207,7 @@ local function screen_hover(screen, press_consumer, elem_pos, root_pos, wrld_pos
 	hovering[#hovering + 1] = { depth = depth, screen = screen }
 	if hovered_screen ~= screen then return false end
 
-	local press_state, press_changed = press_consumer()
+	local press_state, press_changed = screen.press_consumer()
 	return elem_hover(elem, press_state, press_changed, elem_pos, root_pos, wrld_pos)
 end
 
@@ -218,8 +220,6 @@ end
 --#ENDREGION --=================================================================================================================
 --#REGION ˚♡ Press ♡˚
 --==============================================================================================================================
-
-press.was_pressed = false
 
 ---@type boolean
 local mouse_press
@@ -289,7 +289,8 @@ function hover.gui_hover(screen)
 
 	local root_pos = client.getMousePos() / client.getGuiScale()
 
-	local is_hovered = screen_hover(screen, press.gui_press, root_pos, root_pos, client.getCameraPos(), 0)
+	screen.press_consumer = press.gui_press
+	local is_hovered = screen_hover(screen, root_pos, root_pos, client.getCameraPos(), 0)
 	return is_hovered
 end
 
@@ -308,7 +309,8 @@ function hover.world_hover(screen)
 
 	local root_pos = mat:inverted():apply(hit).xy * vec(-1, -1)
 
-	local is_hovered = screen_hover(screen, press.world_press, root_pos, root_pos, hit, depth --[[@as number]])
+	screen.press_consumer = press.world_press
+	local is_hovered = screen_hover(screen, root_pos, root_pos, hit, depth --[[@as number]])
 	return is_hovered
 end
 
@@ -342,7 +344,8 @@ function hover.skull_hover(screen, block)
 
 	local root_pos = -mat:inverted():apply(hit).xy
 
-	local is_hovered = screen_hover(screen, press.world_press, root_pos, root_pos, hit, depth --[[@as number]])
+	screen.press_consumer = press.world_press
+	local is_hovered = screen_hover(screen, root_pos, root_pos, hit, depth --[[@as number]])
 	return is_hovered
 end
 

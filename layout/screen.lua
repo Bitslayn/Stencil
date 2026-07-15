@@ -48,6 +48,8 @@ local function new(part)
 
 		---@type FOXStencil.Pointer
 		pointer = setmetatable({}, { __index = default_pointer }),
+		---@type fun(): press_state: boolean, press_changed: boolean
+		press_consumer = nil
 	}
 	---@package
 	---@type FOXStencil.Screen
@@ -78,9 +80,7 @@ function class:render(mode, block)
 	end
 
 	---@diagnostic disable-next-line: param-type-mismatch
-	local is_hovered = hover(self, block)
-
-	if not is_hovered then
+	if not hover(self, block) then
 		interact.reset(self)
 	end
 
