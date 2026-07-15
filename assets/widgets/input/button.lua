@@ -45,18 +45,10 @@ end
 
 -- Text wrapping
 
----@type FOXStencil.Element.Events.Draw
-local function draw(elem)
-	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
-	local size = label.styles.size
-	elem:setProps({ size_min = vec(client.getTextDimensions(string.gsub(label.styles.text, "%s", "\n"), 0).x * size + 6, 0) })
-end
-
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
 	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
-	local size = label.styles.size
-	return client.getTextDimensions(label.styles.text, (width - 6) / size) * size + vec(6, 6)
+	return client.getTextDimensions(label.styles.text, (width - 6) / label.styles.size) * label.styles.size + vec(6, 6)
 end
 
 --#ENDREGION --=================================================================================================================
@@ -75,9 +67,7 @@ end
 ---@param styles FOXStencil.Button.Styles
 ---@return self
 function obj:setStyles(styles)
-	if select(2, self.elem:setStyles(styles)) then
-		draw(self.elem)
-	end
+	self.elem:setStyles(styles)
 
 	return self
 end
@@ -100,7 +90,7 @@ end
 ---@param parent FOXStencil.Element|FOXStencil.Screen
 ---@param assets FOXStencil.Assets
 return function(parent, name, assets)
-	local elem = parent:newElement(name):setProps({ size = vec(-1, -1) })
+	local elem = parent:newElement(name)
 
 	---@alias FOXStencil.Button.Press fun(widg: FOXStencil.Button)
 	---@alias FOXStencil.Button.Release fun(widg: FOXStencil.Button)
@@ -134,8 +124,7 @@ return function(parent, name, assets)
 	elem:newLayer("outline", assets.layers.border)
 	elem:setStyles(widg.theme.normal)
 
-	elem.events = { press = press, hover = hover, draw = draw, wrap = wrap }
-	draw(elem)
+	elem.events = { press = press, hover = hover, wrap = wrap }
 
 	return setmetatable(widg, widg)
 end

@@ -21,13 +21,6 @@ obj.__index = obj
 
 -- Text wrapping
 
----@type FOXStencil.Element.Events.Draw
-local function draw(elem)
-	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
-	local size = label.styles.size
-	elem:setProps({ size_min = vec(client.getTextDimensions(string.gsub(label.styles.text, "%s", "\n"), 0).x * size, 0) })
-end
-
 ---@type FOXStencil.Element.Events.Wrap
 local function wrap(elem, width)
 	local label = elem:getLayer("label") --[[@as FOXStencil.Text]]
@@ -42,9 +35,7 @@ end
 ---@param styles FOXStencil.Label.Styles
 ---@return self
 function obj:setStyles(styles)
-	if select(2, self.elem:setStyles(styles)) then
-		draw(self.elem)
-	end
+	self.elem:setStyles(styles)
 
 	return self
 end
@@ -64,7 +55,7 @@ end
 ---@param parent FOXStencil.Element|FOXStencil.Screen
 ---@param assets FOXStencil.Assets
 return function(parent, name, assets)
-	local elem = parent:newElement(name):setProps({ size = vec(-1, -1) })
+	local elem = parent:newElement(name)
 
 	---@class FOXStencil.Label: FOXStencil.Element
 	local widg = {
@@ -86,8 +77,7 @@ return function(parent, name, assets)
 	elem:newLayer("label", assets.layers.text)
 	elem:setStyles(widg.theme.normal)
 
-	elem.events = { draw = draw, wrap = wrap }
-	draw(elem)
+	elem.events = { wrap = wrap }
 
 	return setmetatable(widg, widg)
 end

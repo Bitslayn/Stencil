@@ -49,15 +49,12 @@ function lib.size(elem, axis)
 
 	-- Wrap element
 
-	if state.size_flex[axis] and elem.events.wrap then
-		local wrap = elem.events.wrap(elem, state.raw_size[1])
-		local x, y = (wrap or vectors.vec2()):unpack()
+	if elem.events.wrap then
+		local dims = elem.events.wrap(elem, state.raw_size[1]) or vectors.vec2()
 
-		if axis == 1 then
-			state.raw_size_max[1] = math.min(state.raw_size_max[1], x)
-		else
-			state.raw_size[2] = y or 0
-			state.raw_size_max[2] = math.min(state.raw_size_max[2], y)
+		if dims[axis] then
+			state.raw_size[axis] = math.max(state.raw_size[axis], dims[axis])
+			state.raw_size_max[axis] = math.min(state.raw_size_max[axis], dims[axis])
 		end
 	end
 
