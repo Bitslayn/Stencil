@@ -181,7 +181,9 @@ function class:setProps(props)
 	return self
 end
 
+---@generic self
 ---@generic FOXStencil.Styles
+---@param self self
 ---@param styles FOXStencil.Styles
 ---@return self
 ---@return boolean changed
