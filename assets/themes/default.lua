@@ -175,17 +175,14 @@ local field = {
 		},
 		hint = {
 			-- Default label text
-			text = "§8Textbox",
-
-			-- Label is 6 pixels thinner than element
-			offset_width = -label_gutter * 2,
+			text = "",
+			wrap = false,
 
 			-- Center label
 			offset_pos = label_margin,
 		},
 		text = {
-			-- Label is 6 pixels thinner than element
-			offset_width = -label_gutter * 2,
+			wrap = false,
 
 			-- Center label
 			offset_pos = label_margin,

@@ -162,13 +162,22 @@ function obj:setFocus(state)
 	return self
 end
 
+---@param str string
+---@param width integer
+local function clip(str, width)
+	return str:gsub("[\x00-\x7F\xC2-\xF4][\x80-\xBF]*", function(char)
+		width = width - client.getTextWidth(char)
+		return width > 0 and char or ""
+	end)
+end
+
 ---@param str string?
 ---@return self
 function obj:setText(str)
 	self.text = str or ""
 
 	local text = self:getLayer("text") --[[@as FOXStencil.Text]]
-	text:setStyles({ text = self.text })
+	text:setStyles({ text = clip(self.text, self.state.size.x) })
 	local hint = self:getLayer("hint") --[[@as FOXStencil.Text]]
 	hint:setStyles({ visible = self.text == "" })
 
