@@ -12,6 +12,15 @@ local unpack2 = vec2().unpack
 local tostring = tostring
 local concat = table.concat
 
+---@param str string
+---@param styles {color: string?, obfuscated: boolean?, bold: boolean?, strikethrough: boolean?, underlined: boolean?, italic: boolean?}
+local function apply_styles(str, styles)
+	local ok, json = pcall(parseJson, str)
+	styles.text = ""
+	styles.extra = { ok and json or str }
+	return toJson(styles)
+end
+
 ---Checks if an emoji exists on <0.1.7
 ---@param key string
 ---@return boolean
