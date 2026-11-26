@@ -12,11 +12,23 @@ local unpack2 = vec2().unpack
 local tostring = tostring
 local concat = table.concat
 
----Fixes emojis on <0.1.6
----@param str string|number
+---Checks if an emoji exists on <0.1.7
+---@param key string
+---@return boolean
+local function check_emoji(key)
+	local prev = nameplate.CHAT:getText()
+	local ok = pcall(nameplate.CHAT.setText, nameplate.CHAT, key .. string.rep(".", 63))
+	nameplate.CHAT:setText(prev)
+	return ok
+end
+
+---Fixes emojis on <0.1.7
+---@param str string
 ---@return string
 local function emoji_fix(str)
-	str = string.gsub(str, ":[^:]+:", "  ")
+	str = string.gsub(str, ":[^:]+:", function(key)
+		return check_emoji(key) and "...."
+	end)
 	return str
 end
 
