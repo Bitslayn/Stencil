@@ -27,7 +27,7 @@ return function(class, super, elem)
 			label_margin = vec(3, 2, 2, 3),
 			label_align = vec(0, 0.5),
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_pos = vec(2, 6),
 			tex_size = vec(3, 3),
 			tex_slice = vec(1, 1, 1, 1),

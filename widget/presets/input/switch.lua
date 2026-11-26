@@ -31,7 +31,7 @@ return function(class, super, elem)
 			size = vec(10, 0),
 			size_flex = { false, true },
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_pos = vec(0, 0),
 			tex_size = vec(5, 7),
 			tex_slice = vec(2, 2, 4, 2),
@@ -87,7 +87,7 @@ return function(class, super, elem)
 		widg:setProps({
 			size = vec(20, 10),
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_pos = vec(4, 4),
 			tex_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),

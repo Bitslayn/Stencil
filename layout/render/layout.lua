@@ -1,13 +1,6 @@
 ---@class FOXStencil.Render.Layout
 local lib = {}
 
---[[ Final TODO
-Add locked element positioning mode
-Migrate to layer system
-Finish all widgets
-Comment and document everything
-]]
-
 ---@param props FOXStencil.Element.Props
 ---@return integer, integer
 local function rotate(props)

@@ -26,7 +26,7 @@ return function(class, super, elem)
 		widg:setProps({
 			size = vec(10, 10),
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_pos = vec(4, 4),
 			tex_size = vec(5, 5),
 			tex_slice = vec(2, 2, 2, 2),

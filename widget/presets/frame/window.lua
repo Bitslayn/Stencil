@@ -35,7 +35,7 @@ return function(class, super, elem)
 			label = "Window",
 			label_margin = vec(3, 2, 2, 3),
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_color = vec(0.3, 0.3, 0.3, 1),
 			tex_pos = vec(4, 0),
 			tex_size = vec(5, 5),
@@ -73,7 +73,7 @@ return function(class, super, elem)
 
 			size_flex = { true, true },
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_color = vec(0.3, 0.3, 0.3, 1),
 			tex_pos = vec(4, 4),
 			tex_size = vec(5, 5),

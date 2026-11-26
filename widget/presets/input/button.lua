@@ -24,7 +24,7 @@ return function(class, super, elem)
 			label = "Button",
 			label_margin = vec(3, 2, 2, 3),
 
-			tex = textures["assets.textures.ui"],
+			tex = textures["stencil.ui"],
 			tex_pos = vec(0, 0),
 			tex_size = vec(5, 7),
 			tex_slice = vec(2, 2, 4, 2),

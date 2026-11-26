@@ -1,6 +1,8 @@
 ---@class FOXStencil
 local api = {}
 
+require("./theme")
+
 textures:newTexture("FOXStencil_blank", 1, 1):pixel(0, 0, vec(1, 1, 1))
 api.newLayout = require("./layout/class").new
 
