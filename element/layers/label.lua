@@ -14,6 +14,8 @@ local concat = table.concat
 
 ---@param str string
 ---@param styles {color: string?, obfuscated: boolean?, bold: boolean?, strikethrough: boolean?, underlined: boolean?, italic: boolean?}
+---@return string
+---@nodiscard
 local function apply_styles(str, styles)
 	local ok, json = pcall(parseJson, str)
 	styles.text = ""
@@ -24,6 +26,7 @@ end
 ---Checks if an emoji exists on <0.1.7
 ---@param key string
 ---@return boolean
+---@nodiscard
 local function check_emoji(key)
 	local prev = nameplate.CHAT:getText()
 	local ok = pcall(nameplate.CHAT.setText, nameplate.CHAT, key .. string.rep(".", 63))
@@ -34,6 +37,7 @@ end
 ---Fixes emojis on <0.1.7
 ---@param str string
 ---@return string
+---@nodiscard
 local function emoji_fix(str)
 	str = string.gsub(str, ":[^:]+:", function(key)
 		return check_emoji(key) and "...."
